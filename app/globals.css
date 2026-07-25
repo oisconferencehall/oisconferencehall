@@ -262,99 +262,20 @@ body {
   50% { border-color: rgba(255,255,255,1); box-shadow: 0 0 20px rgba(255,255,255,0.6); }
 }
 
-/* ===== PAGE & COMPONENT APPEARANCE ANIMATIONS ===== */
+/* ===== ALWAYS VISIBLE REVEAL RULES ===== */
 .page-wrapper {
-  animation: pageFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: pageFadeIn 0.25s ease forwards;
 }
 
 @keyframes pageFadeIn {
-  0% { opacity: 0; }
+  0% { opacity: 0.95; }
   100% { opacity: 1; }
 }
 
-/* Fail-safe Reveal Rules: Elements are visible by default and smoothly animate when JS is active */
-html.js-ready .reveal,
-html.js-ready .reveal-up {
-  opacity: 0;
-  transform: translate3d(0, 18px, 0);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-html.js-ready .reveal.visible,
-html.js-ready .reveal-up.visible,
-.reveal, .reveal-up {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-html.js-ready .reveal-fade {
-  opacity: 0;
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity;
-}
-html.js-ready .reveal-fade.visible,
-.reveal-fade {
-  opacity: 1;
-}
-
-html.js-ready .reveal-left {
-  opacity: 0;
-  transform: translate3d(-18px, 0, 0);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-html.js-ready .reveal-left.visible,
-.reveal-left {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-html.js-ready .reveal-right {
-  opacity: 0;
-  transform: translate3d(18px, 0, 0);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-html.js-ready .reveal-right.visible,
-.reveal-right {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-html.js-ready .reveal-scale {
-  opacity: 0;
-  transform: scale(0.97) translate3d(0, 10px, 0);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-html.js-ready .reveal-scale.visible,
-.reveal-scale {
-  opacity: 1;
-  transform: scale(1) translate3d(0, 0, 0);
-}
-
-html.js-ready .reveal-book-left {
-  opacity: 0;
-  transform: translate3d(0, 16px, 0) scale(0.98);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-html.js-ready .reveal-book-left.visible,
-.reveal-book-left {
-  opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
-}
-
-html.js-ready .reveal-book-right {
-  opacity: 0;
-  transform: translate3d(0, 16px, 0) scale(0.98);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-html.js-ready .reveal-book-right.visible,
-.reveal-book-right {
-  opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+.reveal, .reveal-up, .reveal-fade, .reveal-left, .reveal-right, .reveal-scale, .reveal-book-left, .reveal-book-right {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
 }
 
 /* Stagger delays */
