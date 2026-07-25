@@ -16,20 +16,20 @@ export default function Partners() {
         </h3>
       </div>
       
-      <div style={{
-        display: 'flex', width: '200%',
-        animation: 'marquee 30s linear infinite',
+      <div className="partners-marquee-track" style={{
+        display: 'flex', width: 'max-content',
+        willChange: 'transform',
       }}>
         {/* Seamless loop array */}
-        {[...displayPartners, ...displayPartners, ...displayPartners].map((partner, i) => (
+        {[...displayPartners, ...displayPartners, ...displayPartners, ...displayPartners].map((partner, i) => (
           <div key={i} style={{
             flex: '0 0 auto',
-            width: '200px',
+            width: '180px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: 0.9,
             transition: 'all 0.3s ease',
             cursor: 'pointer',
-            padding: '0 20px'
+            padding: '0 16px'
           }}
             onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.transform = 'scale(1.08)'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = 0.9; e.currentTarget.style.transform = 'scale(1)'; }}
@@ -38,10 +38,10 @@ export default function Partners() {
               <img 
                 src={partner.logo} 
                 alt={partner.name || 'Partner Logo'} 
-                style={{ maxHeight: '48px', maxWidth: '160px', objectFit: 'contain' }} 
+                style={{ maxHeight: '44px', maxWidth: '140px', objectFit: 'contain' }} 
               />
             ) : (
-              <span style={{ fontSize: '24px', fontWeight: 900, color: 'var(--text-primary)', fontFamily: "'Inter', sans-serif" }}>
+              <span style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-primary)', fontFamily: "'Inter', sans-serif" }}>
                 {partner.name}
               </span>
             )}
@@ -50,9 +50,17 @@ export default function Partners() {
       </div>
 
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-33.33%); }
+        .partners-marquee-track {
+          animation: partnersMarquee 14s linear infinite;
+        }
+        @media (max-width: 768px) {
+          .partners-marquee-track {
+            animation-duration: 9s !important;
+          }
+        }
+        @keyframes partnersMarquee {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
       `}</style>
     </section>
