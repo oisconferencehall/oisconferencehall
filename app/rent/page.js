@@ -228,7 +228,7 @@ export default function RentPage() {
                         const y = (e.clientY - rect.top) / rect.height - 0.5;
                         e.currentTarget.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateZ(8px)`;
                         e.currentTarget.style.zIndex = 10;
-                        e.currentTarget.style.boxShadow = '0 20px 45px rgba(0,0,0,0.15), 0 0 30px rgba(249, 115, 22, 0.2)';
+                        e.currentTarget.style.boxShadow = '0 20px 45px rgba(0,0,0,0.15), 0 0 30px rgba(255, 221, 0, 0.3)';
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.transform = 'perspective(900px) rotateY(0) rotateX(0) translateZ(0)';

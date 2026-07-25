@@ -40,9 +40,7 @@ export function AuroraHero({ data }) {
         }}>
           {data.title} <br/>
           <span style={{ 
-            background: 'linear-gradient(135deg, #FFDD00, #f97316)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#FFDD00',
           }}>{data.titleHighlight}</span>
         </h1>
 

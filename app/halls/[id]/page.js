@@ -63,11 +63,11 @@ export default function HallDetailsPage(props) {
               <Link key={h.id} href={`/halls/${h.id}`} style={{
                 padding: '12px 24px',
                 borderRadius: '100px',
-                background: h.id === hall.id ? '#f97316' : 'var(--bg-secondary)',
-                color: h.id === hall.id ? '#fff' : 'var(--text-primary)',
-                fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap',
+                background: h.id === hall.id ? '#FFDD00' : 'var(--bg-secondary)',
+                color: h.id === hall.id ? '#000000' : 'var(--text-primary)',
+                fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap',
                 textDecoration: 'none', transition: 'all 0.2s',
-                border: h.id === hall.id ? '1px solid #f97316' : '1px solid var(--border)'
+                border: h.id === hall.id ? '1px solid #FFDD00' : '1px solid var(--border)'
               }}>
                 {h.title}
               </Link>
@@ -125,7 +125,7 @@ export default function HallDetailsPage(props) {
                 border: '1px solid var(--border)',
                 boxShadow: '0 24px 48px rgba(0,0,0,0.06)'
               }}>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: '#f97316', marginBottom: '8px' }}>
+                <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFDD00', marginBottom: '8px' }}>
                   {hall.price}
                 </div>
                 <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '32px' }}>
@@ -146,10 +146,10 @@ export default function HallDetailsPage(props) {
                 <Link href={hall.link} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   width: '100%', padding: '16px',
-                  background: '#f97316', color: '#fff',
+                  background: '#FFDD00', color: '#000000',
                   borderRadius: '16px', fontSize: '16px', fontWeight: 800,
                   textDecoration: 'none', transition: 'all 0.2s',
-                  boxShadow: '0 8px 20px rgba(249, 115, 22, 0.3)'
+                  boxShadow: '0 8px 24px rgba(255, 221, 0, 0.4)'
                 }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                   {t.hallDetail?.bookHall} <ArrowRight size={18} />
                 </Link>

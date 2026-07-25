@@ -37,10 +37,7 @@ export default function Typewriter({ title = '', titleHighlight = '', speed = 25
       
       {isTypingHighlight && (
         <span style={{
-          backgroundImage: 'linear-gradient(135deg, #FFDD00, #f97316)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
+          color: '#FFDD00',
           paddingRight: '8px' // Space for cursor
         }}>
           {displayedHighlight}
