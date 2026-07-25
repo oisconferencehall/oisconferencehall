@@ -51,11 +51,11 @@ export default function Partners() {
 
       <style>{`
         .partners-marquee-track {
-          animation: partnersMarquee 14s linear infinite;
+          animation: partnersMarquee 24s linear infinite;
         }
         @media (max-width: 768px) {
           .partners-marquee-track {
-            animation-duration: 9s !important;
+            animation-duration: 12s !important;
           }
         }
         @keyframes partnersMarquee {
