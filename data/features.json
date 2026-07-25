@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "title": "wifi",
+    "icon": "wifi",
+    "description": "Gigabit-speed dedicated wireless connection keeping your entire event online without interruptions."
+  },
+  {
+    "id": "2",
+    "title": "projector",
+    "icon": "projector",
+    "description": "Cinema-grade 4K projection mapping and ultra-bright screens for spectacular visual presentations."
+  },
+  {
+    "id": "3",
+    "title": "sound",
+    "icon": "sound",
+    "description": "Immersive Dolby surround sound with professional-grade microphones and acoustic isolation."
+  },
+  {
+    "id": "4",
+    "title": "ac",
+    "icon": "ac",
+    "description": "Smart climate control system that ensures the perfect temperature regardless of the crowd size."
+  },
+  {
+    "id": "5",
+    "title": "parking",
+    "icon": "parking",
+    "description": "Spacious, secure, and free underground parking accommodating up to 300 vehicles."
+  },
+  {
+    "id": "6",
+    "title": "catering",
+    "icon": "catering",
+    "description": "Premium catering services offering fully customizable menus crafted by top-tier executive chefs."
+  },
+  {
+    "id": "7",
+    "title": "security",
+    "icon": "security",
+    "description": "24/7 on-site professional security personnel and advanced surveillance for total peace of mind."
+  },
+  {
+    "id": "8",
+    "title": "reception",
+    "icon": "reception",
+    "description": "Dedicated concierge and reception staff to elegantly welcome and guide all your VIP guests."
+  }
+]
