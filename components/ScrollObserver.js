@@ -6,40 +6,56 @@ export default function ScrollObserver() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Mark JS ready on document root
+    document.documentElement.classList.add('js-ready');
+
     const selector = '.reveal, .reveal-up, .reveal-fade, .reveal-scale, .reveal-left, .reveal-right, [data-reveal]';
 
-    const handleObserve = () => {
+    const revealInViewport = () => {
       const elements = document.querySelectorAll(selector);
-      if (!elements.length) return;
+      elements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 200 && rect.bottom > -100) {
+          el.classList.add('visible');
+        }
+      });
+    };
 
-      const observer = new IntersectionObserver(
+    // Run immediately on page load/navigation
+    revealInViewport();
+
+    let observerInstance;
+    if ('IntersectionObserver' in window) {
+      const elements = document.querySelectorAll(selector);
+      observerInstance = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add('visible');
-              observer.unobserve(entry.target);
+              observerInstance.unobserve(entry.target);
             }
           });
         },
-        { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }
+        { threshold: 0.01, rootMargin: '150px 0px 150px 0px' }
       );
 
       elements.forEach((el) => {
         if (!el.classList.contains('visible')) {
-          observer.observe(el);
+          observerInstance.observe(el);
         }
       });
+    } else {
+      // Fallback for older browsers
+      document.querySelectorAll(selector).forEach((el) => el.classList.add('visible'));
+    }
 
-      return observer;
-    };
-
-    let observerInstance;
-    const timer = setTimeout(() => {
-      observerInstance = handleObserve();
-    }, 120);
+    // Safety fallback: Force reveal everything after 500ms so nothing can ever remain hidden
+    const safetyTimer = setTimeout(() => {
+      document.querySelectorAll(selector).forEach((el) => el.classList.add('visible'));
+    }, 500);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(safetyTimer);
       if (observerInstance && typeof observerInstance.disconnect === 'function') {
         observerInstance.disconnect();
       }
