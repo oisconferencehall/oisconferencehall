@@ -114,32 +114,53 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
     if (isAdjacentLeft) {
       return {
         opacity: 0.5,
-        transform: 'translateX(-50%) scale(0.85)',
+        transform: 'translateX(-40%) scale(0.85)',
         zIndex: 2,
-        filter: 'blur(3px)',
       };
     }
 
     if (isAdjacentRight) {
       return {
         opacity: 0.5,
-        transform: 'translateX(50%) scale(0.85)',
+        transform: 'translateX(40%) scale(0.85)',
         zIndex: 2,
-        filter: 'blur(3px)',
       };
     }
 
     return { opacity: 0, zIndex: 0, pointerEvents: 'none' };
   };
 
-  return (
-    <section style={{ padding: '100px 0 80px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden', maxWidth: '100vw', width: '100%' }}>
+  // Touch Swipe Handlers for Mobile
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > 50) {
+      handleNext();
+    } else if (distance < -50) {
+      handlePrev();
+    }
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  return (
+    <section style={{ padding: '80px 0 60px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden', maxWidth: '100vw', width: '100%' }}>
 
       <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', overflow: 'hidden' }}>
 
         {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{
             fontSize: 'clamp(32px, 5vw, 48px)',
             fontWeight: 800,
@@ -151,32 +172,26 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
           </h2>
         </div>
 
-
         {/* ===== 3D CAROUSEL SLIDER ===== */}
-        <div style={{
-          position: 'relative',
-          paddingTop: '32px',
-          paddingBottom: '32px',
-          overflow: 'hidden',
-          maxWidth: '100%',
-        }}>
-          {/* Decorative yellow blur blobs */}
-          <div style={{
-            position: 'absolute', top: '20%', left: '-40px', width: '120px', height: '120px',
-            background: 'rgba(255, 221, 0, 0.15)', borderRadius: '50%', filter: 'blur(40px)', pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: '10%', right: '-40px', width: '80px', height: '80px',
-            background: 'rgba(255, 221, 0, 0.12)', borderRadius: '50%', filter: 'blur(30px)', pointerEvents: 'none',
-          }} />
-
+        <div 
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            position: 'relative',
+            paddingTop: '16px',
+            paddingBottom: '24px',
+            overflow: 'hidden',
+            maxWidth: '100%',
+          }}
+        >
           {/* Carousel Container */}
           <div style={{
             position: 'relative',
             width: '100%',
             maxWidth: '1200px',
             margin: '0 auto',
-            height: '420px',
+            height: 'clamp(300px, 45vh, 400px)',
           }}>
             {items.map((item, index) => {
               const style = getCardStyle(index);
@@ -186,45 +201,45 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
                   style={{
                     position: 'absolute',
                     top: 0, left: '50%',
-                    width: '90%', maxWidth: '560px',
-                    height: '380px',
-                    marginLeft: 'max(-280px, -45%)',
-                    borderRadius: '32px',
+                    width: '88%', maxWidth: '560px',
+                    height: 'clamp(280px, 42vh, 360px)',
+                    marginLeft: 'max(-280px, -44%)',
+                    borderRadius: '28px',
                     overflow: 'hidden',
-                    WebkitMaskImage: '-webkit-radial-gradient(white, black)',
-                    transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
+                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                    willChange: 'transform, opacity',
                     cursor: 'pointer',
-                    boxShadow: style.zIndex === 3 ? '0 20px 60px rgba(0,0,0,0.15)' : '0 8px 30px rgba(0,0,0,0.1)',
+                    boxShadow: style.zIndex === 3 ? '0 16px 40px rgba(0,0,0,0.18)' : '0 6px 20px rgba(0,0,0,0.08)',
                     ...style,
                   }}
                   onClick={() => { goTo(index); resetAutoPlay(); }}
                 >
                   <Image
                     src={item.image}
-                    fill sizes="460px"
-                    style={{ objectFit: 'cover', borderRadius: '32px' }}
+                    fill sizes="(max-width: 768px) 90vw, 560px"
+                    style={{ objectFit: 'cover', borderRadius: '28px' }}
                     alt={item.label}
                   />
                   {/* Bottom gradient overlay with label */}
                   <div style={{
                     position: 'absolute', bottom: 0, left: 0, right: 0,
-                    padding: '28px',
+                    padding: '20px 24px',
                     background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0) 100%)',
-                    display: 'flex', alignItems: 'flex-end', gap: '14px',
-                    borderBottomLeftRadius: '32px',
-                    borderBottomRightRadius: '32px',
+                    display: 'flex', alignItems: 'flex-end', gap: '12px',
+                    borderBottomLeftRadius: '28px',
+                    borderBottomRightRadius: '28px',
                   }}>
                     <div style={{
-                      width: '40px', height: '40px', borderRadius: '50%',
+                      width: '36px', height: '36px', borderRadius: '50%',
                       background: '#ffdd00',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '16px', fontWeight: 800, color: '#000000',
+                      fontSize: '15px', fontWeight: 800, color: '#000000',
                       flexShrink: 0,
                     }}>
                       {index + 1}
                     </div>
                     <div style={{
-                      fontSize: '16px', fontWeight: 600, color: '#fff',
+                      fontSize: '15px', fontWeight: 600, color: '#fff',
                       lineHeight: 1.3,
                     }}>
                       {item.label}
