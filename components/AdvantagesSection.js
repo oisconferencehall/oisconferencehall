@@ -113,8 +113,8 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
 
     if (isAdjacentLeft) {
       return {
-        opacity: 0.6,
-        transform: 'translateX(-88%) scale(0.82)',
+        opacity: 0.5,
+        transform: 'translateX(-50%) scale(0.85)',
         zIndex: 2,
         filter: 'blur(3px)',
       };
@@ -122,8 +122,8 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
 
     if (isAdjacentRight) {
       return {
-        opacity: 0.6,
-        transform: 'translateX(88%) scale(0.82)',
+        opacity: 0.5,
+        transform: 'translateX(50%) scale(0.85)',
         zIndex: 2,
         filter: 'blur(3px)',
       };
@@ -133,10 +133,10 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
   };
 
   return (
-    <section style={{ padding: '100px 0 80px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden' }}>
+    <section style={{ padding: '100px 0 80px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden', maxWidth: '100vw', width: '100%' }}>
 
 
-      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', overflow: 'hidden' }}>
 
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '64px' }}>
@@ -157,7 +157,8 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
           position: 'relative',
           paddingTop: '32px',
           paddingBottom: '32px',
-          overflow: 'visible',
+          overflow: 'hidden',
+          maxWidth: '100%',
         }}>
           {/* Decorative yellow blur blobs */}
           <div style={{

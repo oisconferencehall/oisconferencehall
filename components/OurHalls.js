@@ -102,8 +102,10 @@ export default function OurHalls() {
           paddingTop: '24px', // Top padding so hover transform doesn't get clipped by overflowX
           paddingBottom: '48px', // Extra space for shadow and transform
           // This aligns the first card with the 1200px container while allowing the slider to bleed to the screen edges
-          paddingLeft: 'max(24px, calc((100vw - 1200px) / 2 + 24px))',
-          paddingRight: 'max(24px, calc((100vw - 1200px) / 2 + 24px))',
+          paddingLeft: 'clamp(16px, 5vw, 48px)',
+          paddingRight: 'clamp(16px, 5vw, 48px)',
+          maxWidth: '100vw',
+          width: '100%',
         }}
         className="hide-scrollbar"
       >

@@ -31,16 +31,14 @@ export default function AppPromoBanner() {
   const cardImage = ann.cardImage || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80";
 
   return (
-    <section style={{ padding: '60px 24px 80px', maxWidth: '1280px', margin: '0 auto', overflow: 'hidden' }}>
-      <div style={{
+    <section style={{ padding: '60px 16px 80px', maxWidth: '1280px', margin: '0 auto', overflow: 'hidden', width: '100%' }}>
+      <div className="app-promo-grid" style={{
         background: '#FFDD00',
         borderRadius: '32px',
-        padding: '54px 48px',
         position: 'relative',
         overflow: 'hidden',
         boxShadow: '0 20px 50px rgba(255, 221, 0, 0.3)',
         display: 'grid',
-        gridTemplateColumns: '1.2fr 0.8fr',
         gap: '32px',
         alignItems: 'center'
       }}>
@@ -205,6 +203,16 @@ export default function AppPromoBanner() {
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
+        .app-promo-grid {
+          grid-template-columns: 1.2fr 0.8fr;
+          padding: 54px 48px;
+        }
+        @media (max-width: 900px) {
+          .app-promo-grid {
+            grid-template-columns: 1fr !important;
+            padding: 32px 20px !important;
+          }
+        }
         @keyframes tickerSlide {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -213,3 +221,4 @@ export default function AppPromoBanner() {
     </section>
   );
 }
+

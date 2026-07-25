@@ -55,12 +55,12 @@ export default function Hero() {
             </div>
 
             {/* Floating Capacity Badge */}
-            <div style={{ 
+            <div className="floating-badge" style={{ 
               position: 'absolute', 
               bottom: '40px', 
-              left: '-20px', 
+              left: '0px', 
               background: '#ffffff', 
-              padding: '24px 32px', 
+              padding: '16px 24px', 
               borderRadius: '20px', 
               boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
               zIndex: 10
@@ -79,7 +79,7 @@ export default function Hero() {
           </div>
 
           {/* Right Side - Content */}
-          <div style={{ paddingLeft: '20px' }}>
+          <div style={{ paddingLeft: '0px' }}>
             
             {/* Top Badge */}
             <div style={{ 
@@ -98,12 +98,12 @@ export default function Hero() {
 
             {/* Heading */}
             <h1 style={{ 
-              fontSize: 'clamp(40px, 5vw, 64px)', 
+              fontSize: 'clamp(32px, 5vw, 64px)', 
               fontWeight: 800, 
               color: '#1a1a1a', 
               lineHeight: 1.1, 
               marginBottom: '24px',
-              fontFamily: "'Playfair Display', serif" // Or an elegant serif/sans
+              fontFamily: "'Playfair Display', serif"
             }}>
               {t.heroSection?.modernVenue} <span style={{ color: '#FFDD00' }}>{t.heroSection?.worldClass}</span>
             </h1>
@@ -142,7 +142,7 @@ export default function Hero() {
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <Link href="/rent" style={{ 
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 background: '#FFDD00', color: '#000', 
@@ -179,13 +179,24 @@ export default function Hero() {
         @media (max-width: 992px) {
           section > .container > div {
             grid-template-columns: 1fr !important;
+            gap: 40px !important;
           }
           .floating-badge {
-            left: 20px !important;
-            bottom: 20px !important;
+            left: 10px !important;
+            bottom: 10px !important;
+            padding: 12px 18px !important;
+          }
+        }
+        @media (max-width: 600px) {
+          .floating-badge {
+            position: relative !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            margin-top: 12px !important;
           }
         }
       `}</style>
     </section>
   );
 }
+
