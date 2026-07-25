@@ -19,7 +19,7 @@ export default function Contacts() {
   };
 
   return (
-    <section style={{ padding: '100px 24px', background: 'var(--bg-secondary)', position: 'relative' }}>
+    <section className="reveal" style={{ padding: '100px 24px', background: 'var(--bg-secondary)', position: 'relative' }}>
       <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
           <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>

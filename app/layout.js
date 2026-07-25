@@ -3,6 +3,8 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import Script from "next/script";
 
+import ScrollObserver from "@/components/ScrollObserver";
+
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata = {
@@ -43,6 +45,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={geist.variable} style={{ overflowX: 'hidden', maxWidth: '100vw', width: '100%' }}>
         <AppProvider>
+          <ScrollObserver />
           {children}
         </AppProvider>
       </body>

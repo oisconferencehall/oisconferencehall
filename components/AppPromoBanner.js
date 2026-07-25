@@ -31,7 +31,7 @@ export default function AppPromoBanner() {
   const cardImage = ann.cardImage || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80";
 
   return (
-    <section style={{ padding: '60px 16px 80px', maxWidth: '1280px', margin: '0 auto', overflow: 'hidden', width: '100%' }}>
+    <section className="reveal-scale" style={{ padding: '60px 16px 80px', maxWidth: '1280px', margin: '0 auto', overflow: 'hidden', width: '100%' }}>
       <div className="app-promo-grid" style={{
         background: '#FFDD00',
         borderRadius: '32px',

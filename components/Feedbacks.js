@@ -36,7 +36,7 @@ export default function Feedbacks() {
   const handlePrev = () => setActiveIndex((prev) => (prev - 1 + displayFeedbacks.length) % displayFeedbacks.length);
 
   return (
-    <section style={{ padding: '100px 24px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden' }}>
+    <section className="reveal" style={{ padding: '100px 24px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden' }}>
       <div style={{
         position: 'absolute', top: '-10%', left: '-10%', width: '400px', height: '400px',
         background: 'radial-gradient(circle, rgba(255, 221, 0, 0.05) 0%, transparent 70%)',
