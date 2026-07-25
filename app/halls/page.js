@@ -20,7 +20,7 @@ export default function HallsPage() {
         {/* Halls Grid Section */}
         <section style={{ padding: '130px 0 80px', background: 'var(--bg-primary)' }}>
           <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
               {halls.map((hall) => (
                 <div 
                   key={hall.id}

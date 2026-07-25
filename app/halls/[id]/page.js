@@ -83,7 +83,7 @@ export default function HallDetailsPage(props) {
             boxShadow: '0 10px 40px rgba(0,0,0,0.06)'
           }}>
             {(hall.images && hall.images.length > 0 ? hall.images : [hall.image || "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80"]).map((img, idx) => (
-              <div key={idx} style={{ position: 'relative', width: '100%', height: '500px', flexShrink: 0, scrollSnapAlign: 'start' }}>
+              <div key={idx} style={{ position: 'relative', width: '100%', height: 'clamp(260px, 45vh, 500px)', flexShrink: 0, scrollSnapAlign: 'start' }}>
                 <Image src={img} alt={`${hall.title} - ${idx + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
               </div>
             ))}
@@ -92,10 +92,10 @@ export default function HallDetailsPage(props) {
 
         {/* Content Section */}
         <div className="container">
-          <div className="responsive-grid-2" style={{ gap: '64px', alignItems: 'start', gridTemplateColumns: '2fr 1fr' }}>
+          <div className="event-details-grid" style={{ gap: '48px', alignItems: 'start' }}>
             
             {/* Left Column: Details */}
-            <div>
+            <div style={{ minWidth: 0, width: '100%' }}>
               <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px' }}>
                 {t.hallDetail?.aboutHall}
               </h2>
@@ -106,7 +106,7 @@ export default function HallDetailsPage(props) {
               <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px' }}>
                 {t.hallDetail?.whatOffers}
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '48px' }}>
+              <div className="responsive-grid-2" style={{ gap: '20px', marginBottom: '48px' }}>
                 {amenities.map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-primary)', fontSize: '16px', fontWeight: 500 }}>
                     <CheckCircle size={20} style={{ color: '#10b981' }} />
@@ -117,7 +117,7 @@ export default function HallDetailsPage(props) {
             </div>
 
             {/* Right Column: Sticky Booking Card */}
-            <div style={{ position: 'sticky', top: '100px' }}>
+            <div style={{ position: 'sticky', top: '100px', minWidth: 0, width: '100%' }}>
               <div style={{
                 background: 'var(--bg-card)',
                 borderRadius: '24px',

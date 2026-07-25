@@ -58,15 +58,15 @@ export default function Navbar() {
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         background: isTransparent 
           ? 'transparent' 
-          : (theme === 'dark' ? 'rgba(10, 10, 10, 0.85)' : 'rgba(255, 255, 255, 0.85)'),
+          : (theme === 'dark' ? 'rgba(12, 12, 12, 0.92)' : 'rgba(255, 255, 255, 0.92)'),
         backdropFilter: isTransparent ? 'none' : 'blur(20px)',
         WebkitBackdropFilter: isTransparent ? 'none' : 'blur(20px)',
         borderBottom: isTransparent ? 'none' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)'),
         boxShadow: isTransparent ? 'none' : (theme === 'dark' ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.03)'),
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <div style={{
+        <div className="nav-container" style={{
           maxWidth: '1200px', margin: '0 auto',
-          padding: scrolled ? '14px 24px' : '20px 24px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           transition: 'padding 0.4s ease',
         }}>
@@ -286,9 +286,9 @@ export default function Navbar() {
               style={{
                 display: 'none',
                 padding: '8px', borderRadius: '10px',
-                background: isTransparent ? 'rgba(255, 255, 255, 0.12)' : '#f1f5f9',
-                border: isTransparent ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid #e2e8f0',
-                color: isTransparent ? '#ffffff' : '#0f172a', cursor: 'pointer',
+                background: isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9'),
+                border: isTransparent ? '1px solid rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid #e2e8f0'),
+                color: isTransparent ? '#ffffff' : (theme === 'dark' ? '#ffffff' : '#0f172a'), cursor: 'pointer',
               }}
               className="mobile-menu-btn"
             >
@@ -300,9 +300,9 @@ export default function Navbar() {
         {/* Mobile menu */}
         {menuOpen && (
           <div style={{
-            background: isTransparent ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
+            background: isTransparent ? 'rgba(15, 23, 42, 0.95)' : (theme === 'dark' ? 'rgba(18, 18, 18, 0.98)' : '#ffffff'),
             backdropFilter: 'blur(20px)',
-            borderTop: isTransparent ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
+            borderTop: isTransparent ? '1px solid rgba(255, 255, 255, 0.1)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0'),
             padding: '16px 24px 24px',
             animation: 'fadeInDown 0.2s ease',
           }}>
@@ -311,10 +311,10 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(false)}
                 style={{
                   display: 'block', padding: '14px 16px',
-                  color: isActive(link.href) ? '#d97706' : (isTransparent ? 'rgba(255,255,255,0.85)' : '#334155'),
+                  color: isActive(link.href) ? '#FFDD00' : (theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#334155'),
                   fontWeight: isActive(link.href) ? 700 : 500,
                   fontSize: '15px', textDecoration: 'none',
-                  borderBottom: isTransparent ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #f1f5f9',
+                  borderBottom: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #f1f5f9',
                   background: isActive(link.href) ? 'rgba(255, 221, 0, 0.15)' : 'transparent',
                   borderRadius: '10px', marginBottom: '4px',
                 }}>
@@ -324,9 +324,9 @@ export default function Navbar() {
             {user ? (
               <Link href="/profile" onClick={() => setMenuOpen(false)} style={{
                 display: 'block', padding: '14px 16px',
-                color: isTransparent ? '#ffffff' : '#0f172a', fontWeight: 600,
+                color: theme === 'dark' ? '#ffffff' : '#0f172a', fontWeight: 600,
                 fontSize: '15px', textDecoration: 'none',
-                borderBottom: isTransparent ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #f1f5f9',
+                borderBottom: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #f1f5f9',
                 borderRadius: '10px', marginBottom: '4px',
               }}>
                 {t.navbar?.profile}
@@ -334,9 +334,9 @@ export default function Navbar() {
             ) : (
               <Link href="/login" onClick={() => setMenuOpen(false)} style={{
                 display: 'block', padding: '14px 16px',
-                color: isTransparent ? '#ffffff' : '#0f172a', fontWeight: 600,
+                color: theme === 'dark' ? '#ffffff' : '#0f172a', fontWeight: 600,
                 fontSize: '15px', textDecoration: 'none',
-                borderBottom: isTransparent ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #f1f5f9',
+                borderBottom: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #f1f5f9',
                 borderRadius: '10px', marginBottom: '4px',
               }}>
                 {t.navbar?.loginRegister}
@@ -357,7 +357,13 @@ export default function Navbar() {
       </nav>
 
       <style>{`
+        .nav-container {
+          padding: ${scrolled ? '12px 24px' : '16px 24px'};
+        }
         @media (max-width: 768px) {
+          .nav-container {
+            padding: 12px 16px !important;
+          }
           .mobile-menu-btn { display: flex !important; }
         }
       `}</style>
