@@ -492,8 +492,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('page_sections')
-          .select('*')
-          .eq('page_slug', 'home');
+          .select('*');
           
         if (!error && data) {
           const formatted = {};

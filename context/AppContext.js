@@ -447,46 +447,59 @@ export function AppProvider({ children }) {
     }
   };
 
+  const upsertPageSection = async (type, data) => {
+    try {
+      const { data: existing } = await supabase.from('page_sections').select('id').eq('type', type).maybeSingle();
+      if (existing) {
+        await supabase.from('page_sections').update({ data }).eq('id', existing.id);
+      } else {
+        await supabase.from('page_sections').insert({ type, page_slug: 'home', data, order_index: 0 });
+      }
+    } catch (err) {
+      console.error(`Error saving CMS section [${type}]:`, err);
+    }
+  };
+
   const savePartners = async (newPartners) => {
     setPartnersState(newPartners);
     localStorage.setItem('gch-partners', JSON.stringify(newPartners));
-    await supabase.from('page_sections').upsert({ type: 'partners', data: { partners: newPartners } }, { onConflict: 'type' });
+    await upsertPageSection('partners', { partners: newPartners });
   };
 
   const saveCmsVideos = async (newVideos) => {
     setCmsVideosState(newVideos);
     localStorage.setItem('gch-videos', JSON.stringify(newVideos));
-    await supabase.from('page_sections').upsert({ type: 'cases_videos', data: { videos: newVideos } }, { onConflict: 'type' });
+    await upsertPageSection('cases_videos', { videos: newVideos });
   };
 
   const saveCmsContacts = async (newContacts) => {
     setCmsContactsState(newContacts);
     localStorage.setItem('gch-contacts', JSON.stringify(newContacts));
-    await supabase.from('page_sections').upsert({ type: 'contacts', data: newContacts }, { onConflict: 'type' });
+    await upsertPageSection('contacts', newContacts);
   };
 
   const saveCmsFaq = async (newFaq) => {
     setCmsFaqState(newFaq);
     localStorage.setItem('gch-faq', JSON.stringify(newFaq));
-    await supabase.from('page_sections').upsert({ type: 'faq', data: { faq: newFaq } }, { onConflict: 'type' });
+    await upsertPageSection('faq', { faq: newFaq });
   };
 
   const saveHallsList = async (newHalls) => {
     setHallsListState(newHalls);
     localStorage.setItem('gch-halls', JSON.stringify(newHalls));
-    await supabase.from('page_sections').upsert({ type: 'halls', data: { halls: newHalls } }, { onConflict: 'type' });
+    await upsertPageSection('halls', { halls: newHalls });
   };
 
   const saveCmsAdvantages = async (newAdvantages) => {
     setCmsAdvantagesState(newAdvantages);
     localStorage.setItem('gch-advantages', JSON.stringify(newAdvantages));
-    await supabase.from('page_sections').upsert({ type: 'advantages', data: { advantages: newAdvantages } }, { onConflict: 'type' });
+    await upsertPageSection('advantages', { advantages: newAdvantages });
   };
 
   const saveCmsAnnouncement = async (newAnnouncement) => {
     setCmsAnnouncementState(newAnnouncement);
     localStorage.setItem('gch-announcement', JSON.stringify(newAnnouncement));
-    await supabase.from('page_sections').upsert({ type: 'announcement', data: newAnnouncement }, { onConflict: 'type' });
+    await upsertPageSection('announcement', newAnnouncement);
   };
 
   return (
