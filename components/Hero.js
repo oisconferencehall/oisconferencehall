@@ -27,10 +27,11 @@ export default function Hero() {
             {/* Main large image */}
             <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', height: '600px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
               <Image 
-                src="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?w=800&q=80" 
+                src="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?w=800&q=75&auto=format" 
                 alt="Conference Hall Main" 
                 fill 
                 style={{ objectFit: 'cover' }}
+                priority
               />
             </div>
 
@@ -38,7 +39,7 @@ export default function Hero() {
             <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', height: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                 <Image 
-                  src="https://images.unsplash.com/photo-1511578314322-379a95053c5b?w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1511578314322-379a95053c5b?w=600&q=75&auto=format" 
                   alt="Hall View 2" 
                   fill 
                   style={{ objectFit: 'cover' }}
@@ -46,7 +47,7 @@ export default function Hero() {
               </div>
               <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', height: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                 <Image 
-                  src="https://images.unsplash.com/photo-1475721025505-117502c32468?w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1475721025505-117502c32468?w=600&q=75&auto=format" 
                   alt="Hall View 3" 
                   fill 
                   style={{ objectFit: 'cover' }}

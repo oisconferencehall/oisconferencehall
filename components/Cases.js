@@ -19,7 +19,7 @@ const InstagramIcon = ({ size = 14, style = {} }) => (
   </svg>
 );
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80";
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75&auto=format";
 
 const parseEmbedUrl = (url) => {
   if (!url) return "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1";
@@ -38,8 +38,8 @@ export default function Cases() {
   const [imageErrors, setImageErrors] = useState({});
 
   const defaultCases = t.casesSection?.items || [
-    { id: 1, title: "Global Tech Summit Highlights", category: "Conference", platform: "youtube", image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80", videoUrl: "https://www.youtube.com/watch?v=5qap5aO4i9A" },
-    { id: 2, title: "Annual Award Gala Night", category: "Ceremony", platform: "youtube", image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80", videoUrl: "https://www.youtube.com/watch?v=L_LUpnjgPso" }
+    { id: 1, title: "Global Tech Summit Highlights", category: "Conference", platform: "youtube", image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=75&auto=format", videoUrl: "https://www.youtube.com/watch?v=5qap5aO4i9A" },
+    { id: 2, title: "Annual Award Gala Night", category: "Ceremony", platform: "youtube", image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=75&auto=format", videoUrl: "https://www.youtube.com/watch?v=L_LUpnjgPso" }
   ];
 
   const rawList = cmsVideos && cmsVideos.length > 0 ? cmsVideos : defaultCases;

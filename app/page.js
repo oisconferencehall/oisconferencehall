@@ -306,10 +306,9 @@ function StatCard({ label, value, suffix = '', prefix = '', active, delay }) {
 
 function Orb({ style }) {
   return (
-    <div style={{
+    <div className="desktop-only" style={{
       position: 'absolute',
       borderRadius: '50%',
-      filter: 'blur(60px)',
       pointerEvents: 'none',
       ...style,
     }} />
@@ -320,17 +319,17 @@ function FloatingParticles() {
   const [particles, setParticles] = useState([]);
   
   useEffect(() => {
-    // Generate 40 random glowing yellow particles
-    const newParticles = Array.from({ length: 40 }).map((_, i) => {
+    // Generate 10 lightweight particles (disabled on mobile)
+    const newParticles = Array.from({ length: 10 }).map((_, i) => {
       const types = ['particleFloat1', 'particleFloat2', 'particleFloat3'];
       return {
         id: i,
         left: Math.random() * 100 + '%',
-        size: Math.random() * 5 + 2 + 'px',
-        dur: Math.random() * 15 + 10 + 's', // Slow float
-        delay: Math.random() * -20 + 's', // Negative delay so they are already on screen
-        tx: (Math.random() * 200 - 100) + 'px',
-        opacity: Math.random() * 0.6 + 0.2,
+        size: Math.random() * 3 + 2 + 'px',
+        dur: Math.random() * 12 + 10 + 's',
+        delay: Math.random() * -15 + 's',
+        tx: (Math.random() * 80 - 40) + 'px',
+        opacity: Math.random() * 0.4 + 0.2,
         anim: types[Math.floor(Math.random() * types.length)]
       };
     });
@@ -338,7 +337,7 @@ function FloatingParticles() {
   }, []);
 
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1, pointerEvents: 'none' }}>
+    <div className="desktop-only" style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1, pointerEvents: 'none' }}>
       {particles.map(p => (
         <div key={p.id} className="particle" style={{
           left: p.left,
@@ -346,7 +345,8 @@ function FloatingParticles() {
           width: p.size,
           height: p.size,
           background: '#FFDD00',
-          boxShadow: '0 0 10px #FFDD00, 0 0 20px #FFDD00',
+          borderRadius: '50%',
+          opacity: p.opacity,
           animationName: p.anim,
           '--start-opacity': p.opacity,
           '--dur': p.dur,
@@ -571,9 +571,9 @@ export default function Home() {
 
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
         
-        <Orb style={{ top: '20%', left: '10%', width: '300px', height: '300px', background: 'rgba(255,221,0,0.1)' }} />
-        <Orb style={{ bottom: '10%', right: '20%', width: '400px', height: '400px', background: 'rgba(56,189,248,0.1)' }} />
-        <FloatingParticles count={20} />
+        <Orb style={{ top: '20%', left: '10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(255,221,0,0.2) 0%, transparent 70%)' }} />
+        <Orb style={{ bottom: '10%', right: '20%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 70%)' }} />
+        <FloatingParticles />
 
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px' }}>
           <h1 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 900, color: '#fff', marginBottom: '20px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>

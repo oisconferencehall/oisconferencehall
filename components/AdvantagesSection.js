@@ -39,11 +39,11 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
   const activeT = t || appCtx?.t || {};
 
   const defaultItems = [
-    { id: 1, image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80', label: activeT.advantages?.adv1 || 'Convenient location for everyone' },
-    { id: 2, image: 'https://images.unsplash.com/photo-1572025442646-866d16c84a54?w=800&q=80', label: activeT.advantages?.adv2 || 'State-of-the-art technologies' },
-    { id: 3, image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80', label: activeT.advantages?.adv5 || 'Premium event spaces' },
-    { id: 4, image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80', label: activeT.advantages?.adv3 || 'High-level service' },
-    { id: 5, image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80', label: activeT.advantages?.adv4 || 'Spacious and bright halls' },
+    { id: 1, image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=600&q=75&auto=format', label: activeT.advantages?.adv1 || 'Convenient location for everyone' },
+    { id: 2, image: 'https://images.unsplash.com/photo-1572025442646-866d16c84a54?w=600&q=75&auto=format', label: activeT.advantages?.adv2 || 'State-of-the-art technologies' },
+    { id: 3, image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75&auto=format', label: activeT.advantages?.adv5 || 'Premium event spaces' },
+    { id: 4, image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=75&auto=format', label: activeT.advantages?.adv3 || 'High-level service' },
+    { id: 5, image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=75&auto=format', label: activeT.advantages?.adv4 || 'Spacious and bright halls' },
   ];
 
   const items = cmsAdvantages && cmsAdvantages.length > 0 ? cmsAdvantages.map((item) => ({
