@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   Plus, Trash2, Save, RotateCcw, Printer, Image as ImageIcon, 
-  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, Sparkles
+  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, QrCode
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -23,6 +23,7 @@ const EVENT_PRESETS = {
       { id: 'el-7', type: 'text', text: 'START 06:00 PM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#ef4444', fontFamily: 'Outfit' },
       { id: 'el-8', type: 'text', text: 'Oxford Grand Conference Hall, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
       { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
+      { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
     ]
   },
   'business-leadership-forum': {
@@ -39,6 +40,7 @@ const EVENT_PRESETS = {
       { id: 'el-7', type: 'text', text: 'DOORS OPEN 09:00 AM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#38bdf8', fontFamily: 'Outfit' },
       { id: 'el-8', type: 'text', text: 'Grand Conference Hall, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
       { id: 'el-9', type: 'text', text: 'VIP PASS', x: 740, y: 75, fontSize: 18, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit', rotate: 90 },
+      { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
     ]
   },
   'movie-day': {
@@ -55,6 +57,7 @@ const EVENT_PRESETS = {
       { id: 'el-7', type: 'text', text: 'START 03:45 PM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#fb923c', fontFamily: 'Outfit' },
       { id: 'el-8', type: 'text', text: 'Oxford International School, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
       { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
+      { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
     ]
   }
 };
@@ -67,6 +70,9 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Real-time mouse dragging state
+  const [dragState, setDragState] = useState(null);
 
   // Sample data for preview
   const sampleData = {
@@ -81,13 +87,11 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   };
 
   useEffect(() => {
-    // Load all events from Supabase
     supabase.from('events').select('id, title').then(({ data }) => {
       if (data && data.length > 0) setEventsList(data);
     });
   }, []);
 
-  // Load ticket template specifically for selected movie key
   useEffect(() => {
     const loadTemplate = async () => {
       const templateKey = `ticket_template_${selectedMovieKey}`;
@@ -95,13 +99,42 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
       if (data?.data && data.data.elements) {
         setDesign(data.data);
       } else {
-        // Fallback to preset or default template
         const fallback = EVENT_PRESETS[selectedMovieKey] || EVENT_PRESETS['movie-day'];
         setDesign(fallback);
       }
     };
     loadTemplate();
   }, [selectedMovieKey]);
+
+  // Mouse drag handlers
+  const handleMouseDown = (e, id, origX, origY) => {
+    e.stopPropagation();
+    setSelectedId(id);
+    setDragState({
+      id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX,
+      origY
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!dragState) return;
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    const newX = Math.round(dragState.origX + dx);
+    const newY = Math.round(dragState.origY + dy);
+
+    setDesign(prev => ({
+      ...prev,
+      elements: prev.elements.map(el => el.id === dragState.id ? { ...el, x: newX, y: newY } : el)
+    }));
+  };
+
+  const handleMouseUp = () => {
+    setDragState(null);
+  };
 
   const selectedEl = design.elements.find(el => el.id === selectedId);
 
@@ -119,14 +152,15 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
       id: newId,
       type,
       text: type === 'text' ? 'New Text Layer' : '',
-      x: 100,
-      y: 100,
+      x: 120,
+      y: 80,
       fontSize: 16,
       fontWeight: '700',
       color: '#ffffff',
       fontFamily: 'Outfit',
       width: type === 'rect' ? 80 : 40,
       height: type === 'rect' ? 40 : 40,
+      size: type === 'qr' ? 84 : 16,
     };
     setDesign(prev => ({ ...prev, elements: [...prev.elements, newEl] }));
     setSelectedId(newId);
@@ -193,7 +227,11 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   };
 
   return (
-    <div style={{ background: '#0a0d14', borderRadius: '24px', border: '1px solid var(--border)', padding: '24px', color: '#fff', fontFamily: 'Outfit, sans-serif' }}>
+    <div 
+      onMouseMove={handleMouseMove} 
+      onMouseUp={handleMouseUp}
+      style={{ background: '#0a0d14', borderRadius: '24px', border: '1px solid var(--border)', padding: '24px', color: '#fff', fontFamily: 'Outfit, sans-serif', userSelect: dragState ? 'none' : 'auto' }}
+    >
       
       {/* ── Movie / Event Selector Header ── */}
       <div style={{ padding: '16px 20px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(255, 221, 0, 0.08))', border: '1px solid rgba(234, 88, 12, 0.3)', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
@@ -201,7 +239,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           <Film size={22} color="#fb923c" />
           <div>
             <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fb923c' }}>SELECT MOVIE / EVENT TEMPLATE TO DESIGN</div>
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>Customize unique ticket styles for each individual movie or event</div>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>Customize unique ticket styles and drag elements on stage</div>
           </div>
         </div>
 
@@ -229,7 +267,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             🎟️ Ticket Designer Studio
           </h2>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: '4px 0 0' }}>
-            Designing Ticket Template for: <strong style={{ color: '#FFDD00' }}>{EVENT_PRESETS[selectedMovieKey]?.title || selectedMovieKey}</strong>
+            Designing Template for: <strong style={{ color: '#FFDD00' }}>{EVENT_PRESETS[selectedMovieKey]?.title || selectedMovieKey}</strong>
           </p>
         </div>
 
@@ -313,21 +351,24 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             <label style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '8px' }}>
               ADD ELEMENTS
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
-              <button className="btn btn-outline btn-sm" style={{ padding: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }} onClick={() => addElement('text')} title="Add Text">
-                <Type size={14} /> + Text
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+              <button className="btn btn-outline btn-sm" style={{ padding: '8px 4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} onClick={() => addElement('text')} title="Add Text">
+                <Type size={13} /> + Text
               </button>
-              <button className="btn btn-outline btn-sm" style={{ padding: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }} onClick={() => addElement('rect')} title="Add Rectangle">
-                <Square size={14} /> + Rect
+              <button className="btn btn-outline btn-sm" style={{ padding: '8px 4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', borderColor: '#FFDD00', color: '#FFDD00' }} onClick={() => addElement('qr')} title="Add QR Code">
+                <QrCode size={13} /> + QR Code
               </button>
-              <button className="btn btn-outline btn-sm" style={{ padding: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }} onClick={() => addElement('circ')} title="Add Circle">
-                <Circle size={14} /> + Circ
+              <button className="btn btn-outline btn-sm" style={{ padding: '8px 4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} onClick={() => addElement('rect')} title="Add Rectangle">
+                <Square size={13} /> + Rect
               </button>
-              <button className="btn btn-outline btn-sm" style={{ padding: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }} onClick={() => addElement('tri')} title="Add Triangle">
-                <Triangle size={14} /> + Tri
+              <button className="btn btn-outline btn-sm" style={{ padding: '8px 4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} onClick={() => addElement('circ')} title="Add Circle">
+                <Circle size={13} /> + Circ
               </button>
-              <button className="btn btn-outline btn-sm" style={{ padding: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }} onClick={() => addElement('img')} title="Add Image">
-                <ImageIcon size={14} /> + Img
+              <button className="btn btn-outline btn-sm" style={{ padding: '8px 4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} onClick={() => addElement('tri')} title="Add Triangle">
+                <Triangle size={13} /> + Tri
+              </button>
+              <button className="btn btn-outline btn-sm" style={{ padding: '8px 4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} onClick={() => addElement('img')} title="Add Image">
+                <ImageIcon size={13} /> + Img
               </button>
             </div>
           </div>
@@ -336,7 +377,9 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           {selectedEl ? (
             <div style={{ padding: '14px', borderRadius: '12px', background: 'rgba(234, 88, 12, 0.08)', border: '1px solid rgba(234, 88, 12, 0.3)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#fb923c' }}>Edit Selected Layer</span>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#fb923c', textTransform: 'uppercase' }}>
+                  Edit {selectedEl.type} Layer
+                </span>
                 <button className="btn btn-danger btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => deleteElement(selectedEl.id)}>
                   <Trash2 size={12} /> Del
                 </button>
@@ -349,6 +392,13 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                   <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', marginTop: '4px' }}>
                     Placeholders: <code>{`{first_name}`}</code>, <code>{`{last_name}`}</code>, <code>{`{movie}`}</code>, <code>{`{seat}`}</code>
                   </div>
+                </div>
+              )}
+
+              {selectedEl.type === 'qr' && (
+                <div>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>QR CODE SIZE (PX)</span>
+                  <input type="number" className="form-input" style={{ fontSize: '12px', background: 'rgba(0,0,0,0.5)', marginTop: '2px' }} value={selectedEl.size || 84} onChange={e => updateSelected('size', Number(e.target.value))} />
                 </div>
               )}
 
@@ -390,7 +440,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             </div>
           ) : (
             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '16px' }}>
-              Click any element on the stage to edit properties
+              Click or drag any element on the stage to move it directly!
             </div>
           )}
 
@@ -421,7 +471,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                 return (
                   <div
                     key={el.id}
-                    onClick={(e) => { e.stopPropagation(); setSelectedId(el.id); }}
+                    onMouseDown={(e) => handleMouseDown(e, el.id, el.x, el.y)}
                     style={{
                       position: 'absolute',
                       left: `${el.x}px`,
@@ -430,12 +480,12 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       fontWeight: el.fontWeight || '700',
                       color: el.color || '#ffffff',
                       fontFamily: el.fontFamily || 'Outfit',
-                      cursor: 'pointer',
+                      cursor: 'grab',
                       userSelect: 'none',
-                      padding: '2px 4px',
+                      padding: '2px 6px',
                       borderRadius: '4px',
                       outline: isSel ? '2px dashed #FFDD00' : 'none',
-                      background: isSel ? 'rgba(255, 221, 0, 0.15)' : 'transparent',
+                      background: isSel ? 'rgba(255, 221, 0, 0.2)' : 'transparent',
                       transform: el.rotate ? `rotate(${el.rotate}deg)` : 'none',
                       whiteSpace: 'nowrap',
                     }}
@@ -444,11 +494,39 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                   </div>
                 );
               }
+              if (el.type === 'qr') {
+                return (
+                  <div
+                    key={el.id}
+                    onMouseDown={(e) => handleMouseDown(e, el.id, el.x, el.y)}
+                    style={{
+                      position: 'absolute',
+                      left: `${el.x}px`,
+                      top: `${el.y}px`,
+                      background: '#ffffff',
+                      padding: '6px',
+                      borderRadius: '10px',
+                      cursor: 'grab',
+                      userSelect: 'none',
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
+                      outline: isSel ? '2px dashed #FFDD00' : 'none',
+                      transform: el.rotate ? `rotate(${el.rotate}deg)` : 'none',
+                    }}
+                  >
+                    <QRCodeSVG
+                      value={`TicketPass:${sampleData.ticket_id}`}
+                      size={el.size || 84}
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                    />
+                  </div>
+                );
+              }
               if (el.type === 'rect') {
                 return (
                   <div
                     key={el.id}
-                    onClick={(e) => { e.stopPropagation(); setSelectedId(el.id); }}
+                    onMouseDown={(e) => handleMouseDown(e, el.id, el.x, el.y)}
                     style={{
                       position: 'absolute',
                       left: `${el.x}px`,
@@ -457,7 +535,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       height: `${el.height || 40}px`,
                       border: '2px solid #FFDD00',
                       borderRadius: '8px',
-                      cursor: 'pointer',
+                      cursor: 'grab',
                       outline: isSel ? '2px dashed #ea580c' : 'none',
                     }}
                   />
@@ -466,36 +544,10 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
               return null;
             })}
 
-            {/* Stub QR Section on the Right */}
-            <div style={{
-              position: 'absolute',
-              right: '90px',
-              top: '20px',
-              background: '#ffffff',
-              padding: '6px',
-              borderRadius: '10px',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
-            }}>
-              <QRCodeSVG
-                value={`TicketPass:${sampleData.ticket_id}`}
-                size={84}
-                bgColor="#ffffff"
-                fgColor="#000000"
-              />
-            </div>
-
-            {/* Vertical Bar separator */}
-            <div style={{
-              position: 'absolute',
-              right: '200px',
-              top: 0,
-              bottom: 0,
-              borderRight: '2px dashed rgba(255,255,255,0.3)',
-            }} />
           </div>
 
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '16px' }}>
-            Stage Dimensions: {design.width}px × {design.height}px · Designing template for <strong>{EVENT_PRESETS[selectedMovieKey]?.title || selectedMovieKey}</strong>
+            🖐️ Click and drag any text or QR Code on the canvas stage to move position in real-time!
           </div>
         </div>
 
