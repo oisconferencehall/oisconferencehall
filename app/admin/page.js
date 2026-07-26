@@ -569,7 +569,7 @@ export default function AdminPage() {
     { id:'rentRequests', icon:<Building2 size={18}/>,       label:t.admin.rentRequests },
     { id:'hallMap',      icon:<Map size={18}/>,             label:'Hall Map' },
     { id:'pages',        icon:<LayoutTemplate size={18}/>,  label:'Pages (CMS)' },
-    { id:'movieDay',     icon:<Ticket size={18}/>, label:'Ticket Designer', accent: '#FFDD00' },
+    { id:'movieDay',     icon:<span style={{fontSize:'16px'}}>🎬</span>, label:'Movie Day', accent: '#ea580c' },
   ];
 
   return (
@@ -1208,52 +1208,8 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Sub-tab navigation */}
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
-                <button
-                  onClick={() => setMdSubTab('designer')}
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '12px',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    border: 'none',
-                    background: mdSubTab === 'designer' ? 'linear-gradient(135deg, #ea580c, #fb923c)' : 'var(--bg-secondary)',
-                    color: mdSubTab === 'designer' ? '#ffffff' : 'var(--text-secondary)',
-                    boxShadow: mdSubTab === 'designer' ? '0 4px 14px rgba(234, 88, 12, 0.35)' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  🎨 WYSIWYG Ticket Designer Studio
-                </button>
-                <button
-                  onClick={() => setMdSubTab('registrations')}
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '12px',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    border: 'none',
-                    background: mdSubTab === 'registrations' ? 'linear-gradient(135deg, #ea580c, #fb923c)' : 'var(--bg-secondary)',
-                    color: mdSubTab === 'registrations' ? '#ffffff' : 'var(--text-secondary)',
-                    boxShadow: mdSubTab === 'registrations' ? '0 4px 14px rgba(234, 88, 12, 0.35)' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  📋 All Registrations & Passes ({mdRegs.length})
-                </button>
-              </div>
-
-              {mdSubTab === 'designer' ? (
-                <TicketDesignerStudio onSaveSuccess={loadMdRegs} />
-              ) : (
-                <>
+              {/* Direct Registrations View */}
+              <div>
                   {/* Stats row */}
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'20px' }}>
                     {[
@@ -1367,10 +1323,9 @@ export default function AdminPage() {
                   Open Page ↗
                 </a>
               </div>
-            </>
-          )}
-        </div>
-      )}
+            </div>
+          </div>
+        )}
         </main>
       </div>
 
