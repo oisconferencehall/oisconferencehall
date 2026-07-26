@@ -280,7 +280,10 @@ function RegistrationPageContent() {
     const el = seatInnerRef.current;
     const origW = el.scrollWidth;
     const contW = seatContainerRef.current.clientWidth;
-    if (isAutoFit && origW > 0) setScale(Math.min(1, (contW - 32) / origW));
+    if (isAutoFit && origW > 0 && contW > 0) {
+      const fit = (contW - 16) / origW;
+      setScale(Math.min(1, Math.max(0.3, fit)));
+    }
   }, [step, takenSeats, isAutoFit]);
 
   // ── Step 1 validation ───────────────────────────────────────
@@ -482,7 +485,7 @@ function RegistrationPageContent() {
         .reg-branch-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); text-align: center; }
 
         /* Seat map */
-        .reg-seat-wrap { max-width: 900px; margin: 0 auto 32px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 24px; backdrop-filter: blur(20px); }
+        .reg-seat-wrap { max-width: 1050px; margin: 0 auto 32px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 20px; backdrop-filter: blur(20px); width: 100%; box-sizing: border-box; }
         .reg-seat-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; justify-content: center; }
         .reg-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.5); }
         .reg-legend-dot { width: 14px; height: 14px; border-radius: 4px; }
@@ -490,7 +493,7 @@ function RegistrationPageContent() {
         .reg-legend-vip { background: rgba(139,92,246,0.3); border: 1px solid #8b5cf6; }
         .reg-legend-selected { background: linear-gradient(135deg,#ea580c,#fb923c); }
         .reg-legend-taken { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); }
-        .reg-zoom-panel { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .reg-zoom-panel { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; justify-content: center; }
         .reg-zoom-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
         .reg-zoom-btn:hover { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.1); }
         .reg-zoom-label { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 700; min-width: 44px; text-align: center; }
@@ -498,17 +501,17 @@ function RegistrationPageContent() {
         .reg-fit-btn.active { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.1); color: #fb923c; }
         .reg-screen-wrap { text-align: center; margin-bottom: 16px; }
         .reg-screen { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 8px 32px; font-size: 12px; font-weight: 800; letter-spacing: 0.15em; color: rgba(255,255,255,0.4); }
-        .reg-seat-scroll { overflow: auto; border-radius: 12px; background: rgba(0,0,0,0.2); }
-        .reg-seat-inner { transform-origin: top left; display: inline-block; padding: 16px; }
-        .block-row { display: flex; gap: 12px; margin-bottom: 12px; }
-        .block-group { display: flex; gap: 8px; }
-        .seat-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 8px; }
+        .reg-seat-scroll { overflow: auto; border-radius: 12px; background: rgba(0,0,0,0.2); text-align: center; width: 100%; }
+        .reg-seat-inner { transform-origin: top center; display: inline-block; padding: 12px 8px; }
+        .block-row { display: flex; gap: 8px; margin-bottom: 10px; justify-content: center; }
+        .block-group { display: flex; gap: 6px; }
+        .seat-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 6px; }
         .seat-block.vip { background: rgba(139,92,246,0.05); border-color: rgba(139,92,246,0.2); }
-        .block-title { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; text-align: center; margin-bottom: 6px; }
+        .block-title { font-size: 8.5px; font-weight: 800; color: rgba(255,255,255,0.25); letter-spacing: 0.08em; text-align: center; margin-bottom: 5px; }
         .seat-block.vip .block-title { color: rgba(139,92,246,0.6); }
-        .block-rows-container { display: flex; flex-direction: column; gap: 4px; }
-        .block-row-item { display: flex; gap: 4px; }
-        .seat { width: 24px; height: 24px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.15s; user-select: none; }
+        .block-rows-container { display: flex; flex-direction: column; gap: 3px; }
+        .block-row-item { display: flex; gap: 3px; }
+        .seat { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 800; cursor: pointer; transition: all 0.15s; user-select: none; }
         .seat.regular { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #10b981; }
         .seat.regular:hover { background: rgba(16,185,129,0.3); transform: scale(1.12); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
         .seat.vip { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: #a78bfa; }
