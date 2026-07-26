@@ -1,6 +1,6 @@
-'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
+import { supabase } from '@/lib/supabase';
 import styles from './SeatMap.module.css';
 
 // genSeats logic moved inside SeatMap component to allow global numbering
@@ -43,7 +43,7 @@ function SeatBlock({ block, bookedSet, selectedSet, isLight, onSelect, t }) {
           {[...Array(cols)].map((_, ci) => {
             const seat = seats.find(s => s.row === ri+1 && s.col === ci+1);
             if (!seat) return <div key={ci} style={{width: 32, height: 32}}/>; // placeholder for empty seat
-            const status = selectedSet.has(seat.id) ? 'selected' : bookedSet.has(seat.id) ? 'booked' : 'available';
+            const status = selectedSet.has(seat.id) || bookedSet.has(seat.id) || bookedSet.has(`Seat #${seat.num}`) ? (selectedSet.has(seat.id) ? 'selected' : 'booked') : 'available';
             return <Seat key={seat.id} seat={seat} status={status} isLight={isLight} onSelect={onSelect} t={t} />;
           })}
         </div>
@@ -52,11 +52,11 @@ function SeatBlock({ block, bookedSet, selectedSet, isLight, onSelect, t }) {
   );
 }
 
-export default function SeatMap({ bookedSeats = [], onSelectionChange }) {
+export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }) {
   const { t, hallBlocks, theme } = useApp();
   const isLight = theme === 'light';
   const [selectedIds, setSelectedIds] = useState(new Set());
-  const bookedSet = new Set(bookedSeats);
+  const [takenSeatsList, setTakenSeatsList] = useState(bookedSeats);
 
   // Build blocks with global seat numbering
   let currentNum = 1;
@@ -70,7 +70,99 @@ export default function SeatMap({ bookedSeats = [], onSelectionChange }) {
     return { ...block, seats };
   });
   const allSeats = blocks.flatMap(b => b.seats);
-  const totalAvail = allSeats.filter(s => !bookedSet.has(s.id)).length;
+
+  useEffect(() => {
+    if (!eventId) return;
+    async function loadEventTakenSeats() {
+      try {
+        const { data: mdData } = await supabase
+          .from('movie_registrations')
+          .select('id, seat, ticket_id, created_at')
+          .order('created_at', { ascending: true });
+
+        const { data: ticketsData } = await supabase
+          .from('tickets')
+          .select('id, event_id, event_title, created_at')
+          .order('created_at', { ascending: true });
+
+        const combined = [];
+        const seenCodes = new Set();
+
+        (mdData || []).forEach(r => {
+          const rawCode = (r.ticket_id || '').split('::')[0];
+          seenCodes.add(rawCode);
+          seenCodes.add(r.id);
+          combined.push(r);
+        });
+
+        (ticketsData || []).forEach(t => {
+          const shortCode = (t.id || '').slice(0, 8).toUpperCase();
+          if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
+            combined.push({
+              id: t.id,
+              ticket_id: `${shortCode}::${t.event_id || ''}::${t.event_title || ''}`,
+              seat: 'Reserved Pass',
+              created_at: t.created_at
+            });
+          }
+        });
+
+        const taken = new Set(bookedSeats);
+        const unassignedRegs = [];
+
+        combined.forEach(r => {
+          const rawSeat = r.seat;
+          const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
+          const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || (rawSeat && String(rawSeat).startsWith(eventId));
+          
+          if (isForThisEvent) {
+            if (cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
+              taken.add(cleanSeat);
+
+              // Map Seat #17 -> block coordinate like C21-2 / C2-1-2 / L11-1 and vice versa
+              if (cleanSeat.startsWith('Seat #')) {
+                const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+                allSeats.forEach(s => {
+                  if (String(s.num) === seatNumStr) {
+                    taken.add(s.id);
+                  }
+                });
+              } else {
+                allSeats.forEach(s => {
+                  if (s.id === cleanSeat || `Seat #${s.num}` === cleanSeat) {
+                    taken.add(s.id);
+                  }
+                });
+              }
+            } else {
+              unassignedRegs.push(r);
+            }
+          }
+        });
+
+        // For any general/unassigned registrations, auto-reserve physical seats on the map
+        let seatIndex = 0;
+        unassignedRegs.forEach(() => {
+          while (seatIndex < allSeats.length) {
+            const seat = allSeats[seatIndex];
+            seatIndex++;
+            if (!taken.has(seat.id) && !taken.has(`Seat #${seat.num}`)) {
+              taken.add(seat.id);
+              taken.add(`Seat #${seat.num}`);
+              break;
+            }
+          }
+        });
+
+        setTakenSeatsList(Array.from(taken));
+      } catch (err) {}
+    }
+
+    loadEventTakenSeats();
+  }, [eventId]);
+
+  const bookedSet = new Set(takenSeatsList);
+  const totalAvail = allSeats.filter(s => !bookedSet.has(s.id) && !bookedSet.has(`Seat #${s.num}`)).length;
 
   const handleSelect = (seat) => {
     const next = new Set(selectedIds);
