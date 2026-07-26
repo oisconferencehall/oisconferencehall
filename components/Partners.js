@@ -19,27 +19,46 @@ export default function Partners() {
       <div className="partners-marquee-track" style={{
         display: 'flex', width: 'max-content',
         willChange: 'transform',
+        alignItems: 'center',
       }}>
         {/* Seamless loop array */}
         {[...displayPartners, ...displayPartners, ...displayPartners, ...displayPartners].map((partner, i) => (
           <div key={i} style={{
             flex: '0 0 auto',
-            width: '180px',
+            width: '210px',
+            height: '64px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: 0.9,
             transition: 'all 0.3s ease',
             cursor: 'pointer',
-            padding: '0 16px'
+            padding: '0 16px',
+            boxSizing: 'border-box',
           }}
             onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.transform = 'scale(1.08)'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = 0.9; e.currentTarget.style.transform = 'scale(1)'; }}
           >
             {partner.logo ? (
-              <img 
-                src={partner.logo} 
-                alt={partner.name || 'Partner Logo'} 
-                style={{ maxHeight: '44px', maxWidth: '140px', objectFit: 'contain' }} 
-              />
+              <div style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'center',
+              }}>
+                <img 
+                  src={partner.logo} 
+                  alt={partner.name || 'Partner Logo'} 
+                  style={{ 
+                    height: '42px',
+                    width: 'auto',
+                    maxWidth: '175px',
+                    maxHeight: '48px',
+                    objectFit: 'contain',
+                    transform: partner.scale ? `scale(${partner.scale})` : 'none',
+                    transition: 'transform 0.2s ease',
+                  }} 
+                />
+              </div>
             ) : (
               <span style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-primary)', fontFamily: "'Inter', sans-serif" }}>
                 {partner.name}
