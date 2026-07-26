@@ -151,6 +151,7 @@ function RegistrationPageContent() {
   const eventId = searchParams.get('eventId');
   const isFromTelegram = searchParams.get('source') === 'telegram';
   const preselectedSeats = searchParams.get('seats')?.split(',').filter(Boolean) || [];
+  const [activePreselectedSeats, setActivePreselectedSeats] = useState(preselectedSeats);
 
   const [showLangModal, setShowLangModal] = useState(isFromTelegram);
   const [step, setStep] = useState(1);
@@ -289,7 +290,7 @@ function RegistrationPageContent() {
 
   const goStep2 = () => { 
     if (validateStep1()) {
-      if (preselectedSeats.length > 0) {
+      if (activePreselectedSeats.length > 0) {
         setStep(3); // Skip seat selection if seats were already passed from event page
       } else {
         setStep(2); 
@@ -305,7 +306,7 @@ function RegistrationPageContent() {
     const baseCode = 'MD-' + Date.now().toString(36).toUpperCase();
     const fullTicketId = eventId ? `${baseCode}::${eventId}::${movieTitle}` : `${baseCode}::general::${movieTitle}`;
     const branch = form.branch === 'Other' ? form.otherBranch : form.branch;
-    const rawSeat = preselectedSeats.length > 0 ? preselectedSeats.join(', ') : selectedSeat;
+    const rawSeat = activePreselectedSeats.length > 0 ? activePreselectedSeats.join(', ') : selectedSeat;
     
     // Store composite seat per event to make seat unique per event across database constraints
     const targetEventId = eventId || 'general';
@@ -929,7 +930,7 @@ function RegistrationPageContent() {
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
                 <button className="reg-btn-primary" onClick={() => generateQR(lastReg)}>{t.download_again}</button>
-                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setTermsChecked(false); }}>
+                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
                   {t.register_another}
                 </button>
               </div>
