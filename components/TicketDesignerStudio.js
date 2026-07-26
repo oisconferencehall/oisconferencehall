@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   Plus, Trash2, Save, RotateCcw, Printer, Image as ImageIcon, 
-  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, QrCode, Layers
+  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, QrCode, FileText
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -118,7 +118,6 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
-        // Do not delete if typing inside input, textarea, or select
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
           return;
         }
@@ -229,21 +228,86 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
       .replace(/{level}/g, sampleData.level);
   };
 
-  const handleTestPrint = () => {
-    const el = document.getElementById('ticket-designer-stage');
-    if (!el) return;
+  // ── A4 Page PDF Batch Sheet Printer ──
+  const handlePrintA4Sheet = (ticketsCount = 4) => {
+    const stageEl = document.getElementById('ticket-designer-stage');
+    if (!stageEl) return;
+
+    // Clone stage HTML and strip selection outlines/badges
+    const clone = stageEl.cloneNode(true);
+    clone.style.transform = 'none';
+    clone.style.width = '100%';
+    clone.style.height = '100%';
+    clone.style.boxShadow = 'none';
+    clone.style.border = 'none';
+
+    clone.querySelectorAll('*').forEach(child => {
+      child.style.outline = 'none';
+      if (child.tagName === 'BUTTON') child.remove();
+    });
+
+    const ticketHtml = clone.outerHTML;
+
+    let a4TicketsHtml = '';
+    for (let i = 0; i < ticketsCount; i++) {
+      a4TicketsHtml += `
+        <div class="ticket-wrapper">
+          ${ticketHtml}
+        </div>
+      `;
+    }
+
     const win = window.open('', '_blank');
     win.document.write(`
+      <!DOCTYPE html>
       <html>
         <head>
-          <title>Test Print Pass</title>
+          <title>A4 Ticket Sheet Print</title>
           <style>
-            body { background: #000; padding: 40px; display: flex; justify-content: center; }
+            @page {
+              size: A4 portrait;
+              margin: 8mm 10mm;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              box-sizing: border-box;
+            }
+            body {
+              background: #ffffff !important;
+              margin: 0;
+              padding: 0;
+              font-family: 'Outfit', sans-serif;
+            }
+            .a4-container {
+              width: 190mm;
+              margin: 0 auto;
+              display: flex;
+              flex-direction: column;
+              gap: 6mm;
+            }
+            .ticket-wrapper {
+              width: 190mm;
+              height: 58mm;
+              position: relative;
+              border-radius: 12px;
+              overflow: hidden;
+              page-break-inside: avoid;
+              border: 1px dashed #cbd5e1;
+            }
           </style>
         </head>
         <body>
-          ${el.outerHTML}
-          <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
+          <div class="a4-container">
+            ${a4TicketsHtml}
+          </div>
+          <script>
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 600);
+          </script>
         </body>
       </html>
     `);
@@ -308,8 +372,8 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           <button className="btn btn-ghost btn-sm" style={{ fontSize: '12px' }} onClick={() => setDesign({ bgImage: '', width: 800, height: 226, flipX: false, flipY: false, elements: [] })}>
             <RotateCcw size={14} /> Reset
           </button>
-          <button className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }} onClick={handleTestPrint}>
-            <Printer size={14} /> Test Print
+          <button className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', borderColor: '#FFDD00', color: '#FFDD00', fontWeight: 800 }} onClick={() => handlePrintA4Sheet(4)}>
+            <FileText size={14} /> 📄 Print A4 Sheet (4 Tickets / Page)
           </button>
           <button className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', background: 'linear-gradient(135deg, #ea580c, #fb923c)', border: 'none', fontWeight: 800, padding: '8px 18px' }} onClick={saveDesign} disabled={saving}>
             {saving ? 'Saving...' : savedMsg ? <> <Check size={14}/> Saved Live! </> : <> <Save size={14}/> Save Movie Design </>}
@@ -558,7 +622,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             </div>
           ) : (
             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '16px' }}>
-              Click or drag any element on the stage to move and edit properties! (Press Delete/Backspace to remove selected element)
+              Click or drag any element on the stage to move and edit properties!
             </div>
           )}
 
@@ -756,7 +820,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           </div>
 
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '16px' }}>
-            🖐️ Click and drag any shape, rectangle, text, or QR Code. Select any layer and press <strong style={{ color: '#ef4444' }}>Delete</strong> or <strong style={{ color: '#ef4444' }}>Backspace</strong> to remove it!
+            📄 Click <strong>Print A4 Sheet</strong> above to generate 4 tickets per A4 page with exact colors & backgrounds!
           </div>
         </div>
 
