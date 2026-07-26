@@ -276,14 +276,29 @@ function RegistrationPageContent() {
 
   // ── Auto-fit zoom ───────────────────────────────────────────
   useEffect(() => {
-    if (step !== 2 || !seatContainerRef.current || !seatInnerRef.current) return;
-    const el = seatInnerRef.current;
-    const origW = el.scrollWidth;
-    const contW = seatContainerRef.current.clientWidth;
-    if (isAutoFit && origW > 0 && contW > 0) {
-      const fit = (contW - 16) / origW;
-      setScale(Math.min(1, Math.max(0.3, fit)));
-    }
+    if (step !== 2) return;
+
+    const updateScale = () => {
+      if (!seatContainerRef.current || !seatInnerRef.current) return;
+      const el = seatInnerRef.current;
+      const origW = el.scrollWidth || 1050;
+      const contW = seatContainerRef.current.clientWidth || (window.innerWidth - 32);
+      if (isAutoFit && origW > 0 && contW > 0) {
+        const padding = window.innerWidth < 640 ? 12 : 24;
+        const fit = (contW - padding) / origW;
+        setScale(Math.min(1, Math.max(0.2, fit)));
+      }
+    };
+
+    updateScale();
+    const t1 = setTimeout(updateScale, 60);
+    const t2 = setTimeout(updateScale, 300);
+    window.addEventListener('resize', updateScale);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', updateScale);
+    };
   }, [step, takenSeats, isAutoFit]);
 
   // ── Step 1 validation ───────────────────────────────────────
@@ -501,8 +516,8 @@ function RegistrationPageContent() {
         .reg-fit-btn.active { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.1); color: #fb923c; }
         .reg-screen-wrap { text-align: center; margin-bottom: 16px; }
         .reg-screen { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 8px 32px; font-size: 12px; font-weight: 800; letter-spacing: 0.15em; color: rgba(255,255,255,0.4); }
-        .reg-seat-scroll { overflow: auto; border-radius: 12px; background: rgba(0,0,0,0.2); text-align: center; width: 100%; }
-        .reg-seat-inner { transform-origin: top center; display: inline-block; padding: 12px 8px; }
+        .reg-seat-scroll { overflow-x: auto; overflow-y: hidden; border-radius: 12px; background: rgba(0,0,0,0.25); text-align: center; width: 100%; display: flex; justify-content: center; padding: 12px 0; }
+        .reg-seat-inner { transform-origin: top left; display: inline-block; padding: 12px 8px; }
         .block-row { display: flex; gap: 8px; margin-bottom: 10px; justify-content: center; }
         .block-group { display: flex; gap: 6px; }
         .seat-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 6px; }
@@ -811,40 +826,48 @@ function RegistrationPageContent() {
                 {seatsLoading ? (
                   <div style={{textAlign:'center',padding:'40px',color:'rgba(255,255,255,0.4)'}}>Loading seats…</div>
                 ) : (
-                  <div ref={seatInnerRef} className="reg-seat-inner" style={{transform:`scale(${scale})`,transformOrigin:'top left'}}>
-                    {BLOCKS.map((blockRow, ri) => (
-                      <div key={ri} className="block-row">
-                        {[blockRow.slice(0,2), blockRow.slice(2,4), blockRow.slice(4,6)].map((group, gi) => (
-                          <div key={gi} className="block-group">
-                            {group.map(block => (
-                              <div key={block.id} className={`seat-block${block.vip?' vip':''}`}>
-                                <div className="block-title">{block.name}</div>
-                                <div className="block-rows-container">
-                                  {Array.from({length:block.rows},(_,r)=>(
-                                    <div key={r} className="block-row-item">
-                                      {Array.from({length:block.cols},(_,c)=>{
-                                        const id=`${block.id}-${r+1}-${c+1}`;
-                                        const num=SEAT_NUMBERS[id];
-                                        const taken=takenSeats.has(id) || takenSeats.has(`Seat #${num}`) || takenSeats.has(`Seat ${num}`);
-                                        const sel=selectedSeat===id;
-                                        return (
-                                          <div key={id} title={`Seat #${num}${taken?' (Taken)':sel?' (Selected)':' (Available)'}`}
-                                            className={`seat${block.vip?' vip':' regular'}${taken?' taken':''}${sel?' selected':''}`}
-                                            onClick={()=>{ if(!taken){ setSelectedSeat(id); } }}>
-                                            {num}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  ))}
+                  <div style={{
+                    width: seatInnerRef.current ? seatInnerRef.current.scrollWidth * scale : 'auto',
+                    height: seatInnerRef.current ? seatInnerRef.current.scrollHeight * scale : 'auto',
+                    position: 'relative',
+                    margin: '0 auto',
+                    overflow: 'hidden'
+                  }}>
+                    <div ref={seatInnerRef} className="reg-seat-inner" style={{transform:`scale(${scale})`,transformOrigin:'top left'}}>
+                      {BLOCKS.map((blockRow, ri) => (
+                        <div key={ri} className="block-row">
+                          {[blockRow.slice(0,2), blockRow.slice(2,4), blockRow.slice(4,6)].map((group, gi) => (
+                            <div key={gi} className="block-group">
+                              {group.map(block => (
+                                <div key={block.id} className={`seat-block${block.vip?' vip':''}`}>
+                                  <div className="block-title">{block.name}</div>
+                                  <div className="block-rows-container">
+                                    {Array.from({length:block.rows},(_,r)=>(
+                                      <div key={r} className="block-row-item">
+                                        {Array.from({length:block.cols},(_,c)=>{
+                                          const id=`${block.id}-${r+1}-${c+1}`;
+                                          const num=SEAT_NUMBERS[id];
+                                          const taken=takenSeats.has(id) || takenSeats.has(`Seat #${num}`) || takenSeats.has(`Seat ${num}`);
+                                          const sel=selectedSeat===id;
+                                          return (
+                                            <div key={id} title={`Seat #${num}${taken?' (Taken)':sel?' (Selected)':' (Available)'}`}
+                                              className={`seat${block.vip?' vip':' regular'}${taken?' taken':''}${sel?' selected':''}`}
+                                              onClick={()=>{ if(!taken){ setSelectedSeat(id); } }}>
+                                              {num}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                    <div className="reg-entrance">── ENTRANCE ──</div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                      <div className="reg-entrance">── ENTRANCE ──</div>
+                    </div>
                   </div>
                 )}
               </div>
