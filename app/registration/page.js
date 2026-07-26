@@ -108,8 +108,27 @@ const SEAT_NUMBERS = {};
 
 function formatSeat(id) {
   if (!id) return '—';
-  const num = SEAT_NUMBERS[id];
-  return num !== undefined ? `Seat #${num}` : id;
+  const cleanId = String(id).split('::').pop();
+  const num = SEAT_NUMBERS[cleanId];
+  if (num !== undefined) return `Seat #${num}`;
+  if (cleanId.startsWith('Seat #')) return cleanId;
+  return cleanId;
+}
+
+function formatEventDate(dateStr) {
+  if (!dateStr) return 'Saturday, July 11, 2026';
+  try {
+    const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch {
+    return dateStr;
+  }
 }
 
 function formatPhone(val) {
@@ -128,7 +147,7 @@ import { useApp } from '@/context/AppContext';
 function RegistrationPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { lang, changeLang, t: globalT } = useApp(); // Use global app language
+  const { lang, changeLang, t: globalT, events: appEvents } = useApp(); // Use global app language
   const eventId = searchParams.get('eventId');
   const isFromTelegram = searchParams.get('source') === 'telegram';
   const preselectedSeats = searchParams.get('seats')?.split(',').filter(Boolean) || [];
@@ -145,14 +164,24 @@ function RegistrationPageContent() {
 
   useEffect(() => {
     if (eventId) {
-      supabase.from('movie_events').select('*').eq('id', eventId).single().then(({ data }) => {
-        if (data) setEvent(data);
+      const appFound = appEvents?.find(e => String(e.id) === String(eventId));
+      if (appFound) setEvent(appFound);
+
+      async function fetchEventData() {
+        const { data } = await supabase.from('movie_events').select('*').eq('id', eventId).single();
+        if (data) {
+          setEvent(data);
+        } else {
+          const { data: evData } = await supabase.from('events').select('*').eq('id', eventId).single();
+          if (evData) setEvent(evData);
+        }
         setEventLoading(false);
-      });
+      }
+      fetchEventData();
     } else {
       setEventLoading(false);
     }
-  }, [eventId]);
+  }, [eventId, appEvents]);
 
   // Form state
   const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', englishLevel: '', branch: '', otherBranch: '' });
@@ -190,14 +219,26 @@ function RegistrationPageContent() {
     try {
       const { data, error } = await supabase
         .from('movie_registrations')
-        .select('seat')
+        .select('seat, ticket_id')
         .not('seat', 'is', null);
-      if (!error) setTakenSeats(new Set((data || []).map(r => r.seat)));
+
+      if (!error && data) {
+        const taken = new Set();
+        data.forEach(r => {
+          if (!r.seat) return;
+          const cleanSeat = r.seat.split('::').pop();
+          const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || r.seat.startsWith(eventId);
+          if (isForThisEvent) {
+            taken.add(cleanSeat);
+          }
+        });
+        setTakenSeats(taken);
+      }
     } catch {
       setTakenSeats(new Set());
     }
     setSeatsLoading(false);
-  }, []);
+  }, [eventId]);
 
   // ── Realtime subscribe ──────────────────────────────────────
   const subscribeSeats = useCallback(() => {
@@ -207,8 +248,8 @@ function RegistrationPageContent() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'movie_registrations' }, payload => {
         setTakenSeats(prev => {
           const next = new Set(prev);
-          if (payload.new?.seat) next.add(payload.new.seat);
-          if (payload.old?.seat) next.delete(payload.old.seat);
+          if (payload.new?.seat) next.add(payload.new.seat.split('::').pop());
+          if (payload.old?.seat) next.delete(payload.old.seat.split('::').pop());
           return next;
         });
       })
@@ -264,12 +305,16 @@ function RegistrationPageContent() {
     const baseCode = 'MD-' + Date.now().toString(36).toUpperCase();
     const fullTicketId = eventId ? `${baseCode}::${eventId}::${movieTitle}` : `${baseCode}::general::${movieTitle}`;
     const branch = form.branch === 'Other' ? form.otherBranch : form.branch;
-    const seatVal = preselectedSeats.length > 0 ? preselectedSeats.join(', ') : selectedSeat;
+    const rawSeat = preselectedSeats.length > 0 ? preselectedSeats.join(', ') : selectedSeat;
+    
+    // Store composite seat per event to make seat unique per event across database constraints
+    const targetEventId = eventId || 'general';
+    const dbSeatVal = `${targetEventId}::${rawSeat}`;
     
     const payload = {
       first_name: form.firstName, last_name: form.lastName,
       phone: '+998 ' + form.phone, english_level: form.englishLevel,
-      branch, seat: seatVal, ticket_id: fullTicketId,
+      branch, seat: dbSeatVal, ticket_id: fullTicketId,
     };
     
     // Create an anonymous client so it doesn't send the authenticated user's JWT, avoiding RLS 'anon' policy violations
@@ -291,13 +336,22 @@ function RegistrationPageContent() {
     }]);
 
     if (error) {
-      showToast('Registration failed: ' + error.message, 'error');
+      if (error.message?.includes('unique constraint') || error.message?.includes('duplicate key') || error.code === '23505') {
+        showToast('This seat was just reserved by another attendee. Please select another seat.', 'error');
+      } else {
+        showToast('Registration failed: ' + error.message, 'error');
+      }
       setSubmitting(false);
       return;
     }
-    setLastReg(data || payload);
+
+    const cleanReg = {
+      ...(data || payload),
+      seat: rawSeat
+    };
+    setLastReg(cleanReg);
     showToast("Registered successfully!", 'success');
-    generateQR(data || payload);
+    generateQR(cleanReg);
     setSubmitted(true);
     setSubmitting(false);
   };
@@ -562,7 +616,7 @@ function RegistrationPageContent() {
             <div className="reg-meta">
               <div className="reg-meta-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                {event ? new Date(event.date).toLocaleDateString() : 'Saturday, July 11, 2026'}
+                {formatEventDate(event?.date)}
               </div>
               <div className="reg-meta-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
