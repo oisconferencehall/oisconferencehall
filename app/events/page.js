@@ -15,6 +15,7 @@ export default function EventsPage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOpen, setSortOpen] = useState(false);
+  const [showPast, setShowPast] = useState(false);
 
   useEffect(() => {
     const close = (e) => {
@@ -32,6 +33,7 @@ export default function EventsPage() {
 
   const filtered = events
     .filter(ev => {
+      if (showPast) return true;
       const isPast = new Date(ev.date).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
       return !isPast;
     })
@@ -138,6 +140,24 @@ export default function EventsPage() {
                   </div>
                 )}
               </div>
+
+              {/* Show Past Toggle */}
+              <button
+                onClick={() => setShowPast(!showPast)}
+                style={{
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  background: showPast ? 'rgba(255, 221, 0, 0.15)' : 'var(--bg-secondary)',
+                  border: showPast ? '1px solid #FFDD00' : '1px solid var(--border)',
+                  color: showPast ? '#FFDD00' : 'var(--text-secondary)',
+                  fontSize: '13px', fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {showPast ? '✓ Showing All Events' : 'Include Past Events'}
+              </button>
             </div>
 
             {/* Category tabs */}
