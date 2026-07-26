@@ -26,6 +26,15 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     return rawId.includes(eventSlug) || rawId.includes(eventTitleLower) || branchName.includes(eventTitleLower);
   });
 
+  const getDisplaySeat = (r, i) => {
+    if (!r.seat) return `Seat #${i + 1}`;
+    const clean = String(r.seat).split('::').pop();
+    if (clean === 'Reserved Pass' || clean === 'Reserved' || clean === 'General Entry') {
+      return `Seat #${i + 1}`;
+    }
+    return clean.startsWith('Seat #') ? clean : clean;
+  };
+
   const filteredRegs = eventRegs.filter(r => {
     if (branchFilter !== 'all' && r.branch !== branchFilter) return false;
     if (search) {
@@ -522,7 +531,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                       <td style={{ padding: '14px 16px', fontWeight: 700 }}>{r.first_name} {r.last_name}</td>
                       <td style={{ padding: '14px 16px' }}>{r.phone}</td>
                       <td style={{ padding: '14px 16px' }}>{r.branch}</td>
-                      <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{r.seat || 'Reserved'}</td>
+                      <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{getDisplaySeat(r, i)}</td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <button className="btn btn-danger btn-sm" onClick={() => setConfirmDeleteId(r.id)}>
                           <Trash2 size={12}/>
@@ -557,13 +566,13 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' }}>
-              {eventRegs.map(r => (
+              {eventRegs.map((r, i) => (
                 <div key={r.id} style={{ padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: '11px', fontWeight: 800, color: '#FFDD00' }}>TICKET ID: {r.ticket_id}</div>
                     <div style={{ fontSize: '16px', fontWeight: 900, marginTop: '2px' }}>{r.first_name} {r.last_name}</div>
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>{r.phone} · {r.branch}</div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c', marginTop: '2px' }}>{r.seat || 'Reserved Pass'}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c', marginTop: '2px' }}>{getDisplaySeat(r, i)}</div>
                   </div>
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('TicketPass:' + r.ticket_id)}`} 

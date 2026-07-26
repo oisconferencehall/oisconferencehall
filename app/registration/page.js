@@ -220,31 +220,57 @@ function RegistrationPageContent() {
     try {
       const { data, error } = await supabase
         .from('movie_registrations')
-        .select('seat, ticket_id')
-        .not('seat', 'is', null);
+        .select('id, seat, ticket_id, created_at')
+        .order('created_at', { ascending: true });
 
       if (!error && data) {
         const taken = new Set();
-        data.forEach(r => {
-          if (!r.seat) return;
-          const cleanSeat = r.seat.split('::').pop();
-          const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || r.seat.startsWith(eventId);
-          if (isForThisEvent) {
-            taken.add(cleanSeat);
+        const unassignedRegs = [];
 
-            // Map Seat #17 -> L1-1-1 coordinate and vice versa
-            if (cleanSeat.startsWith('Seat #')) {
-              const seatNumStr = cleanSeat.replace('Seat #', '').trim();
-              Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
-                if (String(seatNum) === seatNumStr) {
-                  taken.add(blockId);
-                }
-              });
-            } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
-              taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
+        data.forEach(r => {
+          const rawSeat = r.seat;
+          const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
+          const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || (rawSeat && String(rawSeat).startsWith(eventId));
+          
+          if (isForThisEvent) {
+            if (cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
+              taken.add(cleanSeat);
+
+              // Map Seat #17 -> L1-1-1 coordinate and vice versa
+              if (cleanSeat.startsWith('Seat #')) {
+                const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+                Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
+                  if (String(seatNum) === seatNumStr) {
+                    taken.add(blockId);
+                  }
+                });
+              } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
+                taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
+              }
+            } else {
+              unassignedRegs.push(r);
             }
           }
         });
+
+        // For any general/unassigned registrations, auto-reserve physical seats on the map
+        const allBlockIds = Object.keys(SEAT_NUMBERS);
+        let seatIndex = 0;
+
+        unassignedRegs.forEach(() => {
+          while (seatIndex < allBlockIds.length) {
+            const blockId = allBlockIds[seatIndex];
+            const seatNum = SEAT_NUMBERS[blockId];
+            seatIndex++;
+
+            if (!taken.has(blockId) && !taken.has(`Seat #${seatNum}`)) {
+              taken.add(blockId);
+              taken.add(`Seat #${seatNum}`);
+              break;
+            }
+          }
+        });
+
         setTakenSeats(taken);
       }
     } catch {
@@ -798,11 +824,17 @@ function RegistrationPageContent() {
               </div>
 
               {/* Legend */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '14px', padding: '8px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', fontSize: '13px', fontWeight: 800 }}>
+                <span style={{ color: '#10b981' }}>🟢 {Math.max(0, 186 - Array.from(takenSeats).filter(s => String(s).startsWith('Seat #')).length)} Available</span>
+                <span style={{ color: '#f87171' }}>🔴 {Array.from(takenSeats).filter(s => String(s).startsWith('Seat #')).length} Booked</span>
+                {selectedSeat && <span style={{ color: '#fb923c' }}>🟡 1 Selected</span>}
+              </div>
+
               <div className="reg-seat-legend">
                 <div className="reg-legend-item"><div className="reg-legend-dot reg-legend-regular"/><span>Available (Regular)</span></div>
                 <div className="reg-legend-item"><div className="reg-legend-dot reg-legend-vip"/><span>Available (VIP)</span></div>
                 <div className="reg-legend-item"><div className="reg-legend-dot reg-legend-selected"/><span>Your Selection</span></div>
-                <div className="reg-legend-item"><div className="reg-legend-dot reg-legend-taken"/><span>Taken</span></div>
+                <div className="reg-legend-item"><div className="reg-legend-dot reg-legend-taken"/><span>Taken / Booked</span></div>
               </div>
 
               {/* Zoom controls */}
