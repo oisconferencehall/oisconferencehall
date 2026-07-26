@@ -218,61 +218,86 @@ function RegistrationPageContent() {
   const loadSeats = useCallback(async () => {
     setSeatsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: mdData } = await supabase
         .from('movie_registrations')
         .select('id, seat, ticket_id, created_at')
         .order('created_at', { ascending: true });
 
-      if (!error && data) {
-        const taken = new Set();
-        const unassignedRegs = [];
+      const { data: ticketsData } = await supabase
+        .from('tickets')
+        .select('id, event_id, event_title, created_at')
+        .order('created_at', { ascending: true });
 
-        data.forEach(r => {
-          const rawSeat = r.seat;
-          const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
-          const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || (rawSeat && String(rawSeat).startsWith(eventId));
-          
-          if (isForThisEvent) {
-            if (cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-              taken.add(cleanSeat);
+      const combined = [];
+      const seenCodes = new Set();
 
-              // Map Seat #17 -> L1-1-1 coordinate and vice versa
-              if (cleanSeat.startsWith('Seat #')) {
-                const seatNumStr = cleanSeat.replace('Seat #', '').trim();
-                Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
-                  if (String(seatNum) === seatNumStr) {
-                    taken.add(blockId);
-                  }
-                });
-              } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
-                taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
-              }
-            } else {
-              unassignedRegs.push(r);
+      (mdData || []).forEach(r => {
+        const rawCode = (r.ticket_id || '').split('::')[0];
+        seenCodes.add(rawCode);
+        seenCodes.add(r.id);
+        combined.push(r);
+      });
+
+      (ticketsData || []).forEach(t => {
+        const shortCode = (t.id || '').slice(0, 8).toUpperCase();
+        if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
+          combined.push({
+            id: t.id,
+            ticket_id: `${shortCode}::${t.event_id || ''}::${t.event_title || ''}`,
+            seat: 'Reserved Pass',
+            created_at: t.created_at
+          });
+        }
+      });
+
+      const taken = new Set();
+      const unassignedRegs = [];
+
+      combined.forEach(r => {
+        const rawSeat = r.seat;
+        const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
+        const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || (rawSeat && String(rawSeat).startsWith(eventId));
+        
+        if (isForThisEvent) {
+          if (cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
+            taken.add(cleanSeat);
+
+            // Map Seat #17 -> L1-1-1 coordinate and vice versa
+            if (cleanSeat.startsWith('Seat #')) {
+              const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+              Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
+                if (String(seatNum) === seatNumStr) {
+                  taken.add(blockId);
+                }
+              });
+            } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
+              taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
             }
+          } else {
+            unassignedRegs.push(r);
           }
-        });
+        }
+      });
 
-        // For any general/unassigned registrations, auto-reserve physical seats on the map
-        const allBlockIds = Object.keys(SEAT_NUMBERS);
-        let seatIndex = 0;
+      // For any general/unassigned registrations, auto-reserve physical seats on the map
+      const allBlockIds = Object.keys(SEAT_NUMBERS);
+      let seatIndex = 0;
 
-        unassignedRegs.forEach(() => {
-          while (seatIndex < allBlockIds.length) {
-            const blockId = allBlockIds[seatIndex];
-            const seatNum = SEAT_NUMBERS[blockId];
-            seatIndex++;
+      unassignedRegs.forEach(() => {
+        while (seatIndex < allBlockIds.length) {
+          const blockId = allBlockIds[seatIndex];
+          const seatNum = SEAT_NUMBERS[blockId];
+          seatIndex++;
 
-            if (!taken.has(blockId) && !taken.has(`Seat #${seatNum}`)) {
-              taken.add(blockId);
-              taken.add(`Seat #${seatNum}`);
-              break;
-            }
+          if (!taken.has(blockId) && !taken.has(`Seat #${seatNum}`)) {
+            taken.add(blockId);
+            taken.add(`Seat #${seatNum}`);
+            break;
           }
-        });
+        }
+      });
 
-        setTakenSeats(taken);
-      }
+      setTakenSeats(taken);
     } catch {
       setTakenSeats(new Set());
     }
