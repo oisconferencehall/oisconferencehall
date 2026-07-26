@@ -348,7 +348,7 @@ export default function AdminPage() {
     { id:'rentRequests', icon:<Building2 size={18}/>,       label:t.admin.rentRequests },
     { id:'hallMap',      icon:<Map size={18}/>,             label:'Hall Map' },
     { id:'pages',        icon:<LayoutTemplate size={18}/>,  label:'Pages (CMS)' },
-    { id:'movieDay',     icon:<span style={{fontSize:'16px'}}>🎬</span>, label:'Movie Day', accent: '#ea580c' },
+    { id:'movieDay',     icon:<Ticket size={18}/>, label:'Ticket Designer', accent: '#FFDD00' },
   ];
 
   return (
@@ -975,6 +975,12 @@ export default function AdminPage() {
                   <p style={{ fontSize:'13px', color:'var(--text-muted)', marginTop:'4px' }}>Filter registrations per movie, manage attendee passes, and design tickets live.</p>
                 </div>
                 <div style={{ display:'flex', gap:'8px' }}>
+                  <button className="btn" onClick={() => {
+                    const sample = mdRegs[0] || { id: 'demo', ticket_id: 'MD-DEMO', first_name: 'Ozodbek', last_name: 'Jumayev', phone: '+998 77 196 00 20', english_level: 'Advanced', branch: 'Oxford International School', seat: 'VIP-C1-5', created_at: new Date().toISOString() };
+                    setDesignTicket({ ...sample, parsed: parseTicketId(sample.ticket_id) });
+                  }} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'13px', background:'linear-gradient(135deg, #FFDD00, #FFDD00)', color:'#000000', fontWeight:800, padding:'10px 18px', borderRadius:'10px', boxShadow:'0 4px 14px rgba(255, 221, 0, 0.35)', border:'none', cursor:'pointer' }}>
+                    🎨 Open Ticket Designer
+                  </button>
                   <button className="btn btn-primary" onClick={exportMdCSV} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'13px' }}>
                     <Users size={14}/> Export CSV
                   </button>
@@ -2256,8 +2262,33 @@ export default function AdminPage() {
               </button>
             </div>
 
+            {/* Attendee Selector */}
+            {mdRegs.length > 0 && (
+              <div style={{ marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Select Ticket:</span>
+                <select
+                  className="form-input"
+                  style={{ flex: 1, fontSize: '13px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                  value={designTicket?.id || ''}
+                  onChange={e => {
+                    const found = mdRegs.find(r => r.id === e.target.value);
+                    if (found) setDesignTicket({ ...found, parsed: parseTicketId(found.ticket_id) });
+                  }}
+                >
+                  {mdRegs.map(r => {
+                    const p = parseTicketId(r.ticket_id);
+                    return (
+                      <option key={r.id} value={r.id}>
+                        {r.first_name} {r.last_name} — {p.movieTitle} ({p.code})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
+
             {/* Theme Selector */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Theme:</span>
               {[
                 { id: 'gold', label: '✨ Gold Luxury', bg: 'linear-gradient(135deg, #1c1917, #292524)', border: '#FFDD00', text: '#FFDD00' },
