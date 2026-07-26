@@ -260,12 +260,16 @@ function RegistrationPageContent() {
   const submit = async () => {
     if (!termsChecked) { showToast('Please confirm your details first.', 'error'); return; }
     setSubmitting(true);
-    const ticketId = 'MD-' + Date.now().toString(36).toUpperCase();
+    const movieTitle = event?.title || 'Movie Day 2026';
+    const baseCode = 'MD-' + Date.now().toString(36).toUpperCase();
+    const fullTicketId = eventId ? `${baseCode}::${eventId}::${movieTitle}` : `${baseCode}::general::${movieTitle}`;
     const branch = form.branch === 'Other' ? form.otherBranch : form.branch;
+    const seatVal = preselectedSeats.length > 0 ? preselectedSeats.join(', ') : selectedSeat;
+    
     const payload = {
       first_name: form.firstName, last_name: form.lastName,
       phone: '+998 ' + form.phone, english_level: form.englishLevel,
-      branch, seat: preselectedSeats.length > 0 ? preselectedSeats.join(', ') : selectedSeat, ticket_id: ticketId,
+      branch, seat: seatVal, ticket_id: fullTicketId,
     };
     
     // Create an anonymous client so it doesn't send the authenticated user's JWT, avoiding RLS 'anon' policy violations
@@ -276,19 +280,15 @@ function RegistrationPageContent() {
 
     const { data, error } = await anonSupabase.from('movie_registrations').insert([payload]).select().single();
     
-    // Also create ticket in my_tickets if user is logged in
-    const { data: session } = await supabase.auth.getSession();
-    if (session?.session?.user && eventId) {
-      await supabase.from('my_tickets').insert([{
-        user_id: session.session.user.id,
-        event_id: eventId,
-        ticket_id: ticketId,
-        payment_method: 'on-site',
-        seats: preselectedSeats.length > 0 ? preselectedSeats : [selectedSeat],
-        total_price: 0,
-        payer_name: `${form.firstName} ${form.lastName}`
-      }]);
-    }
+    // Also insert into tickets table
+    await anonSupabase.from('tickets').insert([{
+      event_id: eventId || 'movie-day-2026',
+      event_title: movieTitle,
+      payer_name: `${form.firstName} ${form.lastName}`,
+      payer_phone: '+998 ' + form.phone,
+      total_price: 0,
+      status: 'confirmed'
+    }]);
 
     if (error) {
       showToast('Registration failed: ' + error.message, 'error');

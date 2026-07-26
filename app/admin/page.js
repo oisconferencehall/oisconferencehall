@@ -5,11 +5,12 @@ import Navbar from '@/components/Navbar';
 import DatePicker from '@/components/DatePicker';
 import TimePicker from '@/components/TimePicker';
 import CategoryPicker from '@/components/CategoryPicker';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   LayoutDashboard, CalendarDays, Ticket, Building2, LogOut,
   Plus, Trash2, Check, X, TrendingUp, Users, DollarSign,
   ClipboardList, Map, RotateCcw, Save, Edit2, Crown, LayoutTemplate,
-  Clock
+  Clock, Printer, Eye
 } from 'lucide-react';
 import { formatPrice } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
@@ -90,11 +91,27 @@ export default function AdminPage() {
     if (appAnnouncement && appAnnouncement.title) setCmsAnnouncement(appAnnouncement);
   }, [partners, appVideos, appContacts, appFaq, appHalls, appAdvantages, appAnnouncement]);
 
-  // ── Movie Day Registrations ──
+  // ── Movie Day Registrations & Ticket Designer ──
   const [mdRegs, setMdRegs] = useState([]);
   const [mdLoading, setMdLoading] = useState(false);
   const [mdSearch, setMdSearch] = useState('');
   const [mdFilter, setMdFilter] = useState('all');
+  const [mdMovieFilter, setMdMovieFilter] = useState('all');
+  const [designTicket, setDesignTicket] = useState(null);
+  const [ticketDesignTheme, setTicketDesignTheme] = useState('gold');
+
+  const parseTicketId = (rawId) => {
+    if (!rawId) return { code: 'MD-—', eventId: '', movieTitle: 'Movie Day 2026' };
+    if (rawId.includes('::')) {
+      const parts = rawId.split('::');
+      return {
+        code: parts[0],
+        eventId: parts[1] || '',
+        movieTitle: parts[2] || 'Movie Day 2026'
+      };
+    }
+    return { code: rawId, eventId: '', movieTitle: 'Movie Day 2026' };
+  };
 
   const loadMdRegs = async () => {
     setMdLoading(true);
@@ -109,12 +126,15 @@ export default function AdminPage() {
   };
 
   const exportMdCSV = () => {
-    const rows = [['Ticket ID','First Name','Last Name','Phone','Level','Branch','Seat','Registered']];
-    mdRegs.forEach(r => rows.push([r.ticket_id, r.first_name, r.last_name, r.phone, r.english_level, r.branch, r.seat||'', new Date(r.created_at).toLocaleString()]));
-    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const rows = [['Ticket ID','Movie / Event','First Name','Last Name','Phone','Level','Branch','Seat','Registered']];
+    mdRegs.forEach(r => {
+      const parsed = parseTicketId(r.ticket_id);
+      rows.push([parsed.code, parsed.movieTitle, r.first_name, r.last_name, r.phone, r.english_level, r.branch, r.seat||'', new Date(r.created_at).toLocaleString()]);
+    });
+    const csv = rows.map(r => r.map(c => `"${(c||'').replace(/"/g, '""')}"`).join(',')).join('\n');
     const a = document.createElement('a');
     a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-    a.download = 'MovieDay2026_Registrations.csv';
+    a.download = 'MovieDay_Registrations.csv';
     a.click();
   };
 
@@ -906,8 +926,8 @@ export default function AdminPage() {
             <div style={{ animation:'fadeInUp 0.4s ease' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'24px', flexWrap:'wrap', gap:'12px' }}>
                 <div>
-                  <h2 style={{ fontSize:'24px', fontWeight:800, display:'flex', alignItems:'center', gap:'10px' }}>🎬 Movie Day Registrations</h2>
-                  <p style={{ fontSize:'13px', color:'var(--text-muted)', marginTop:'4px' }}>Manage all Movie Day 2026 attendee registrations</p>
+                  <h2 style={{ fontSize:'24px', fontWeight:800, display:'flex', alignItems:'center', gap:'10px' }}>🎬 Movie Day Registrations & Ticket Designer</h2>
+                  <p style={{ fontSize:'13px', color:'var(--text-muted)', marginTop:'4px' }}>Filter registrations per movie, manage attendee passes, and design tickets live.</p>
                 </div>
                 <div style={{ display:'flex', gap:'8px' }}>
                   <button className="btn btn-primary" onClick={exportMdCSV} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'13px' }}>
@@ -922,7 +942,7 @@ export default function AdminPage() {
               {/* Stats row */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'20px' }}>
                 {[
-                  { label:'Total', value: mdRegs.length, color:'#ea580c' },
+                  { label:'Total Registrations', value: mdRegs.length, color:'#ea580c' },
                   { label:'Fast Education', value: mdRegs.filter(r=>r.branch==='Fast Education').length, color:'#FFDD00' },
                   { label:'Oxford Int\'l', value: mdRegs.filter(r=>r.branch==='Oxford International School').length, color:'#3b82f6' },
                   { label:'Seats Taken', value: mdRegs.filter(r=>r.seat).length, color:'#10b981' },
@@ -934,14 +954,28 @@ export default function AdminPage() {
                 ))}
               </div>
 
-              {/* Search + filter */}
-              <div style={{ display:'flex', gap:'10px', marginBottom:'16px', flexWrap:'wrap' }}>
+              {/* Search + Filters */}
+              <div style={{ display:'flex', gap:'10px', marginBottom:'16px', flexWrap:'wrap', alignItems:'center' }}>
                 <input placeholder="Search name, phone, ticket…" value={mdSearch} onChange={e=>setMdSearch(e.target.value)}
                   className="form-input" style={{ flex:1, minWidth:'180px', fontSize:'13px' }} />
+
+                {/* Movie Selector Dropdown */}
+                <select 
+                  className="form-input" 
+                  style={{ width:'auto', minWidth:'180px', fontSize:'13px', background:'var(--bg-secondary)', color:'var(--text-primary)', border:'1px solid var(--border)' }}
+                  value={mdMovieFilter}
+                  onChange={e => setMdMovieFilter(e.target.value)}
+                >
+                  <option value="all">🎬 All Movies / Events</option>
+                  {events.map(ev => (
+                    <option key={ev.id} value={ev.title}>{ev.title}</option>
+                  ))}
+                </select>
+
                 {['all','Fast Education','Oxford International School','Other'].map(f=>(
                   <button key={f} onClick={()=>setMdFilter(f)}
                     className={`btn btn-sm ${mdFilter===f?'btn-primary':'btn-ghost'}`} style={{ fontSize:'12px', whiteSpace:'nowrap' }}>
-                    {f==='all'?'All':f==='Oxford International School'?'Oxford Int\'l':f}
+                    {f==='all'?'All Branches':f==='Oxford International School'?'Oxford Int\'l':f}
                   </button>
                 ))}
               </div>
@@ -954,38 +988,54 @@ export default function AdminPage() {
                   <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'13px' }}>
                     <thead>
                       <tr style={{ background:'var(--bg-secondary)' }}>
-                        {['#','Ticket ID','Name','Phone','Level','Branch','Seat','Date',''].map(h=>(
+                        {['#','Ticket ID','Movie / Event','Name','Phone','Level','Branch','Seat','Date','Actions'].map(h=>(
                           <th key={h} style={{ padding:'12px 14px', textAlign:'left', fontWeight:700, fontSize:'11px', color:'var(--text-muted)', letterSpacing:'0.05em', textTransform:'uppercase', borderBottom:'1px solid var(--border)', whiteSpace:'nowrap' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {mdRegs
-                        .filter(r => mdFilter==='all' || (mdFilter==='Other' ? (r.branch!=='Fast Education'&&r.branch!=='Oxford International School') : r.branch===mdFilter))
-                        .filter(r => !mdSearch || `${r.first_name} ${r.last_name} ${r.phone} ${r.ticket_id}`.toLowerCase().includes(mdSearch.toLowerCase()))
-                        .map((r, i) => (
-                          <tr key={r.id} style={{ borderBottom:'1px solid var(--border)', transition:'background 0.15s' }}
-                            onMouseEnter={e=>e.currentTarget.style.background='var(--bg-secondary)'}
-                            onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                            <td style={{ padding:'12px 14px', color:'var(--text-muted)' }}>{i+1}</td>
-                            <td style={{ padding:'12px 14px', fontWeight:700, color:'#fb923c', fontFamily:'monospace', fontSize:'12px' }}>{r.ticket_id}</td>
-                            <td style={{ padding:'12px 14px', fontWeight:600 }}>{r.first_name} {r.last_name}</td>
-                            <td style={{ padding:'12px 14px', color:'var(--text-secondary)' }}>{r.phone}</td>
-                            <td style={{ padding:'12px 14px' }}>
-                              <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'11px', fontWeight:800, background:'rgba(234,88,12,0.1)', color:'#fb923c' }}>{r.english_level}</span>
-                            </td>
-                            <td style={{ padding:'12px 14px', color:'var(--text-secondary)', maxWidth:'120px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.branch}</td>
-                            <td style={{ padding:'12px 14px', fontWeight:700 }}>{r.seat || '—'}</td>
-                            <td style={{ padding:'12px 14px', color:'var(--text-muted)', fontSize:'12px', whiteSpace:'nowrap' }}>{new Date(r.created_at).toLocaleDateString()}</td>
-                            <td style={{ padding:'12px 14px' }}>
-                              <button className="btn btn-danger btn-sm" onClick={()=>{ if(confirm('Delete this registration?')) deleteMdReg(r.id); }}>
-                                <Trash2 size={12}/>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        .filter(r => {
+                          const parsed = parseTicketId(r.ticket_id);
+                          if (mdMovieFilter !== 'all' && parsed.movieTitle !== mdMovieFilter) return false;
+                          if (mdFilter === 'all') return true;
+                          if (mdFilter === 'Other') return r.branch !== 'Fast Education' && r.branch !== 'Oxford International School';
+                          return r.branch === mdFilter;
+                        })
+                        .filter(r => {
+                          const parsed = parseTicketId(r.ticket_id);
+                          return !mdSearch || `${r.first_name} ${r.last_name} ${r.phone} ${parsed.code} ${parsed.movieTitle}`.toLowerCase().includes(mdSearch.toLowerCase());
+                        })
+                        .map((r, i) => {
+                          const parsed = parseTicketId(r.ticket_id);
+                          return (
+                            <tr key={r.id} style={{ borderBottom:'1px solid var(--border)', transition:'background 0.15s' }}
+                              onMouseEnter={e=>e.currentTarget.style.background='var(--bg-secondary)'}
+                              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                              <td style={{ padding:'12px 14px', color:'var(--text-muted)' }}>{i+1}</td>
+                              <td style={{ padding:'12px 14px', fontWeight:700, color:'#fb923c', fontFamily:'monospace', fontSize:'12px' }}>{parsed.code}</td>
+                              <td style={{ padding:'12px 14px', fontWeight:700, color:'#FFDD00', fontSize:'12px' }}>{parsed.movieTitle}</td>
+                              <td style={{ padding:'12px 14px', fontWeight:600 }}>{r.first_name} {r.last_name}</td>
+                              <td style={{ padding:'12px 14px', color:'var(--text-secondary)' }}>{r.phone}</td>
+                              <td style={{ padding:'12px 14px' }}>
+                                <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'11px', fontWeight:800, background:'rgba(234,88,12,0.1)', color:'#fb923c' }}>{r.english_level}</span>
+                              </td>
+                              <td style={{ padding:'12px 14px', color:'var(--text-secondary)', maxWidth:'120px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.branch}</td>
+                              <td style={{ padding:'12px 14px', fontWeight:700 }}>{r.seat || '—'}</td>
+                              <td style={{ padding:'12px 14px', color:'var(--text-muted)', fontSize:'12px', whiteSpace:'nowrap' }}>{new Date(r.created_at).toLocaleDateString()}</td>
+                              <td style={{ padding:'12px 14px', display:'flex', gap:'6px' }}>
+                                <button className="btn btn-outline btn-sm" style={{ padding:'4px 8px', fontSize:'11px', display:'flex', alignItems:'center', gap:'4px' }} onClick={() => setDesignTicket({ ...r, parsed })}>
+                                  <Eye size={12}/> Ticket
+                                </button>
+                                <button className="btn btn-danger btn-sm" onClick={()=>{ if(confirm('Delete this registration?')) deleteMdReg(r.id); }}>
+                                  <Trash2 size={12}/>
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       {mdRegs.length === 0 && (
-                        <tr><td colSpan={9} style={{ textAlign:'center', padding:'48px', color:'var(--text-muted)' }}>No registrations yet. Share the Movie Day link!</td></tr>
+                        <tr><td colSpan={10} style={{ textAlign:'center', padding:'48px', color:'var(--text-muted)' }}>No registrations found.</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -2139,6 +2189,155 @@ export default function AdminPage() {
                 alert('📢 Live Announcement Banner updated!');
               }}>
                 <Save size={14}/> Save Announcement Live
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ TICKET DESIGNER MODAL ═══ */}
+      {designTicket && (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setDesignTicket(null)}>
+          <div className="modal" style={{ maxWidth: '640px', background: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🎟️ Interactive Ticket Designer
+                </h2>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Customize theme and preview attendee event pass</p>
+              </div>
+              <button onClick={() => setDesignTicket(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Theme Selector */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Theme:</span>
+              {[
+                { id: 'gold', label: '✨ Gold Luxury', bg: 'linear-gradient(135deg, #1c1917, #292524)', border: '#FFDD00', text: '#FFDD00' },
+                { id: 'dark', label: '🌙 Dark VIP', bg: 'linear-gradient(135deg, #09090b, #18181b)', border: '#ea580c', text: '#fb923c' },
+                { id: 'neon', label: '⚡ Cyber Neon', bg: 'linear-gradient(135deg, #020617, #0f172a)', border: '#38bdf8', text: '#38bdf8' },
+                { id: 'light', label: '☀️ Minimal Light', bg: '#ffffff', border: '#e2e8f0', text: '#0f172a' }
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setTicketDesignTheme(t.id)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: ticketDesignTheme === t.id ? `2px solid ${t.border}` : '1px solid var(--border)',
+                    background: ticketDesignTheme === t.id ? 'rgba(255, 221, 0, 0.15)' : 'var(--bg-secondary)',
+                    color: ticketDesignTheme === t.id ? 'var(--text-accent)' : 'var(--text-secondary)'
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Live Ticket Pass Badge */}
+            <div id={`design-ticket-${designTicket.id}`} style={{
+              borderRadius: '20px',
+              padding: '24px',
+              border: ticketDesignTheme === 'gold' ? '2px solid rgba(255, 221, 0, 0.5)' : ticketDesignTheme === 'dark' ? '2px solid rgba(234, 88, 12, 0.5)' : ticketDesignTheme === 'neon' ? '2px solid rgba(56, 189, 248, 0.5)' : '1px solid #cbd5e1',
+              background: ticketDesignTheme === 'gold' ? 'linear-gradient(135deg, #181507 0%, #0a0802 100%)' : ticketDesignTheme === 'dark' ? 'linear-gradient(135deg, #1c0d02 0%, #0a0501 100%)' : ticketDesignTheme === 'neon' ? 'linear-gradient(135deg, #031329 0%, #010814 100%)' : '#ffffff',
+              color: ticketDesignTheme === 'light' ? '#0f172a' : '#ffffff',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: ticketDesignTheme === 'gold' ? '#FFDD00' : ticketDesignTheme === 'dark' ? '#fb923c' : ticketDesignTheme === 'neon' ? '#38bdf8' : '#475569' }}>
+                    OFFICIAL ENTRY PASS
+                  </div>
+                  <h3 style={{ fontSize: '20px', fontWeight: 900, marginTop: '4px', lineHeight: 1.2 }}>
+                    {designTicket.parsed?.movieTitle || 'Movie Day 2026'}
+                  </h3>
+                </div>
+                <div style={{ fontSize: '11px', fontWeight: 800, fontFamily: 'monospace', padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                  {designTicket.parsed?.code || designTicket.ticket_id}
+                </div>
+              </div>
+
+              <div style={{ height: '1px', background: 'currentColor', opacity: 0.15, margin: '14px 0' }} />
+
+              {/* Grid details */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                <div>
+                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>ATTENDEE NAME</div>
+                  <div style={{ fontSize: '15px', fontWeight: 800, marginTop: '2px' }}>{designTicket.first_name} {designTicket.last_name}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>PHONE</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, marginTop: '2px' }}>{designTicket.phone}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>BRANCH</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, marginTop: '2px' }}>{designTicket.branch}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>ENGLISH LEVEL</div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '2px' }}>{designTicket.english_level}</div>
+                </div>
+              </div>
+
+              {/* Reserved Seat Highlight */}
+              <div style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                background: ticketDesignTheme === 'gold' ? 'rgba(255, 221, 0, 0.15)' : ticketDesignTheme === 'dark' ? 'rgba(234, 88, 12, 0.15)' : ticketDesignTheme === 'neon' ? 'rgba(56, 189, 248, 0.15)' : '#f1f5f9',
+                border: '1px solid currentColor',
+                opacity: 0.9,
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'space-between',
+                marginBottom: '16px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em' }}>RESERVED SEAT</div>
+                  <div style={{ fontSize: '18px', fontWeight: 900 }}>{designTicket.seat || 'General Admission'}</div>
+                </div>
+                <div style={{ fontSize: '11px', fontWeight: 700 }}>
+                  Oxford Grand Conference Hall
+                </div>
+              </div>
+
+              {/* QR Code section */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px dashed currentColor', opacity: 0.85 }}>
+                <div style={{ fontSize: '11px' }}>
+                  <div>Scan QR at hall entrance</div>
+                  <div style={{ opacity: 0.6, fontSize: '10px' }}>{new Date(designTicket.created_at).toLocaleDateString()}</div>
+                </div>
+                <div style={{ background: '#ffffff', padding: '6px', borderRadius: '8px' }}>
+                  <QRCodeSVG
+                    value={JSON.stringify({ id: designTicket.ticket_id, name: `${designTicket.first_name} ${designTicket.last_name}`, seat: designTicket.seat, movie: designTicket.parsed?.movieTitle })}
+                    size={64}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
+              <button className="btn btn-outline" onClick={() => {
+                const el = document.getElementById(`design-ticket-${designTicket.id}`);
+                if (!el) return;
+                const win = window.open('', '_blank');
+                win.document.write(`<html><head><title>Print Pass ${designTicket.ticket_id}</title></head><body style="background:#000;display:flex;justify-content:center;padding:40px;">${el.outerHTML}<script>setTimeout(()=>{window.print();window.close();},500);</script></body></html>`);
+                win.document.close();
+              }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Printer size={14} /> Print Pass
+              </button>
+              <button className="btn btn-primary" onClick={() => setDesignTicket(null)}>
+                Done
               </button>
             </div>
           </div>
