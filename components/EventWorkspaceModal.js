@@ -6,12 +6,15 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import TicketDesignerStudio from './TicketDesignerStudio';
+import { ToastNotification, ConfirmModal } from './CustomPopup';
 
 export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadMdRegs, deleteMdReg }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [search, setSearch] = useState('');
   const [branchFilter, setBranchFilter] = useState('all');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const eventTitleLower = (event?.title || '').toLowerCase();
   const eventSlug = eventTitleLower.replace(/[^a-z0-9]+/g, '-');
@@ -44,6 +47,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     const link = `${window.location.origin}/registration?eventId=${event.id}&source=admin`;
     navigator.clipboard.writeText(link);
     setCopiedLink(true);
+    setToast({ title: 'Link Copied', message: 'Telegram registration link copied to clipboard!', type: 'success' });
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
@@ -57,12 +61,13 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
     a.download = `${eventSlug}_attendees.csv`;
     a.click();
+    setToast({ title: 'Export Successful', message: 'Attendee list CSV downloaded successfully.', type: 'success' });
   };
 
   const handlePrintAllTicketsA4 = async () => {
     const targetRegs = eventRegs.length > 0 ? eventRegs : mdRegs;
     if (targetRegs.length === 0) {
-      alert('No registrations found for this event to print.');
+      setToast({ title: 'No Registrations Found', message: 'No registered attendees found for this event to print.', type: 'warning' });
       return;
     }
 
@@ -519,7 +524,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                       <td style={{ padding: '14px 16px' }}>{r.branch}</td>
                       <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{r.seat || 'Reserved'}</td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <button className="btn btn-danger btn-sm" onClick={() => { if(confirm('Delete attendee registration?')) deleteMdReg?.(r.id); }}>
+                        <button className="btn btn-danger btn-sm" onClick={() => setConfirmDeleteId(r.id)}>
                           <Trash2 size={12}/>
                         </button>
                       </td>
@@ -628,6 +633,24 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
         )}
 
       </div>
+
+      {/* ── Custom VIP Toast & Confirm Modals ── */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
+      
+      <ConfirmModal
+        isOpen={Boolean(confirmDeleteId)}
+        title="Delete Attendee Registration?"
+        message="Are you sure you want to permanently delete this registration record? This action cannot be undone."
+        confirmText="Delete Record"
+        onCancel={() => setConfirmDeleteId(null)}
+        onConfirm={async () => {
+          if (confirmDeleteId) {
+            await deleteMdReg?.(confirmDeleteId);
+            setToast({ title: 'Attendee Deleted', message: 'Attendee registration deleted successfully.', type: 'warning' });
+            setConfirmDeleteId(null);
+          }
+        }}
+      />
     </div>
   );
 }

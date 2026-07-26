@@ -16,6 +16,7 @@ import { formatPrice } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
 import TicketDesignerStudio from '@/components/TicketDesignerStudio';
 import EventWorkspaceModal from '@/components/EventWorkspaceModal';
+import { ToastNotification, ConfirmModal } from '@/components/CustomPopup';
 
 const ADMIN_PASSWORD = 'admin2026';
 
@@ -42,6 +43,7 @@ export default function AdminPage() {
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [toast, setToast] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedWorkspaceEvent, setSelectedWorkspaceEvent] = useState(null);
   const [cmsSections, setCmsSections] = useState([]);
@@ -205,7 +207,7 @@ export default function AdminPage() {
     });
 
     if (filtered.length === 0) {
-      alert('No registrations found for the selected movie/filter to print.');
+      setToast({ title: 'No Registrations Found', message: 'No registrations found for the selected movie/filter to print.', type: 'warning' });
       return;
     }
 
@@ -696,7 +698,7 @@ export default function AdminPage() {
                       <button className="btn btn-ghost btn-sm" title="Copy Telegram Link" onClick={() => {
                         const link = `${window.location.origin}/registration?eventId=${ev.id}&source=telegram`;
                         navigator.clipboard.writeText(link);
-                        alert('Telegram Registration Link copied!\n\n' + link);
+                        setToast({ title: 'Telegram Link Copied', message: 'Registration link copied to clipboard successfully!', type: 'success' });
                       }}>
                         <span style={{ fontSize: '16px' }}>🔗</span>
                       </button>
@@ -2654,6 +2656,9 @@ export default function AdminPage() {
           deleteMdReg={deleteMdReg}
         />
       )}
+
+      {/* ═══ GLOBAL VIP TOAST NOTIFICATION ═══ */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }
