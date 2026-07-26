@@ -23,7 +23,8 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
   const eventRegs = mdRegs.filter(r => {
     const rawId = (r.ticket_id || '').toLowerCase();
     const branchName = (r.branch || '').toLowerCase();
-    return rawId.includes(eventSlug) || rawId.includes(eventTitleLower) || branchName.includes(eventTitleLower);
+    const eId = (event?.id || '').toLowerCase();
+    return (eId && rawId.includes(eId)) || (eId && String(r.event_id) === String(event?.id)) || rawId.includes(eventSlug) || rawId.includes(eventTitleLower) || branchName.includes(eventTitleLower);
   });
 
   const getDisplaySeat = (r, i) => {

@@ -251,48 +251,29 @@ function RegistrationPageContent() {
       });
 
       const taken = new Set();
-      const unassignedRegs = [];
 
       combined.forEach(r => {
         const rawSeat = r.seat;
         const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
-        const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || (rawSeat && String(rawSeat).startsWith(eventId));
+        const isForThisEvent = eventId && (
+          (r.ticket_id && String(r.ticket_id).includes(eventId)) ||
+          (r.event_id && String(r.event_id) === String(eventId)) ||
+          (rawSeat && String(rawSeat).startsWith(eventId))
+        );
         
-        if (isForThisEvent) {
-          if (cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-            taken.add(cleanSeat);
+        if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
+          taken.add(cleanSeat);
 
-            // Map Seat #17 -> L1-1-1 coordinate and vice versa
-            if (cleanSeat.startsWith('Seat #')) {
-              const seatNumStr = cleanSeat.replace('Seat #', '').trim();
-              Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
-                if (String(seatNum) === seatNumStr) {
-                  taken.add(blockId);
-                }
-              });
-            } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
-              taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
-            }
-          } else {
-            unassignedRegs.push(r);
-          }
-        }
-      });
-
-      // For any general/unassigned registrations, auto-reserve physical seats on the map
-      const allBlockIds = Object.keys(SEAT_NUMBERS);
-      let seatIndex = 0;
-
-      unassignedRegs.forEach(() => {
-        while (seatIndex < allBlockIds.length) {
-          const blockId = allBlockIds[seatIndex];
-          const seatNum = SEAT_NUMBERS[blockId];
-          seatIndex++;
-
-          if (!taken.has(blockId) && !taken.has(`Seat #${seatNum}`)) {
-            taken.add(blockId);
-            taken.add(`Seat #${seatNum}`);
-            break;
+          // Map Seat #17 -> L1-1-1 coordinate and vice versa
+          if (cleanSeat.startsWith('Seat #')) {
+            const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+            Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
+              if (String(seatNum) === seatNumStr) {
+                taken.add(blockId);
+              }
+            });
+          } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
+            taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
           }
         }
       });

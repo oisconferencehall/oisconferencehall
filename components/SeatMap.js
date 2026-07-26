@@ -108,48 +108,33 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
         });
 
         const taken = new Set(bookedSeats);
-        const unassignedRegs = [];
 
         combined.forEach(r => {
           const rawSeat = r.seat;
           const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
-          const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || (rawSeat && String(rawSeat).startsWith(eventId));
+          const isForThisEvent = eventId && (
+            (r.ticket_id && String(r.ticket_id).includes(eventId)) ||
+            (r.event_id && String(r.event_id) === String(eventId)) ||
+            (rawSeat && String(rawSeat).startsWith(eventId))
+          );
           
-          if (isForThisEvent) {
-            if (cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-              taken.add(cleanSeat);
+          if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
+            taken.add(cleanSeat);
 
-              // Map Seat #17 -> block coordinate like C21-2 / C2-1-2 / L11-1 and vice versa
-              if (cleanSeat.startsWith('Seat #')) {
-                const seatNumStr = cleanSeat.replace('Seat #', '').trim();
-                allSeats.forEach(s => {
-                  if (String(s.num) === seatNumStr) {
-                    taken.add(s.id);
-                  }
-                });
-              } else {
-                allSeats.forEach(s => {
-                  if (s.id === cleanSeat || `Seat #${s.num}` === cleanSeat) {
-                    taken.add(s.id);
-                  }
-                });
-              }
+            // Map Seat #17 -> block coordinate like C21-2 / C2-1-2 / L11-1 and vice versa
+            if (cleanSeat.startsWith('Seat #')) {
+              const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+              allSeats.forEach(s => {
+                if (String(s.num) === seatNumStr) {
+                  taken.add(s.id);
+                }
+              });
             } else {
-              unassignedRegs.push(r);
-            }
-          }
-        });
-
-        // For any general/unassigned registrations, auto-reserve physical seats on the map
-        let seatIndex = 0;
-        unassignedRegs.forEach(() => {
-          while (seatIndex < allSeats.length) {
-            const seat = allSeats[seatIndex];
-            seatIndex++;
-            if (!taken.has(seat.id) && !taken.has(`Seat #${seat.num}`)) {
-              taken.add(seat.id);
-              taken.add(`Seat #${seat.num}`);
-              break;
+              allSeats.forEach(s => {
+                if (s.id === cleanSeat || `Seat #${s.num}` === cleanSeat) {
+                  taken.add(s.id);
+                }
+              });
             }
           }
         });
