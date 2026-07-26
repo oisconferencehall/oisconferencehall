@@ -1,16 +1,17 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import YellowShapeBanner from '@/components/YellowShapeBanner';
 import Image from 'next/image';
-import { HALL_INFO, formatPrice } from '@/lib/data';
+import { HALL_INFO, HALLS_LIST, formatPrice } from '@/lib/data';
 import {
   Wifi, Monitor, Volume2, Wind, ParkingCircle, Utensils,
   Shield, PhoneCall, Users, Clock, CheckCircle, Send,
-  Calendar, CalendarDays, ArrowDown, Sparkles, MapPin, Award
+  Calendar, CalendarDays, ArrowDown, Sparkles, MapPin, Award, Maximize, Building2
 } from 'lucide-react';
 
 const amenityIcons = {
@@ -19,16 +20,30 @@ const amenityIcons = {
   security: Shield, reception: PhoneCall,
 };
 
-export default function RentPage() {
-  const { t, addRentRequest, hallBlocks } = useApp();
+function RentPageContent() {
+  const { t, addRentRequest, hallBlocks, hallsList: appHalls } = useApp();
+  const searchParams = useSearchParams();
   const formRef = useRef(null);
+
+  const allHalls = appHalls && appHalls.length > 0 ? appHalls : HALLS_LIST;
+  const initialHallId = searchParams?.get('hallId') || '4';
+  const [selectedHallId, setSelectedHallId] = useState(initialHallId);
+
+  useEffect(() => {
+    const paramId = searchParams?.get('hallId');
+    if (paramId) {
+      setSelectedHallId(paramId);
+    }
+  }, [searchParams]);
+
+  const selectedHall = allHalls.find(h => String(h.id) === String(selectedHallId)) || allHalls[0];
 
   const [form, setForm] = useState({
     name: '', phone: '', email: '',
     eventType: '', date: '', guests: '', message: '',
   });
-  
-  const dynamicCapacity = hallBlocks ? hallBlocks.reduce((sum, b) => sum + (b.rows * b.cols), 0) : HALL_INFO.capacity;
+
+  const dynamicCapacity = selectedHall.capacity || (hallBlocks ? `${hallBlocks.reduce((sum, b) => sum + (b.rows * b.cols), 0)} people` : `${HALL_INFO.capacity} people`);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [cmsData, setCmsData] = useState(null);
@@ -48,8 +63,12 @@ export default function RentPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 1200));
-    addRentRequest(form);
+    await new Promise(r => setTimeout(r, 1000));
+    addRentRequest({
+      ...form,
+      hallId: selectedHall.id,
+      hallTitle: selectedHall.title
+    });
     setSubmitting(false);
     setSuccess(true);
   };
@@ -60,86 +79,104 @@ export default function RentPage() {
     }
   };
 
+  // Hall images for gallery
+  const hallImages = selectedHall.images && selectedHall.images.length >= 3 
+    ? selectedHall.images 
+    : [
+        selectedHall.image || cmsData?.bgImage1 || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+        cmsData?.bgImage2 || 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&q=80',
+        cmsData?.bgImage3 || 'https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=800&q=80'
+      ];
+
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg-primary)' }}>
       <Navbar />
       <main className="main-content">
 
-        {/* ===== HERO / CTA BANNER SECTION (Yellow Theme & Seamless Blurs) ===== */}
+        {/* ===== HERO / CTA BANNER SECTION (Yellow Theme & Multi-Hall Selector) ===== */}
         <section style={{
           position: 'relative',
-          padding: '160px 24px 100px',
+          padding: '150px 24px 80px',
           background: 'var(--bg-primary)',
           overflow: 'hidden',
           textAlign: 'center'
         }}>
 
-          {/* Centered Ambient Yellow Radial Glow */}
+          {/* Ambient Glow */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '650px', height: '380px',
+            width: '700px', height: '400px',
             background: 'radial-gradient(ellipse at center, rgba(255, 221, 0, 0.16) 0%, rgba(255, 221, 0, 0.04) 45%, transparent 70%)',
             filter: 'blur(50px)', pointerEvents: 'none', zIndex: 2
           }} />
 
-          <div className="container" style={{ maxWidth: '880px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          <div className="container" style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
             
-            {/* Custom Heading with Yellow Highlighted Words */}
+            {/* ── Multi-Hall Selector Pills ── */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
+              {allHalls.map(h => {
+                const isSel = String(h.id) === String(selectedHallId);
+                return (
+                  <button
+                    key={h.id}
+                    onClick={() => setSelectedHallId(String(h.id))}
+                    style={{
+                      padding: '12px 24px',
+                      borderRadius: '100px',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      border: isSel ? '2px solid #FFDD00' : '1px solid var(--border)',
+                      background: isSel ? '#FFDD00' : 'var(--bg-card)',
+                      color: isSel ? '#000000' : 'var(--text-primary)',
+                      boxShadow: isSel ? '0 8px 24px rgba(255, 221, 0, 0.35)' : 'none',
+                      transition: 'all 0.25s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Building2 size={16} color={isSel ? '#000000' : '#FFDD00'} />
+                    {h.title}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Heading */}
             <h1 style={{
-              fontSize: 'clamp(32px, 5vw, 52px)',
-              fontWeight: 800,
+              fontSize: 'clamp(32px, 5vw, 50px)',
+              fontWeight: 900,
               color: 'var(--text-primary)',
-              lineHeight: 1.25,
+              lineHeight: 1.2,
               letterSpacing: '-0.02em',
-              marginBottom: '32px',
-              maxWidth: '820px',
-              margin: '0 auto 32px'
+              marginBottom: '20px',
+              maxWidth: '860px',
+              margin: '0 auto 20px'
             }}>
-              {t.rentPage?.heroTitle || "Tadbirni mukammal zalda o'tkazishga tayyormisiz? Oxford International School'da"}{' '}
-              <span style={{ color: '#FFDD00' }}>{t.rentPage?.heroTitleHighlight || "bugunoq bron qiling!"}</span>
+              Rent <span style={{ color: '#FFDD00' }}>{selectedHall.title}</span> at Oxford International School
             </h1>
 
             {/* Subtitle */}
             <p style={{
-              fontSize: '18px',
+              fontSize: '17px',
               color: 'var(--text-secondary)',
-              maxWidth: '640px',
-              margin: '0 auto 40px',
+              maxWidth: '680px',
+              margin: '0 auto 36px',
               lineHeight: 1.6
             }}>
-              {cmsData?.subtitle || t.rentPage?.heroSubtitle || 'Reserve Samarkand’s premier 98-seat conference venue with cinema 4K projection, acoustic isolation, climate control, and executive service.'}
+              {selectedHall.description || cmsData?.subtitle || `Reserve ${selectedHall.title} (${selectedHall.capacity}, ${selectedHall.area || 'spacious area'}) with 4K projection, acoustic isolation, and executive service.`}
             </p>
 
-            {/* Decorative Dashed Arrows & CTA Button Container */}
+            {/* CTA Button Container */}
             <div style={{
               position: 'relative',
               display: 'inline-flex',
               alignItems: 'center',
-              justify: 'center',
-              marginTop: '10px'
+              justify: 'center'
             }}>
 
-              {/* Left Dashed Curved Arrow pointing at button */}
-              <svg 
-                width="100" height="60" viewBox="0 0 100 60" fill="none" 
-                style={{
-                  position: 'absolute', left: '-105px', top: '-5px',
-                  display: 'block'
-                }}
-                className="desktop-only"
-              >
-                <path 
-                  d="M 10 12 Q 55 8 82 38" 
-                  stroke="#FFDD00" strokeWidth="2.5" strokeDasharray="5 5" fill="none" strokeLinecap="round" 
-                />
-                <path 
-                  d="M 82 38 L 70 34 M 82 38 L 76 46" 
-                  stroke="#FFDD00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
-                />
-              </svg>
-
-              {/* Center Action Button in Brand Yellow */}
               <button 
                 onClick={scrollToForm}
                 style={{
@@ -148,68 +185,49 @@ export default function RentPage() {
                   background: '#FFDD00',
                   color: '#000000',
                   fontSize: '16px',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 8px 24px rgba(255, 221, 0, 0.45)',
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 10px 30px rgba(255, 221, 0, 0.4)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '10px'
+                  gap: '10px',
+                  transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'scale(1.04) translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 221, 0, 0.65)';
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 14px 40px rgba(255, 221, 0, 0.5)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 221, 0, 0.45)';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 221, 0, 0.4)';
                 }}
               >
-                {t.rentPage?.applyBtn || 'Ariza qoldirish'} <ArrowDown size={18} />
+                Book {selectedHall.title} Now <Send size={18} />
               </button>
-
-              {/* Right Dashed Curved Arrow pointing at button */}
-              <svg 
-                width="100" height="60" viewBox="0 0 100 60" fill="none" 
-                style={{
-                  position: 'absolute', right: '-105px', top: '-5px',
-                  display: 'block'
-                }}
-                className="desktop-only"
-              >
-                <path 
-                  d="M 90 12 Q 45 8 18 38" 
-                  stroke="#FFDD00" strokeWidth="2.5" strokeDasharray="5 5" fill="none" strokeLinecap="round" 
-                />
-                <path 
-                  d="M 18 38 L 30 34 M 18 38 L 24 46" 
-                  stroke="#FFDD00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
-                />
-              </svg>
 
             </div>
           </div>
         </section>
 
         {/* ===== MAIN CONTENT SECTION ===== */}
-        <section className="section" style={{ padding: '80px 0' }}>
+        <section className="section" style={{ padding: '60px 0 100px' }}>
           <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
             <div className="responsive-grid-2" style={{ gap: '64px', alignItems: 'start' }}>
 
               {/* Left Column: Hall Showcase, Specs, Gallery & Pricing */}
               <div>
                 
-                {/* 3D Tilt Image Gallery */}
+                {/* 3D Tilt Image Gallery for Selected Hall */}
                 <div style={{
-                  display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '220px 170px',
+                  display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '240px 170px',
                   gap: '12px', marginBottom: '40px', borderRadius: '24px',
                   perspective: '1200px'
                 }}>
                   {[
-                    { src: cmsData?.bgImage1 || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80', span: '1 / span 2', main: true },
-                    { src: cmsData?.bgImage2 || 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=400&q=80' },
-                    { src: cmsData?.bgImage3 || 'https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=400&q=80' },
+                    { src: hallImages[0], span: '1 / span 2', main: true },
+                    { src: hallImages[1] || hallImages[0] },
+                    { src: hallImages[2] || hallImages[0] },
                   ].map((img, i) => (
                     <div key={i} 
                       style={{ 
@@ -222,27 +240,10 @@ export default function RentPage() {
                         boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
                         zIndex: 1,
                       }}
-                      onMouseMove={e => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const x = (e.clientX - rect.left) / rect.width - 0.5;
-                        const y = (e.clientY - rect.top) / rect.height - 0.5;
-                        e.currentTarget.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateZ(8px)`;
-                        e.currentTarget.style.zIndex = 10;
-                        e.currentTarget.style.boxShadow = '0 20px 45px rgba(0,0,0,0.15), 0 0 30px rgba(255, 221, 0, 0.3)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.transform = 'perspective(900px) rotateY(0) rotateX(0) translateZ(0)';
-                        e.currentTarget.style.zIndex = 1;
-                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
-                      }}
                     >
-                      {fetchingCms ? (
-                        <div className="skeleton" style={{ width: '100%', height: '100%', borderRadius: '16px' }} />
-                      ) : (
-                        <Image src={img.src} alt="Hall" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
-                      )}
+                      <Image src={img.src} alt={selectedHall.title} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} unoptimized />
                       
-                      {!fetchingCms && img.main && (
+                      {img.main && (
                         <div style={{
                           position: 'absolute', bottom: '16px', left: '16px',
                           background: 'var(--bg-card)',
@@ -253,8 +254,8 @@ export default function RentPage() {
                           boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
                         }}>
                           <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: '2px' }}>{t.rentPage?.capacity || 'CAPACITY'}</div>
-                          <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>{dynamicCapacity}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>{t.rentPage?.seatsAvailable || 'seats available'}</div>
+                          <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFDD00', lineHeight: 1 }}>{selectedHall.capacity}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>{selectedHall.area || 'Spacious Area'}</div>
                         </div>
                       )}
                     </div>
@@ -264,8 +265,10 @@ export default function RentPage() {
                 {/* Key Venue Highlights / Specs */}
                 <div className="responsive-grid-2" style={{ gap: '16px', marginBottom: '36px' }}>
                   {[
-                    { icon: <Users size={22} />, label: t.rent.capacity, value: `${dynamicCapacity} ${t.rent.people}` },
-                    { icon: <Clock size={22} />, label: t.rentPage?.workingHours || 'Working Hours', value: t.rentPage?.workingHoursValue || '08:00 – 22:00 Daily' },
+                    { icon: <Users size={22} />, label: 'CAPACITY', value: selectedHall.capacity },
+                    { icon: <Maximize size={22} />, label: 'FLOOR AREA', value: selectedHall.area || '320 m²' },
+                    { icon: <Clock size={22} />, label: 'HOURS', value: '08:00 – 22:00 Daily' },
+                    { icon: <Sparkles size={22} />, label: 'RENT PRICE', value: selectedHall.price },
                   ].map((item, i) => (
                     <div key={i} style={{
                       padding: '20px',
@@ -284,8 +287,8 @@ export default function RentPage() {
                         color: '#000000', flexShrink: 0,
                       }}>{item.icon}</div>
                       <div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{item.label}</div>
-                        <div style={{ fontSize: '16px', fontWeight: 800, marginTop: '2px', color: 'var(--text-primary)' }}>{item.value}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{item.label}</div>
+                        <div style={{ fontSize: '15px', fontWeight: 800, marginTop: '2px', color: 'var(--text-primary)' }}>{item.value}</div>
                       </div>
                     </div>
                   ))}
@@ -308,57 +311,12 @@ export default function RentPage() {
                         fontSize: '14px', color: 'var(--text-primary)', fontWeight: 600,
                         boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
                         transition: 'all 0.2s ease',
-                      }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 221, 0, 0.15)'; e.currentTarget.style.borderColor = '#FFDD00'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-                      >
+                      }}>
                         <CheckCircle size={16} style={{ color: '#000000', fill: '#FFDD00', flexShrink: 0 }} />
-                        {t.rent.amenityList[key]}
+                        {t.rent?.amenityList?.[key] || key}
                       </div>
                     );
                   })}
-                </div>
-
-
-
-                {/* Pricing Plans */}
-                <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '18px', color: 'var(--text-primary)' }}>
-                  {t.rentPage?.pricingTitle || 'Rental Pricing Packages'}
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {[
-                    { label: t.rent.hourly, price: HALL_INFO.pricing.hourly, icon: <Clock size={20} /> },
-                    { label: t.rent.daily, price: HALL_INFO.pricing.daily, icon: <CalendarDays size={20} />, popular: true },
-                    { label: t.rent.weekly, price: HALL_INFO.pricing.weekly, icon: <Calendar size={20} /> },
-                  ].map((p, i) => (
-                    <div key={i} style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '18px 24px',
-                      background: p.popular ? 'rgba(255, 221, 0, 0.08)' : 'var(--bg-card)',
-                      border: p.popular ? '2px solid #FFDD00' : '1px solid var(--border)',
-                      borderRadius: '16px',
-                      boxShadow: p.popular ? '0 8px 25px rgba(255, 221, 0, 0.2)' : '0 2px 10px rgba(0,0,0,0.02)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                          width: '40px', height: '40px', borderRadius: '10px',
-                          background: p.popular ? '#FFDD00' : 'var(--bg-secondary)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: p.popular ? '#000000' : 'var(--text-primary)'
-                        }}>
-                          {p.icon}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{p.label}</div>
-                          {p.popular && <div style={{ fontSize: '11px', color: '#FFDD00', fontWeight: 800 }}>{t.rentPage?.popularChoice || '⭐ Most Popular Choice'}</div>}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-primary)' }}>{formatPrice(p.price)}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{t.common.currency}</div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
 
               </div>
@@ -385,7 +343,7 @@ export default function RentPage() {
                     </div>
                     <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '12px', color: 'var(--text-primary)' }}>{t.rentPage?.successTitle || 'Ariza Qabul Qilindi!'}</h3>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '15px' }}>
-                      {t.rent.successMsg || 'Menejerimiz 2 soat ichida siz bilan bog‘lanadi va barcha ma’lumotlarni tasdiqlaydi.'}
+                      {t.rent?.successMsg || `Menejerimiz 2 soat ichida siz bilan bog‘lanadi va ${selectedHall.title} zali ma’lumotlarini tasdiqlaydi.`}
                     </p>
                   </div>
                 ) : (
@@ -399,21 +357,51 @@ export default function RentPage() {
                     padding: '36px',
                     boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
                   }}>
+                    <div style={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#FFDD00', marginBottom: '4px' }}>
+                      RENTING: {selectedHall.title}
+                    </div>
                     <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       {t.rentPage?.formTitle || 'Ariza qoldirish'}
                     </h2>
-                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '28px' }}>
-                      {t.rentPage?.formSubtitle || "Tadbir ma'lumotlarini kiriting, biz 2 soat ichida bog'lanamiz"}
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                      {t.rentPage?.formSubtitle || `Tadbir ma'lumotlarini kiriting, biz 2 soat ichida bog'lanamiz`}
                     </p>
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                      
+                      {/* Hall Selector Dropdown in Form */}
+                      <div className="form-group">
+                        <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px' }}>TARGET HALL</label>
+                        <select
+                          className="form-input"
+                          value={selectedHallId}
+                          onChange={e => setSelectedHallId(e.target.value)}
+                          style={{
+                            background: 'var(--bg-secondary)',
+                            border: '2px solid #FFDD00',
+                            borderRadius: '12px',
+                            padding: '12px 16px',
+                            fontSize: '14px',
+                            fontWeight: 800,
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {allHalls.map(h => (
+                            <option key={h.id} value={h.id}>
+                              🏛️ {h.title} — {h.capacity}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       {[
-                        { key: 'name', label: t.rent.yourName, type: 'text', placeholder: 'Ism va familiyangiz' },
-                        { key: 'phone', label: t.rent.phone, type: 'tel', placeholder: '+998 90 123 45 67' },
-                        { key: 'email', label: t.rent.email, type: 'email', placeholder: 'email@example.com' },
-                        { key: 'eventType', label: t.rent.eventType, type: 'text', placeholder: 'Konferensiya, Seminar, Taqdimot...' },
-                        { key: 'date', label: t.rent.expectedDate, type: 'date' },
-                        { key: 'guests', label: t.rent.expectedGuests, type: 'number', placeholder: `Maksimal ${dynamicCapacity} kishi` },
+                        { key: 'name', label: t.rent?.yourName || 'Your Name', type: 'text', placeholder: 'Ism va familiyangiz' },
+                        { key: 'phone', label: t.rent?.phone || 'Phone', type: 'tel', placeholder: '+998 90 123 45 67' },
+                        { key: 'email', label: t.rent?.email || 'Email', type: 'email', placeholder: 'email@example.com' },
+                        { key: 'eventType', label: t.rent?.eventType || 'Event Type', type: 'text', placeholder: 'Konferensiya, Seminar, Taqdimot...' },
+                        { key: 'date', label: t.rent?.expectedDate || 'Expected Date', type: 'date' },
+                        { key: 'guests', label: t.rent?.expectedGuests || 'Guests', type: 'number', placeholder: `Capacity: ${selectedHall.capacity}` },
                       ].map(f => (
                         <div key={f.key} className="form-group">
                           <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px' }}>{f.label}</label>
@@ -437,7 +425,7 @@ export default function RentPage() {
                       ))}
 
                       <div className="form-group">
-                        <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px' }}>{t.rent.message}</label>
+                        <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px' }}>{t.rent?.message || 'Message'}</label>
                         <textarea
                           className="form-textarea"
                           value={form.message}
@@ -449,35 +437,34 @@ export default function RentPage() {
                             borderRadius: '12px',
                             padding: '12px 16px',
                             fontSize: '14px',
-                            color: 'var(--text-primary)'
+                            color: 'var(--text-primary)',
+                            minHeight: '90px'
                           }}
                         />
                       </div>
 
                       <button
                         type="submit"
+                        className="btn btn-primary"
+                        disabled={submitting}
                         style={{
-                          width: '100%',
                           padding: '16px',
-                          borderRadius: '100px',
+                          borderRadius: '14px',
                           background: '#FFDD00',
                           color: '#000000',
                           fontSize: '16px',
                           fontWeight: 900,
                           border: 'none',
                           cursor: 'pointer',
-                          boxShadow: '0 8px 24px rgba(255, 221, 0, 0.45)',
+                          boxShadow: '0 8px 24px rgba(255, 221, 0, 0.4)',
+                          marginTop: '6px',
                           display: 'flex',
                           alignItems: 'center',
-                          justify: 'center',
-                          gap: '10px',
-                          marginTop: '8px',
-                          transition: 'all 0.2s ease'
+                          justifyContent: 'center',
+                          gap: '8px'
                         }}
-                        disabled={submitting}
                       >
-                        <Send size={16} />
-                        {submitting ? (t.rentPage?.submitting || 'Yuborilmoqda...') : (t.rentPage?.submitBtn || 'Ariza Yuborish')}
+                        {submitting ? 'Yuborilmoqda...' : `Submit Request for ${selectedHall.title}`} <Send size={16} />
                       </button>
                     </form>
                   </div>
@@ -488,10 +475,17 @@ export default function RentPage() {
           </div>
         </section>
 
-        {/* Yellow Geometric iTicket Banner */}
         <YellowShapeBanner />
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function RentPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '100px', textAlign: 'center', color: '#fff' }}>Loading Rent Page...</div>}>
+      <RentPageContent />
+    </Suspense>
   );
 }

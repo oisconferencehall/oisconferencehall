@@ -143,7 +143,7 @@ export default function HallDetailsPage(props) {
                   </div>
                 </div>
 
-                <Link href={hall.link} style={{
+                <Link href={`/rent?hallId=${hall.id}`} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   width: '100%', padding: '16px',
                   background: '#FFDD00', color: '#000000',
