@@ -1,33 +1,68 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   Plus, Trash2, Save, RotateCcw, Printer, Image as ImageIcon, 
-  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Move, Check
+  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, Sparkles
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-const JUMANJI_PRESET = {
-  bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
-  width: 800,
-  height: 226,
-  flipX: false,
-  flipY: false,
-  elements: [
-    { id: 'el-1', type: 'text', text: 'PROUDLY PRESENTS', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
-    { id: 'el-2', type: 'text', text: 'JUMANJI', x: 24, y: 52, fontSize: 34, fontWeight: '900', color: '#ffffff', fontFamily: "'Playfair Display', serif" },
-    { id: 'el-3', type: 'text', text: 'Movie: {movie}', x: 24, y: 96, fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
-    { id: 'el-4', type: 'text', text: '{first_name} {last_name}', x: 24, y: 122, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-    { id: 'el-5', type: 'text', text: '{seat}', x: 24, y: 168, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
-    { id: 'el-6', type: 'text', text: 'SATURDAY, 11 JULY 2026', x: 420, y: 48, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-    { id: 'el-7', type: 'text', text: 'START 03.45 PM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#fb923c', fontFamily: 'Outfit' },
-    { id: 'el-8', type: 'text', text: 'Oxford International School, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
-    { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
-  ]
+// ── Default Presets per Movie Category ──
+const EVENT_PRESETS = {
+  'home-alone': {
+    title: 'Home Alone',
+    bgImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1200&q=80',
+    width: 800, height: 226, flipX: false, flipY: false,
+    elements: [
+      { id: 'el-1', type: 'text', text: 'SPECIAL HOLIDAY MOVIE NIGHT', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
+      { id: 'el-2', type: 'text', text: 'HOME ALONE', x: 24, y: 52, fontSize: 34, fontWeight: '900', color: '#ef4444', fontFamily: "'Playfair Display', serif" },
+      { id: 'el-3', type: 'text', text: 'Movie: {movie}', x: 24, y: 96, fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
+      { id: 'el-4', type: 'text', text: '{first_name} {last_name}', x: 24, y: 122, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-5', type: 'text', text: '{seat}', x: 24, y: 168, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
+      { id: 'el-6', type: 'text', text: 'SATURDAY, 22 AUG 2026', x: 420, y: 48, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-7', type: 'text', text: 'START 06:00 PM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#ef4444', fontFamily: 'Outfit' },
+      { id: 'el-8', type: 'text', text: 'Oxford Grand Conference Hall, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
+      { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
+    ]
+  },
+  'business-leadership-forum': {
+    title: 'Business Leadership Forum',
+    bgImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1200&q=80',
+    width: 800, height: 226, flipX: false, flipY: false,
+    elements: [
+      { id: 'el-1', type: 'text', text: 'OFFICIAL VIP DELEGATE PASS', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#38bdf8', fontFamily: 'Outfit' },
+      { id: 'el-2', type: 'text', text: 'BUSINESS FORUM', x: 24, y: 52, fontSize: 32, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-3', type: 'text', text: 'Event: {movie}', x: 24, y: 96, fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
+      { id: 'el-4', type: 'text', text: '{first_name} {last_name}', x: 24, y: 122, fontSize: 20, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
+      { id: 'el-5', type: 'text', text: '{seat}', x: 24, y: 168, fontSize: 15, fontWeight: '800', color: '#38bdf8', fontFamily: 'monospace' },
+      { id: 'el-6', type: 'text', text: 'THURSDAY, 10 SEPT 2026', x: 420, y: 48, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-7', type: 'text', text: 'DOORS OPEN 09:00 AM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#38bdf8', fontFamily: 'Outfit' },
+      { id: 'el-8', type: 'text', text: 'Grand Conference Hall, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
+      { id: 'el-9', type: 'text', text: 'VIP PASS', x: 740, y: 75, fontSize: 18, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit', rotate: 90 },
+    ]
+  },
+  'movie-day': {
+    title: 'Movie Day 2026 (Jumanji)',
+    bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
+    width: 800, height: 226, flipX: false, flipY: false,
+    elements: [
+      { id: 'el-1', type: 'text', text: 'PROUDLY PRESENTS', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-2', type: 'text', text: 'JUMANJI', x: 24, y: 52, fontSize: 34, fontWeight: '900', color: '#ffffff', fontFamily: "'Playfair Display', serif" },
+      { id: 'el-3', type: 'text', text: 'Movie: {movie}', x: 24, y: 96, fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
+      { id: 'el-4', type: 'text', text: '{first_name} {last_name}', x: 24, y: 122, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-5', type: 'text', text: '{seat}', x: 24, y: 168, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
+      { id: 'el-6', type: 'text', text: 'SATURDAY, 11 JULY 2026', x: 420, y: 48, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-7', type: 'text', text: 'START 03:45 PM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-8', type: 'text', text: 'Oxford International School, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
+      { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
+    ]
+  }
 };
 
 export default function TicketDesignerStudio({ onSaveSuccess }) {
-  const [design, setDesign] = useState(JUMANJI_PRESET);
+  const [eventsList, setEventsList] = useState([]);
+  const [selectedMovieKey, setSelectedMovieKey] = useState('movie-day');
+  const [design, setDesign] = useState(EVENT_PRESETS['movie-day']);
   const [selectedId, setSelectedId] = useState('el-4');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
@@ -37,7 +72,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   const sampleData = {
     first_name: 'Ozodbek',
     last_name: 'Jumayev',
-    movie: 'Jumanji: The Next Level',
+    movie: selectedMovieKey === 'home-alone' ? 'Home Alone' : selectedMovieKey === 'business-leadership-forum' ? 'Business Leadership Forum' : 'Jumanji: The Next Level',
     seat: 'Block C1 · Row 2 · Seat #14',
     ticket_id: 'MD-99877196',
     phone: '+998 77 196 00 20',
@@ -46,13 +81,27 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   };
 
   useEffect(() => {
-    // Load saved template from Supabase
-    supabase.from('page_sections').select('data').eq('type', 'ticket_template').single().then(({ data }) => {
-      if (data?.data && data.data.elements) {
-        setDesign(data.data);
-      }
+    // Load all events from Supabase
+    supabase.from('events').select('id, title').then(({ data }) => {
+      if (data && data.length > 0) setEventsList(data);
     });
   }, []);
+
+  // Load ticket template specifically for selected movie key
+  useEffect(() => {
+    const loadTemplate = async () => {
+      const templateKey = `ticket_template_${selectedMovieKey}`;
+      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
+      if (data?.data && data.data.elements) {
+        setDesign(data.data);
+      } else {
+        // Fallback to preset or default template
+        const fallback = EVENT_PRESETS[selectedMovieKey] || EVENT_PRESETS['movie-day'];
+        setDesign(fallback);
+      }
+    };
+    loadTemplate();
+  }, [selectedMovieKey]);
 
   const selectedEl = design.elements.find(el => el.id === selectedId);
 
@@ -90,12 +139,13 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
 
   const saveDesign = async () => {
     setSaving(true);
+    const templateKey = `ticket_template_${selectedMovieKey}`;
     try {
-      const { data: existing } = await supabase.from('page_sections').select('id').eq('type', 'ticket_template').single();
+      const { data: existing } = await supabase.from('page_sections').select('id').eq('type', templateKey).single();
       if (existing) {
         await supabase.from('page_sections').update({ data: design, updated_at: new Date().toISOString() }).eq('id', existing.id);
       } else {
-        await supabase.from('page_sections').insert([{ page_slug: 'home', type: 'ticket_template', order_index: 99, data: design }]);
+        await supabase.from('page_sections').insert([{ page_slug: 'home', type: templateKey, order_index: 99, data: design }]);
       }
       setSavedMsg(true);
       setTimeout(() => setSavedMsg(false), 2500);
@@ -145,6 +195,33 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   return (
     <div style={{ background: '#0a0d14', borderRadius: '24px', border: '1px solid var(--border)', padding: '24px', color: '#fff', fontFamily: 'Outfit, sans-serif' }}>
       
+      {/* ── Movie / Event Selector Header ── */}
+      <div style={{ padding: '16px 20px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(255, 221, 0, 0.08))', border: '1px solid rgba(234, 88, 12, 0.3)', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Film size={22} color="#fb923c" />
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fb923c' }}>SELECT MOVIE / EVENT TEMPLATE TO DESIGN</div>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>Customize unique ticket styles for each individual movie or event</div>
+          </div>
+        </div>
+
+        <select
+          className="form-input"
+          style={{ width: 'auto', minWidth: '260px', fontSize: '14px', fontWeight: 800, background: '#1c1917', color: '#FFDD00', border: '2px solid #FFDD00', cursor: 'pointer' }}
+          value={selectedMovieKey}
+          onChange={e => setSelectedMovieKey(e.target.value)}
+        >
+          <option value="movie-day">🎬 Movie Day 2026 (Jumanji)</option>
+          <option value="home-alone">🎄 Home Alone</option>
+          <option value="business-leadership-forum">💼 Business Leadership Forum</option>
+          {eventsList.map(ev => {
+            const slugKey = ev.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            if (['movie-day', 'home-alone', 'business-leadership-forum'].includes(slugKey)) return null;
+            return <option key={ev.id} value={slugKey}>🍿 {ev.title}</option>;
+          })}
+        </select>
+      </div>
+
       {/* ── Top Control Bar ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -152,7 +229,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             🎟️ Ticket Designer Studio
           </h2>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: '4px 0 0' }}>
-            Build your custom ticket template dynamically with drag, text layers, and placeholders.
+            Designing Ticket Template for: <strong style={{ color: '#FFDD00' }}>{EVENT_PRESETS[selectedMovieKey]?.title || selectedMovieKey}</strong>
           </p>
         </div>
 
@@ -163,8 +240,8 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           <button className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }} onClick={() => setDesign(p => ({ ...p, flipY: !p.flipY }))}>
             <FlipVertical size={14} /> Flip Y
           </button>
-          <button className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', borderColor: '#ea580c', color: '#fb923c' }} onClick={() => setDesign(JUMANJI_PRESET)}>
-            ⚡ Jumanji Preset
+          <button className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', borderColor: '#ea580c', color: '#fb923c' }} onClick={() => setDesign(EVENT_PRESETS[selectedMovieKey] || EVENT_PRESETS['movie-day'])}>
+            ⚡ Load Movie Preset
           </button>
           <button className="btn btn-ghost btn-sm" style={{ fontSize: '12px' }} onClick={() => setDesign({ bgImage: '', width: 800, height: 226, flipX: false, flipY: false, elements: [] })}>
             <RotateCcw size={14} /> Reset
@@ -173,7 +250,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             <Printer size={14} /> Test Print
           </button>
           <button className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', background: 'linear-gradient(135deg, #ea580c, #fb923c)', border: 'none', fontWeight: 800, padding: '8px 18px' }} onClick={saveDesign} disabled={saving}>
-            {saving ? 'Saving...' : savedMsg ? <> <Check size={14}/> Saved Live! </> : <> <Save size={14}/> Save Design </>}
+            {saving ? 'Saving...' : savedMsg ? <> <Check size={14}/> Saved Live! </> : <> <Save size={14}/> Save Movie Design </>}
           </button>
         </div>
       </div>
@@ -418,7 +495,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           </div>
 
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '16px' }}>
-            Stage Dimensions: {design.width}px × {design.height}px · Click elements to edit positioning and text.
+            Stage Dimensions: {design.width}px × {design.height}px · Designing template for <strong>{EVENT_PRESETS[selectedMovieKey]?.title || selectedMovieKey}</strong>
           </div>
         </div>
 
