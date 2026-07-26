@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { QRCodeSVG } from 'qrcode.react';
-import { Ticket, Calendar, Clock, MapPin, User, Printer, CheckCircle, LogOut } from 'lucide-react';
+import { Ticket, Calendar, Clock, MapPin, User, CheckCircle, LogOut } from 'lucide-react';
 import { formatPrice } from '@/lib/data';
 
 export default function ProfilePage() {
@@ -40,36 +40,6 @@ export default function ProfilePage() {
     return d.toLocaleDateString(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US', {
       day: 'numeric', month: 'long', year: 'numeric',
     });
-  };
-
-  const handlePrint = (ticketId) => {
-    const el = document.getElementById(`ticket-${ticketId}`);
-    if (!el) return;
-    const headHtml = document.head.innerHTML;
-    const win = window.open('', '_blank');
-    win.document.write(`
-      <html>
-        <head>
-          ${headHtml}
-          <title>Print Ticket ${ticketId}</title>
-          <style>
-            body { background: var(--bg-primary, #080c18); padding: 40px; display: flex; justify-content: center; }
-            .no-print { display: none !important; }
-            #ticket-${ticketId} { width: 100%; max-width: 800px; }
-          </style>
-        </head>
-        <body>
-          ${el.outerHTML}
-          <script>
-            setTimeout(() => {
-              window.print();
-              window.close();
-            }, 500);
-          </script>
-        </body>
-      </html>
-    `);
-    win.document.close();
   };
 
   if (loading || !user) {
@@ -178,7 +148,6 @@ export default function ProfilePage() {
                     ticket={ticket}
                     t={t}
                     formatDate={formatDate}
-                    onPrint={() => handlePrint(ticket.id)}
                   />
                 ))}
               </div>
@@ -191,7 +160,7 @@ export default function ProfilePage() {
   );
 }
 
-function TicketCard({ ticket, t, formatDate, onPrint }) {
+function TicketCard({ ticket, t, formatDate }) {
   const qrData = JSON.stringify({ id: ticket.id, event: ticket.eventId, seats: ticket.seats?.map(s => s.id) });
 
   return (
@@ -270,18 +239,13 @@ function TicketCard({ ticket, t, formatDate, onPrint }) {
             borderTop: '2px dashed var(--border)',
           }} />
 
-          {/* Price & actions */}
+          {/* Price */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{t.profile?.totalPaid}</div>
               <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-accent)' }}>
                 {formatPrice(ticket.totalPrice)} <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)' }}>{t.common?.currency}</span>
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={onPrint} className="btn btn-ghost btn-sm no-print" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Printer size={14} /> {t.tickets.print}
-              </button>
             </div>
           </div>
         </div>
