@@ -268,9 +268,6 @@ export default function AdminPage() {
             <button type="submit" className="btn btn-primary" style={{ width:'100%', justifyContent:'center', padding:'14px', fontSize:'15px' }}>
               {t.admin.loginBtn}
             </button>
-            <div style={{ textAlign:'center', fontSize:'12px', color:'var(--text-muted)', marginTop:'8px' }}>
-              Default password: <code style={{ color:'var(--text-primary)' }}>admin2026</code>
-            </div>
           </form>
         </div>
       </div>
