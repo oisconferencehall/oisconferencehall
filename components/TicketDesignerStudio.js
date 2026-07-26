@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   Plus, Trash2, Save, RotateCcw, Printer, Image as ImageIcon, 
-  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, QrCode
+  Type, Square, Circle, Triangle, FlipHorizontal, FlipVertical, Check, Film, QrCode, Layers
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -106,6 +106,30 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
     loadTemplate();
   }, [selectedMovieKey]);
 
+  // Delete element helper
+  const deleteElement = (idToDelete) => {
+    const targetId = idToDelete || selectedId;
+    if (!targetId) return;
+    setDesign(prev => ({ ...prev, elements: prev.elements.filter(el => el.id !== targetId) }));
+    if (selectedId === targetId) setSelectedId(null);
+  };
+
+  // Keyboard Delete / Backspace shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        // Do not delete if typing inside input, textarea, or select
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+          return;
+        }
+        e.preventDefault();
+        deleteElement(selectedId);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedId]);
+
   // Mouse drag handlers
   const handleMouseDown = (e, id, origX, origY) => {
     e.stopPropagation();
@@ -169,11 +193,6 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
     };
     setDesign(prev => ({ ...prev, elements: [...prev.elements, newEl] }));
     setSelectedId(newId);
-  };
-
-  const deleteElement = (id) => {
-    setDesign(prev => ({ ...prev, elements: prev.elements.filter(el => el.id !== id) }));
-    if (selectedId === id) setSelectedId(null);
   };
 
   const saveDesign = async () => {
@@ -378,6 +397,50 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             </div>
           </div>
 
+          {/* Canvas Layers Manager with Instant Delete */}
+          <div>
+            <label style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '8px' }}>
+              CANVAS LAYERS ({design.elements.length})
+            </label>
+            <div style={{ maxHeight: '160px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', background: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '10px' }}>
+              {design.elements.map((el) => (
+                <div
+                  key={el.id}
+                  onClick={() => setSelectedId(el.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justify: 'space-between',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: selectedId === el.id ? 800 : 500,
+                    cursor: 'pointer',
+                    background: selectedId === el.id ? 'rgba(234, 88, 12, 0.25)' : 'rgba(255,255,255,0.03)',
+                    color: selectedId === el.id ? '#fb923c' : 'rgba(255,255,255,0.8)',
+                    border: selectedId === el.id ? '1px solid rgba(234, 88, 12, 0.5)' : '1px solid transparent',
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                    {el.type === 'text' ? `T: "${el.text}"` : el.type === 'qr' ? '📷 QR Code' : el.type === 'rect' ? '⬛ Rectangle' : el.type === 'circ' ? '⚪ Circle' : `${el.type}`}
+                  </span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteElement(el.id); }}
+                    style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px 4px', borderRadius: '4px' }}
+                    title="Delete Layer"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ))}
+              {design.elements.length === 0 && (
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '12px' }}>
+                  No elements on canvas
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Element Inspector */}
           {selectedEl ? (
             <div style={{ padding: '14px', borderRadius: '12px', background: 'rgba(234, 88, 12, 0.08)', border: '1px solid rgba(234, 88, 12, 0.3)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -385,8 +448,8 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                 <span style={{ fontSize: '12px', fontWeight: 800, color: '#fb923c', textTransform: 'uppercase' }}>
                   Edit {selectedEl.type} Layer
                 </span>
-                <button className="btn btn-danger btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => deleteElement(selectedEl.id)}>
-                  <Trash2 size={12} /> Del
+                <button className="btn btn-danger btn-sm" style={{ padding: '4px 10px', fontSize: '12px', background: '#ef4444', color: '#fff', border: 'none', fontWeight: 800, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => deleteElement(selectedEl.id)}>
+                  <Trash2 size={13} /> Delete Layer
                 </button>
               </div>
 
@@ -495,7 +558,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             </div>
           ) : (
             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '16px' }}>
-              Click or drag any element on the stage to move and edit properties!
+              Click or drag any element on the stage to move and edit properties! (Press Delete/Backspace to remove selected element)
             </div>
           )}
 
@@ -549,6 +612,33 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                     }}
                   >
                     {renderTextContent(el.text)}
+                    {isSel && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteElement(el.id); }}
+                        style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          right: '-10px',
+                          background: '#ef4444',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '18px',
+                          height: '18px',
+                          fontSize: '11px',
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justify: 'center',
+                          zIndex: 99,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                        }}
+                        title="Delete Element"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 );
               }
@@ -579,6 +669,33 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       bgColor="#ffffff"
                       fgColor="#000000"
                     />
+                    {isSel && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteElement(el.id); }}
+                        style={{
+                          position: 'absolute',
+                          top: '-8px',
+                          right: '-8px',
+                          background: '#ef4444',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '20px',
+                          height: '20px',
+                          fontSize: '12px',
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justify: 'center',
+                          zIndex: 99,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                        }}
+                        title="Delete QR Code"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 );
               }
@@ -602,7 +719,35 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       outline: isSel ? '2px dashed #ea580c' : 'none',
                       transform: el.rotate ? `rotate(${el.rotate}deg)` : 'none',
                     }}
-                  />
+                  >
+                    {isSel && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteElement(el.id); }}
+                        style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          right: '-10px',
+                          background: '#ef4444',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '20px',
+                          height: '20px',
+                          fontSize: '12px',
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justify: 'center',
+                          zIndex: 99,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                        }}
+                        title="Delete Shape"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
                 );
               }
               return null;
@@ -611,7 +756,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           </div>
 
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '16px' }}>
-            🖐️ Click and drag any shape, rectangle, text, or QR Code on the canvas stage to move position!
+            🖐️ Click and drag any shape, rectangle, text, or QR Code. Select any layer and press <strong style={{ color: '#ef4444' }}>Delete</strong> or <strong style={{ color: '#ef4444' }}>Backspace</strong> to remove it!
           </div>
         </div>
 
