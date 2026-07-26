@@ -693,9 +693,6 @@ export default function AdminPage() {
                     </div>
                     <div style={{ fontSize:'13px', fontWeight:800, color:'#FFDD00' }}>{formatPrice(ev.price)} UZS</div>
                     <div style={{ display:'flex', gap:'8px', alignItems:'center' }} onClick={e => e.stopPropagation()}>
-                      <button className="btn" onClick={() => setSelectedWorkspaceEvent(ev)} style={{ background:'linear-gradient(135deg, #FFDD00, #FFDD00)', color:'#000000', fontWeight:900, fontSize:'12px', border:'none', borderRadius:'8px', padding:'6px 14px', cursor:'pointer', display:'flex', alignItems:'center', gap:'4px', boxShadow:'0 2px 10px rgba(255, 221, 0, 0.25)' }}>
-                        ⚡ Open Workspace
-                      </button>
                       <button className="btn btn-ghost btn-sm" title="Copy Telegram Link" onClick={() => {
                         const link = `${window.location.origin}/registration?eventId=${ev.id}&source=telegram`;
                         navigator.clipboard.writeText(link);
