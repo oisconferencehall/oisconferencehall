@@ -113,12 +113,12 @@ function formatSeat(id) {
 }
 
 function formatPhone(val) {
-  const digits = val.replace(/\D/g, '').slice(0, 10);
+  const digits = val.replace(/\D/g, '').slice(0, 9);
   let f = '';
   if (digits.length > 0) f = digits.slice(0, 2);
   if (digits.length > 2) f += ' ' + digits.slice(2, 5);
   if (digits.length > 5) f += ' ' + digits.slice(5, 7);
-  if (digits.length > 7) f += ' ' + digits.slice(7, 10);
+  if (digits.length > 7) f += ' ' + digits.slice(7, 9);
   return f;
 }
 
@@ -234,7 +234,7 @@ function RegistrationPageContent() {
     const errs = {};
     if (!form.firstName.trim()) errs.firstName = t.err_first_name;
     if (!form.lastName.trim()) errs.lastName = t.err_last_name;
-    if (!form.phone || form.phone.replace(/\D/g, '').length < 10) errs.phone = t.err_phone;
+    if (!form.phone || form.phone.replace(/\D/g, '').length < 9) errs.phone = t.err_phone;
     
     if (isMovieEvent) {
       if (!form.englishLevel) errs.englishLevel = t.err_level;
