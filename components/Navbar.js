@@ -152,11 +152,11 @@ export default function Navbar() {
               onClick={toggleTheme}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '36px', height: '36px', borderRadius: '10px',
+                width: '38px', height: '38px', borderRadius: '10px',
                 background: isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'),
                 border: isTransparent ? '1px solid rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0'),
                 color: isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'),
-                cursor: 'pointer', transition: 'all 0.2s ease',
+                cursor: 'pointer', transition: 'all 0.2s ease', boxSizing: 'border-box',
               }}
               onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.borderColor = 'rgba(255, 221, 0, 0.6)'; e.currentTarget.style.background = 'rgba(255, 221, 0, 0.2)'; }}
               onMouseLeave={e => { e.currentTarget.style.color = isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'); e.currentTarget.style.borderColor = isTransparent ? 'rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '#e2e8f0'); e.currentTarget.style.background = isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'); }}
@@ -170,12 +170,12 @@ export default function Navbar() {
                 onClick={(e) => { e.stopPropagation(); setLangOpen(v => !v); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '8px 12px', borderRadius: '10px',
+                  height: '38px', padding: '0 12px', borderRadius: '10px',
                   background: isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'),
                   border: isTransparent ? '1px solid rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0'),
                   color: isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'), fontSize: '13px', fontWeight: 700,
                   cursor: 'pointer', transition: 'all 0.2s ease',
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 221, 0, 0.2)'; e.currentTarget.style.borderColor = 'rgba(255, 221, 0, 0.6)'; e.currentTarget.style.color = '#ffffff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'); e.currentTarget.style.borderColor = isTransparent ? 'rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '#e2e8f0'); e.currentTarget.style.color = isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'); }}
@@ -224,11 +224,11 @@ export default function Navbar() {
             {user ? (
               <Link className="desktop-only" href="/profile" style={{
                 position: 'relative', display: 'flex', alignItems: 'center', gap: '7px',
-                padding: '8px 14px', borderRadius: '10px',
+                height: '38px', padding: '0 14px', borderRadius: '10px',
                 background: isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'),
                 border: isTransparent ? '1px solid rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0'),
                 color: isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'), fontSize: '13px', fontWeight: 600,
-                textDecoration: 'none', transition: 'all 0.2s ease',
+                textDecoration: 'none', transition: 'all 0.2s ease', boxSizing: 'border-box',
               }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 221, 0, 0.2)'; e.currentTarget.style.borderColor = 'rgba(255, 221, 0, 0.6)'; e.currentTarget.style.color = '#ffffff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'); e.currentTarget.style.borderColor = isTransparent ? 'rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '#e2e8f0'); e.currentTarget.style.color = isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'); }}
@@ -252,11 +252,11 @@ export default function Navbar() {
             ) : (
               <Link className="desktop-only" href="/login" style={{
                 position: 'relative', display: 'flex', alignItems: 'center', gap: '7px',
-                padding: '8px 14px', borderRadius: '10px',
+                height: '38px', padding: '0 14px', borderRadius: '10px',
                 background: isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'),
                 border: isTransparent ? '1px solid rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0'),
                 color: isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'), fontSize: '13px', fontWeight: 600,
-                textDecoration: 'none', transition: 'all 0.2s ease',
+                textDecoration: 'none', transition: 'all 0.2s ease', boxSizing: 'border-box',
               }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 221, 0, 0.2)'; e.currentTarget.style.borderColor = 'rgba(255, 221, 0, 0.6)'; e.currentTarget.style.color = '#ffffff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = isTransparent ? 'rgba(255, 255, 255, 0.12)' : (theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'); e.currentTarget.style.borderColor = isTransparent ? 'rgba(255, 255, 255, 0.2)' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '#e2e8f0'); e.currentTarget.style.color = isTransparent ? 'rgba(255, 255, 255, 0.9)' : (theme === 'dark' ? '#ffffff' : '#334155'); }}
