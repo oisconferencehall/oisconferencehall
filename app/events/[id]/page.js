@@ -299,7 +299,7 @@ export default function EventDetailPage({ params }) {
                   <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{t.eventDetail.totalPrice}</span>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-primary)' }}>
-                      {totalPrice <= 0 ? (t.eventsPage?.free || 'Free') : (
+                      {event.price <= 0 ? (t.eventsPage?.free || 'Free') : (
                         <>
                           {formatPrice(totalPrice)}
                           <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)', marginLeft: '4px' }}>{t.common?.currency || 'UZS'}</span>
