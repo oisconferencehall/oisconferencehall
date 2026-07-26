@@ -231,6 +231,18 @@ function RegistrationPageContent() {
           const isForThisEvent = !eventId || (r.ticket_id && r.ticket_id.includes(eventId)) || r.seat.startsWith(eventId);
           if (isForThisEvent) {
             taken.add(cleanSeat);
+
+            // Map Seat #17 -> L1-1-1 coordinate and vice versa
+            if (cleanSeat.startsWith('Seat #')) {
+              const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+              Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
+                if (String(seatNum) === seatNumStr) {
+                  taken.add(blockId);
+                }
+              });
+            } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
+              taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
+            }
           }
         });
         setTakenSeats(taken);
@@ -810,7 +822,7 @@ function RegistrationPageContent() {
                                       {Array.from({length:block.cols},(_,c)=>{
                                         const id=`${block.id}-${r+1}-${c+1}`;
                                         const num=SEAT_NUMBERS[id];
-                                        const taken=takenSeats.has(id);
+                                        const taken=takenSeats.has(id) || takenSeats.has(`Seat #${num}`) || takenSeats.has(`Seat ${num}`);
                                         const sel=selectedSeat===id;
                                         return (
                                           <div key={id} title={`Seat #${num}${taken?' (Taken)':sel?' (Selected)':' (Available)'}`}
