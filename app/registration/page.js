@@ -609,8 +609,7 @@ function RegistrationPageContent() {
           {/* Hero */}
           <div className="reg-hero">
             <div className="reg-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
-              Special Event
+              🎬 {event?.category ? `${event.category.toUpperCase()} EVENT` : 'MOVIE EVENT'}
             </div>
             <h1>{event ? event.title : <>Movie Day <span>2026</span></>}</h1>
             <p className="reg-hero-sub" dangerouslySetInnerHTML={{ __html: event ? event.description : t.hero_sub }} />
