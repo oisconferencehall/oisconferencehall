@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { formatPrice } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
+import TicketDesignerStudio from '@/components/TicketDesignerStudio';
 
 const ADMIN_PASSWORD = 'admin2026';
 
@@ -99,6 +100,7 @@ export default function AdminPage() {
   const [mdMovieFilter, setMdMovieFilter] = useState('all');
   const [designTicket, setDesignTicket] = useState(null);
   const [ticketDesignTheme, setTicketDesignTheme] = useState('gold');
+  const [mdSubTab, setMdSubTab] = useState('designer');
 
   const parseTicketId = (rawId) => {
     if (!rawId) return { code: 'MD-—', eventId: '', movieTitle: 'Movie Day 2026' };
@@ -990,20 +992,66 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Stats row */}
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'20px' }}>
-                {[
-                  { label:'Total Registrations', value: mdRegs.length, color:'#ea580c' },
-                  { label:'Fast Education', value: mdRegs.filter(r=>r.branch==='Fast Education').length, color:'#FFDD00' },
-                  { label:'Oxford Int\'l', value: mdRegs.filter(r=>r.branch==='Oxford International School').length, color:'#3b82f6' },
-                  { label:'Seats Taken', value: mdRegs.filter(r=>r.seat).length, color:'#10b981' },
-                ].map((s,i) => (
-                  <div key={i} style={{ padding:'16px', borderRadius:'14px', background:'var(--bg-secondary)', border:'1px solid var(--border)' }}>
-                    <div style={{ fontSize:'24px', fontWeight:900, color:s.color }}>{s.value}</div>
-                    <div style={{ fontSize:'11px', color:'var(--text-muted)', fontWeight:600, marginTop:'2px' }}>{s.label}</div>
-                  </div>
-                ))}
+              {/* Sub-tab navigation */}
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                <button
+                  onClick={() => setMdSubTab('designer')}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    border: 'none',
+                    background: mdSubTab === 'designer' ? 'linear-gradient(135deg, #ea580c, #fb923c)' : 'var(--bg-secondary)',
+                    color: mdSubTab === 'designer' ? '#ffffff' : 'var(--text-secondary)',
+                    boxShadow: mdSubTab === 'designer' ? '0 4px 14px rgba(234, 88, 12, 0.35)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  🎨 WYSIWYG Ticket Designer Studio
+                </button>
+                <button
+                  onClick={() => setMdSubTab('registrations')}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    border: 'none',
+                    background: mdSubTab === 'registrations' ? 'linear-gradient(135deg, #ea580c, #fb923c)' : 'var(--bg-secondary)',
+                    color: mdSubTab === 'registrations' ? '#ffffff' : 'var(--text-secondary)',
+                    boxShadow: mdSubTab === 'registrations' ? '0 4px 14px rgba(234, 88, 12, 0.35)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  📋 All Registrations & Passes ({mdRegs.length})
+                </button>
               </div>
+
+              {mdSubTab === 'designer' ? (
+                <TicketDesignerStudio onSaveSuccess={loadMdRegs} />
+              ) : (
+                <>
+                  {/* Stats row */}
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'20px' }}>
+                    {[
+                      { label:'Total Registrations', value: mdRegs.length, color:'#ea580c' },
+                      { label:'Fast Education', value: mdRegs.filter(r=>r.branch==='Fast Education').length, color:'#FFDD00' },
+                      { label:'Oxford Int\'l', value: mdRegs.filter(r=>r.branch==='Oxford International School').length, color:'#3b82f6' },
+                      { label:'Seats Taken', value: mdRegs.filter(r=>r.seat).length, color:'#10b981' },
+                    ].map((s,i) => (
+                      <div key={i} style={{ padding:'16px', borderRadius:'14px', background:'var(--bg-secondary)', border:'1px solid var(--border)' }}>
+                        <div style={{ fontSize:'24px', fontWeight:900, color:s.color }}>{s.value}</div>
+                        <div style={{ fontSize:'11px', color:'var(--text-muted)', fontWeight:600, marginTop:'2px' }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
 
               {/* Search + Filters */}
               <div style={{ display:'flex', gap:'10px', marginBottom:'16px', flexWrap:'wrap', alignItems:'center' }}>
@@ -1103,8 +1151,10 @@ export default function AdminPage() {
                   Open Page ↗
                 </a>
               </div>
-            </div>
+            </>
           )}
+        </div>
+      )}
         </main>
       </div>
 
