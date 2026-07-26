@@ -316,13 +316,13 @@ export default function AdminPage() {
 
       return `
         <div class="ticket-card" style="
-          width: 190mm;
-          height: 52mm;
+          width: 210mm;
+          height: 59.4mm;
           position: relative;
-          border-radius: 12px;
+          border-radius: 0px;
           overflow: hidden;
           background: ${design.bgImage ? `url(${design.bgImage}) center/cover no-repeat` : 'linear-gradient(135deg, #181507 0%, #0a0802 100%)'};
-          border: 1px solid #cbd5e1;
+          border: none;
           page-break-inside: avoid;
         ">
           ${elementsHtml}
@@ -367,7 +367,7 @@ export default function AdminPage() {
           <style>
             @page {
               size: A4 portrait;
-              margin: 6mm 10mm;
+              margin: 0 !important;
             }
             * {
               -webkit-print-color-adjust: exact !important;
@@ -375,20 +375,21 @@ export default function AdminPage() {
               color-adjust: exact !important;
               box-sizing: border-box;
             }
-            body {
+            html, body {
               background: #ffffff !important;
-              margin: 0;
-              padding: 0;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 210mm;
               font-family: 'Outfit', sans-serif;
             }
             .a4-page {
-              width: 190mm;
-              height: 280mm;
-              margin: 0 auto;
-              padding: 4mm 0;
+              width: 210mm;
+              height: 297mm;
+              margin: 0 auto !important;
+              padding: 0 !important;
               display: flex;
               flex-direction: column;
-              gap: 3.5mm;
+              gap: 0 !important;
               page-break-after: always;
             }
           </style>
