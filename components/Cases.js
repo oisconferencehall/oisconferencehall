@@ -22,13 +22,55 @@ const InstagramIcon = ({ size = 14, style = {} }) => (
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75&auto=format";
 
 const parseEmbedUrl = (url) => {
-  if (!url) return "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1";
-  if (url.includes('youtube.com/embed/')) return url;
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-  if (match && match[1]) {
-    return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
+  if (!url) {
+    return {
+      type: 'youtube',
+      platform: 'youtube',
+      embedUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1",
+      originalUrl: "https://www.youtube.com/watch?v=5qap5aO4i9A"
+    };
   }
-  return "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1";
+
+  // 1. Check for Instagram Reel or Post
+  const instaMatch = url.match(/instagram\.com\/(reel|p)\/([A-Za-z0-9_-]+)/);
+  if (instaMatch) {
+    const mediaType = instaMatch[1];
+    const code = instaMatch[2];
+    return {
+      type: 'instagram',
+      platform: 'instagram',
+      code: code,
+      embedUrl: `https://www.instagram.com/${mediaType}/${code}/embed`,
+      originalUrl: `https://www.instagram.com/${mediaType}/${code}/`
+    };
+  }
+
+  // 2. Check for YouTube
+  if (url.includes('youtube.com/embed/')) {
+    return {
+      type: 'youtube',
+      platform: 'youtube',
+      embedUrl: url.includes('autoplay=1') ? url : `${url}${url.includes('?') ? '&' : '?'}autoplay=1`,
+      originalUrl: url
+    };
+  }
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    return {
+      type: 'youtube',
+      platform: 'youtube',
+      embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`,
+      originalUrl: `https://www.youtube.com/watch?v=${ytMatch[1]}`
+    };
+  }
+
+  // 3. Fallback
+  return {
+    type: 'youtube',
+    platform: 'youtube',
+    embedUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1",
+    originalUrl: url
+  };
 };
 
 export default function Cases() {
@@ -44,11 +86,21 @@ export default function Cases() {
 
   const rawList = cmsVideos && cmsVideos.length > 0 ? cmsVideos : defaultCases;
   const casesList = rawList.map((item, idx) => {
+    const parsed = parseEmbedUrl(item.videoUrl || item.embedUrl);
+    const platform = item.platform || parsed.platform;
     const translatedItem = t.casesSection?.items?.[idx];
-    if (translatedItem && (!item.title || item.title === "Global Tech Summit Highlights" || item.title === "Annual Award Gala Night" || item.title === "Grand Hall Interior & Setup" || item.title === "Corporate Strategy Offsite")) {
-      return { ...item, title: translatedItem.title, category: translatedItem.category || item.category };
-    }
-    return item;
+    const title = (translatedItem && (!item.title || item.title === "Global Tech Summit Highlights" || item.title === "Annual Award Gala Night" || item.title === "Grand Hall Interior & Setup" || item.title === "Corporate Strategy Offsite")) 
+      ? translatedItem.title 
+      : item.title;
+    const category = (translatedItem && (!item.category)) ? translatedItem.category : item.category;
+
+    return {
+      ...item,
+      title,
+      category,
+      platform,
+      parsed
+    };
   });
 
   const scrollRef = useRef(null);
@@ -346,41 +398,75 @@ export default function Cases() {
             style={{
               position: 'relative',
               width: '100%',
-              maxWidth: '900px',
-              aspectRatio: '16/9',
+              maxWidth: activeVideo.parsed?.type === 'instagram' ? '480px' : '900px',
+              height: activeVideo.parsed?.type === 'instagram' ? '82vh' : 'auto',
+              maxHeight: '90vh',
+              aspectRatio: activeVideo.parsed?.type === 'instagram' ? 'auto' : '16/9',
               borderRadius: '24px',
               overflow: 'hidden',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              background: '#000000'
+              background: '#000000',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-            <button
-              onClick={() => setActiveVideo(null)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                zIndex: 10,
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'rgba(0,0,0,0.6)',
-                color: '#ffffff',
-                border: '1px solid rgba(255,255,255,0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justify: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <X size={20} />
-            </button>
+            {/* Action Bar Header */}
+            <div style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              zIndex: 10,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}>
+              {activeVideo.parsed?.type === 'instagram' && (
+                <a 
+                  href={activeVideo.parsed.originalUrl || activeVideo.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '100px',
+                    background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+                    color: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(8px)',
+                  }}
+                >
+                  <InstagramIcon size={14} /> Open in Instagram ↗
+                </a>
+              )}
+              <button
+                onClick={() => setActiveVideo(null)}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.6)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <X size={20} />
+              </button>
+            </div>
 
             <iframe 
-              src={activeVideo.embedUrl} 
+              src={activeVideo.parsed?.embedUrl || activeVideo.embedUrl} 
               title={activeVideo.title}
               style={{ width: '100%', height: '100%', border: 0 }}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
