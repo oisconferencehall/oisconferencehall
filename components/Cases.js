@@ -31,7 +31,17 @@ const parseEmbedUrl = (url) => {
     };
   }
 
-  // 1. Check for Instagram Reel or Post
+  // 1. Direct Video file (MP4, WebM, MOV, Supabase Storage)
+  if (url.match(/\.(mp4|webm|mov|ogg)($|\?)/i) || url.includes('/storage/v1/object/public/')) {
+    return {
+      type: 'video',
+      platform: 'direct',
+      embedUrl: url,
+      originalUrl: url
+    };
+  }
+
+  // 2. Check for Instagram Reel or Post
   const instaMatch = url.match(/instagram\.com\/(reel|p)\/([A-Za-z0-9_-]+)/);
   if (instaMatch) {
     const mediaType = instaMatch[1];
@@ -40,12 +50,12 @@ const parseEmbedUrl = (url) => {
       type: 'instagram',
       platform: 'instagram',
       code: code,
-      embedUrl: `https://www.instagram.com/${mediaType}/${code}/embed`,
+      embedUrl: `https://www.instagram.com/${mediaType}/${code}/embed/captioned/`,
       originalUrl: `https://www.instagram.com/${mediaType}/${code}/`
     };
   }
 
-  // 2. Check for YouTube
+  // 3. Check for YouTube
   if (url.includes('youtube.com/embed/')) {
     return {
       type: 'youtube',
@@ -64,7 +74,7 @@ const parseEmbedUrl = (url) => {
     };
   }
 
-  // 3. Fallback
+  // 4. Fallback
   return {
     type: 'youtube',
     platform: 'youtube',
@@ -398,7 +408,7 @@ export default function Cases() {
             style={{
               position: 'relative',
               width: '100%',
-              maxWidth: activeVideo.parsed?.type === 'instagram' ? '480px' : '900px',
+              maxWidth: activeVideo.parsed?.type === 'instagram' ? '460px' : '900px',
               height: activeVideo.parsed?.type === 'instagram' ? '82vh' : 'auto',
               maxHeight: '90vh',
               aspectRatio: activeVideo.parsed?.type === 'instagram' ? 'auto' : '16/9',
@@ -413,9 +423,9 @@ export default function Cases() {
             {/* Action Bar Header */}
             <div style={{
               position: 'absolute',
-              top: '16px',
-              right: '16px',
-              zIndex: 10,
+              top: '12px',
+              right: '12px',
+              zIndex: 30,
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
@@ -426,52 +436,63 @@ export default function Cases() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    padding: '8px 14px',
+                    padding: '6px 12px',
                     borderRadius: '100px',
-                    background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+                    background: 'rgba(0, 0, 0, 0.75)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     color: '#ffffff',
-                    fontSize: '13px',
+                    fontSize: '12px',
                     fontWeight: 700,
                     textDecoration: 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
                     backdropFilter: 'blur(8px)',
                   }}
                 >
-                  <InstagramIcon size={14} /> Open in Instagram ↗
+                  <InstagramIcon size={13} /> Open Instagram ↗
                 </a>
               )}
               <button
                 onClick={() => setActiveVideo(null)}
                 style={{
-                  width: '40px',
-                  height: '40px',
+                  width: '36px',
+                  height: '36px',
                   borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.6)',
+                  background: 'rgba(0,0,0,0.75)',
                   color: '#ffffff',
                   border: '1px solid rgba(255,255,255,0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justify: 'center',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  backdropFilter: 'blur(8px)',
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            <iframe 
-              src={activeVideo.parsed?.embedUrl || activeVideo.embedUrl} 
-              title={activeVideo.title}
-              style={{ width: '100%', height: '100%', border: 0 }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {activeVideo.parsed?.type === 'video' ? (
+              <video 
+                src={activeVideo.parsed.embedUrl} 
+                controls 
+                autoPlay 
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
+              />
+            ) : (
+              <iframe 
+                src={activeVideo.parsed?.embedUrl || activeVideo.embedUrl} 
+                title={activeVideo.title}
+                style={{ width: '100%', height: '100%', border: 0 }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
           </div>
         </div>
       )}

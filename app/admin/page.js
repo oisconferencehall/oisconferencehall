@@ -1448,7 +1448,29 @@ export default function AdminPage() {
                   placeholder="Select Category"
                 />
               </div>
-              <input type="text" className="form-input" placeholder="Paste YouTube link (https://www.youtube.com/watch?v=...)" value={newVideo.videoUrl} onChange={e => setNewVideo(p => ({ ...p, videoUrl: e.target.value }))} />
+              <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+                <input type="text" className="form-input" style={{ flex:1 }} placeholder="YouTube / Instagram link or direct MP4 URL" value={newVideo.videoUrl} onChange={e => setNewVideo(p => ({ ...p, videoUrl: e.target.value }))} />
+                <label className="btn btn-outline btn-sm" style={{ cursor:'pointer', whiteSpace:'nowrap', display:'inline-flex', alignItems:'center', gap:'4px', flexShrink:0 }}>
+                  {isUploading ? 'Uploading...' : '📁 Upload MP4'}
+                  <input type="file" accept="video/*" style={{ display:'none' }} disabled={isUploading} onChange={async (e) => {
+                    const file = e.target.files[0]; if (!file) return;
+                    setIsUploading(true);
+                    try {
+                      const fileExt = file.name.split('.').pop();
+                      const fileName = `video_${Math.random()}.${fileExt}`;
+                      const { data, error } = await supabase.storage.from('events').upload(fileName, file);
+                      if (error) throw error;
+                      const publicUrl = supabase.storage.from('events').getPublicUrl(fileName).data.publicUrl;
+                      setNewVideo(p => ({ ...p, videoUrl: publicUrl }));
+                    } catch (err) {
+                      console.error('Error uploading video:', err);
+                      alert('Error uploading video file');
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }} />
+                </label>
+              </div>
               <input type="text" className="form-input" placeholder="Thumbnail Image URL (Optional)" value={newVideo.image} onChange={e => setNewVideo(p => ({ ...p, image: e.target.value }))} />
               <button className="btn btn-primary btn-sm" style={{ alignSelf:'flex-end' }} onClick={() => {
                 if(!newVideo.title.trim() || !newVideo.videoUrl.trim()) return;
