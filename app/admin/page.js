@@ -1382,17 +1382,39 @@ export default function AdminPage() {
                   <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
                     <span style={{ fontSize:'13px', fontWeight:700, color:'var(--text-muted)' }}>{idx + 1}.</span>
                     {item.logo ? (
-                      <div style={{ width:'36px', height:'36px', borderRadius:'6px', background:'#ffffff', padding:'4px', display:'flex', alignItems:'center', justifyContent:'center', border:'1px solid var(--border)' }}>
-                        <img src={item.logo} alt={item.name} style={{ maxWidth:'100%', maxHeight:'100%', objectFit:'contain' }} />
+                      <div style={{ width:'36px', height:'36px', borderRadius:'6px', background:'#ffffff', padding:'4px', display:'flex', alignItems:'center', justifyContent:'center', border:'1px solid var(--border)', overflow:'hidden' }}>
+                        <img src={item.logo} alt={item.name} style={{ maxWidth:'100%', maxHeight:'100%', objectFit:'contain', transform: item.scale ? `scale(${item.scale})` : 'none' }} />
                       </div>
                     ) : (
                       <span style={{ fontSize:'18px' }}>🏢</span>
                     )}
                     <span style={{ fontWeight:700, fontSize:'14px', color:'var(--text-primary)' }}>{item.name}</span>
                   </div>
-                  <button className="btn btn-danger btn-sm" onClick={() => setCmsPartners(p => p.filter(x => x.id !== item.id))}>
-                    <Trash2 size={13}/>
-                  </button>
+
+                  <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                    <label style={{ fontSize:'11px', color:'var(--text-muted)', fontWeight:700 }}>Scale:</label>
+                    <select
+                      value={item.scale || 1.0}
+                      onChange={e => {
+                        const val = parseFloat(e.target.value);
+                        setCmsPartners(list => list.map(p => p.id === item.id ? { ...p, scale: val } : p));
+                      }}
+                      style={{ padding:'4px 8px', borderRadius:'6px', border:'1px solid var(--border)', background:'var(--bg-card)', color:'var(--text-primary)', fontSize:'12px', fontWeight:700, cursor:'pointer' }}
+                    >
+                      <option value={1.0}>1.0x (Normal)</option>
+                      <option value={1.25}>1.25x</option>
+                      <option value={1.5}>1.5x</option>
+                      <option value={1.75}>1.75x</option>
+                      <option value={2.0}>2.0x (Large)</option>
+                      <option value={2.5}>2.5x</option>
+                      <option value={2.9}>2.9x (Huge)</option>
+                      <option value={3.5}>3.5x</option>
+                    </select>
+
+                    <button className="btn btn-danger btn-sm" onClick={() => setCmsPartners(p => p.filter(x => x.id !== item.id))}>
+                      <Trash2 size={13}/>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
