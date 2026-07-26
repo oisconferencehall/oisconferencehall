@@ -185,6 +185,211 @@ export default function AdminPage() {
     a.click();
   };
 
+  // ── A4 Batch PDF Ticket Sheet Printer for All Movie Attendees ──
+  const handlePrintAllTicketsA4 = async () => {
+    const filtered = mdRegs.filter(r => {
+      const parsed = parseTicketId(r.ticket_id);
+      if (mdMovieFilter !== 'all' && parsed.movieTitle !== mdMovieFilter) return false;
+      if (mdSearch) {
+        const q = mdSearch.toLowerCase();
+        const matchName = `${r.first_name || ''} ${r.last_name || ''}`.toLowerCase().includes(q);
+        const matchPhone = (r.phone || '').toLowerCase().includes(q);
+        const matchTicket = (parsed.code || '').toLowerCase().includes(q);
+        if (!matchName && !matchPhone && !matchTicket) return false;
+      }
+      if (mdFilter === 'all') return true;
+      if (mdFilter === 'Other') return r.branch !== 'Fast Education' && r.branch !== 'Oxford International School';
+      return r.branch === mdFilter;
+    });
+
+    if (filtered.length === 0) {
+      alert('No registrations found for the selected movie/filter to print.');
+      return;
+    }
+
+    const slugKey = mdMovieFilter === 'all' ? 'movie-day' : mdMovieFilter.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const templateKey = `ticket_template_${slugKey}`;
+    let design = null;
+
+    try {
+      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
+      if (data?.data && data.data.elements) {
+        design = data.data;
+      }
+    } catch (e) {}
+
+    if (!design || !design.elements) {
+      design = {
+        bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
+        width: 800, height: 226, flipX: false, flipY: false,
+        elements: [
+          { id: 'el-1', type: 'text', text: 'OFFICIAL ENTRY PASS', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
+          { id: 'el-2', type: 'text', text: '{movie}', x: 24, y: 52, fontSize: 26, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+          { id: 'el-3', type: 'text', text: '{first_name} {last_name}', x: 24, y: 110, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+          { id: 'el-4', type: 'text', text: '{seat}', x: 24, y: 160, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
+          { id: 'el-5', type: 'text', text: 'Oxford Grand Conference Hall', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
+          { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
+        ]
+      };
+    }
+
+    const renderAttendeeTicketHtml = (r) => {
+      const parsed = parseTicketId(r.ticket_id);
+      const attendeeData = {
+        first_name: r.first_name || '',
+        last_name: r.last_name || '',
+        movie: parsed.movieTitle || 'Movie Day 2026',
+        seat: r.seat || 'Reserved Pass',
+        ticket_id: parsed.code || r.ticket_id || 'MD-PASS',
+        phone: r.phone || '',
+        branch: r.branch || '',
+        level: r.english_level || ''
+      };
+
+      const elementsHtml = design.elements.map(el => {
+        const op = el.opacity !== undefined ? el.opacity / 100 : 1;
+        if (el.type === 'text') {
+          let text = (el.text || '')
+            .replace(/{first_name}/g, attendeeData.first_name)
+            .replace(/{last_name}/g, attendeeData.last_name)
+            .replace(/{movie}/g, attendeeData.movie)
+            .replace(/{seat}/g, attendeeData.seat)
+            .replace(/{ticket_id}/g, attendeeData.ticket_id)
+            .replace(/{phone}/g, attendeeData.phone)
+            .replace(/{branch}/g, attendeeData.branch)
+            .replace(/{level}/g, attendeeData.level);
+
+          return `
+            <div style="
+              position: absolute;
+              left: ${el.x}px;
+              top: ${el.y}px;
+              font-size: ${el.fontSize || 14}px;
+              font-weight: ${el.fontWeight || '700'};
+              color: ${el.color || '#ffffff'};
+              font-family: ${el.fontFamily || 'Outfit'};
+              opacity: ${op};
+              transform: ${el.rotate ? `rotate(${el.rotate}deg)` : 'none'};
+              white-space: nowrap;
+            ">${text}</div>
+          `;
+        }
+
+        if (el.type === 'qr') {
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent('TicketPass:' + attendeeData.ticket_id)}`;
+          return `
+            <div style="
+              position: absolute;
+              left: ${el.x}px;
+              top: ${el.y}px;
+              background: #ffffff;
+              padding: 6px;
+              border-radius: 10px;
+              opacity: ${op};
+              transform: ${el.rotate ? `rotate(${el.rotate}deg)` : 'none'};
+            ">
+              <img src="${qrUrl}" width="${el.size || 84}" height="${el.size || 84}" style="display:block;" />
+            </div>
+          `;
+        }
+
+        if (el.type === 'rect' || el.type === 'circ') {
+          return `
+            <div style="
+              position: absolute;
+              left: ${el.x}px;
+              top: ${el.y}px;
+              width: ${el.width || 80}px;
+              height: ${el.height || 40}px;
+              background-color: ${el.bgColor || 'transparent'};
+              border: ${el.borderWidth ?? 2}px solid ${el.borderColor || '#FFDD00'};
+              border-radius: ${el.type === 'circ' ? '50%' : (el.borderRadius ?? 8) + 'px'};
+              opacity: ${op};
+              transform: ${el.rotate ? `rotate(${el.rotate}deg)` : 'none'};
+            "></div>
+          `;
+        }
+        return '';
+      }).join('');
+
+      return `
+        <div class="ticket-card" style="
+          width: 190mm;
+          height: 52mm;
+          position: relative;
+          border-radius: 12px;
+          overflow: hidden;
+          background: ${design.bgImage ? `url(${design.bgImage}) center/cover no-repeat` : 'linear-gradient(135deg, #181507 0%, #0a0802 100%)'};
+          border: 1px solid #cbd5e1;
+          page-break-inside: avoid;
+        ">
+          ${elementsHtml}
+        </div>
+      `;
+    };
+
+    const TICKETS_PER_PAGE = 5;
+    let pagesHtml = '';
+    
+    for (let i = 0; i < filtered.length; i += TICKETS_PER_PAGE) {
+      const pageTickets = filtered.slice(i, i + TICKETS_PER_PAGE);
+      const ticketsMarkup = pageTickets.map(r => renderAttendeeTicketHtml(r)).join('');
+      pagesHtml += `
+        <div class="a4-page">
+          ${ticketsMarkup}
+        </div>
+      `;
+    }
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>All Movie Tickets A4 PDF Sheet (${filtered.length} Attendees)</title>
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 6mm 10mm;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              box-sizing: border-box;
+            }
+            body {
+              background: #ffffff !important;
+              margin: 0;
+              padding: 0;
+              font-family: 'Outfit', sans-serif;
+            }
+            .a4-page {
+              width: 190mm;
+              height: 280mm;
+              margin: 0 auto;
+              padding: 4mm 0;
+              display: flex;
+              flex-direction: column;
+              gap: 3.5mm;
+              page-break-after: always;
+            }
+          </style>
+        </head>
+        <body>
+          ${pagesHtml}
+          <script>
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 800);
+          </script>
+        </body>
+      </html>
+    `);
+    win.document.close();
+  };
+
   const fetchCms = async () => {
     const { data } = await supabase.from('page_sections').select('*').order('order_index', { ascending: true });
     setCmsSections(data || []);
@@ -976,12 +1181,9 @@ export default function AdminPage() {
                   <h2 style={{ fontSize:'24px', fontWeight:800, display:'flex', alignItems:'center', gap:'10px' }}>🎬 Movie Day Registrations & Ticket Designer</h2>
                   <p style={{ fontSize:'13px', color:'var(--text-muted)', marginTop:'4px' }}>Filter registrations per movie, manage attendee passes, and design tickets live.</p>
                 </div>
-                <div style={{ display:'flex', gap:'8px' }}>
-                  <button className="btn" onClick={() => {
-                    const sample = mdRegs[0] || { id: 'demo', ticket_id: 'MD-DEMO', first_name: 'Ozodbek', last_name: 'Jumayev', phone: '+998 77 196 00 20', english_level: 'Advanced', branch: 'Oxford International School', seat: 'VIP-C1-5', created_at: new Date().toISOString() };
-                    setDesignTicket({ ...sample, parsed: parseTicketId(sample.ticket_id) });
-                  }} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'13px', background:'linear-gradient(135deg, #FFDD00, #FFDD00)', color:'#000000', fontWeight:800, padding:'10px 18px', borderRadius:'10px', boxShadow:'0 4px 14px rgba(255, 221, 0, 0.35)', border:'none', cursor:'pointer' }}>
-                    🎨 Open Ticket Designer
+                <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+                  <button className="btn" onClick={handlePrintAllTicketsA4} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'13px', background:'linear-gradient(135deg, #FFDD00, #FFDD00)', color:'#000000', fontWeight:800, padding:'10px 18px', borderRadius:'10px', boxShadow:'0 4px 14px rgba(255, 221, 0, 0.35)', border:'none', cursor:'pointer' }}>
+                    🖨️ Print All Tickets (A4 PDF)
                   </button>
                   <button className="btn btn-primary" onClick={exportMdCSV} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'13px' }}>
                     <Users size={14}/> Export CSV
