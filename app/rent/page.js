@@ -6,6 +6,7 @@ import { useApp } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import YellowShapeBanner from '@/components/YellowShapeBanner';
+import DatePicker from '@/components/DatePicker';
 import Image from 'next/image';
 import { HALL_INFO, HALLS_LIST, formatPrice } from '@/lib/data';
 import {
@@ -495,23 +496,32 @@ function RentPageContent() {
                         { key: 'guests', label: t.rent?.expectedGuests || 'Guests', type: 'number', placeholder: `Capacity: ${selectedHall.capacity}` },
                       ].map(f => (
                         <div key={f.key} className="form-group">
-                          <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px' }}>{f.label}</label>
-                          <input
-                            type={f.type}
-                            className="form-input"
-                            value={form[f.key]}
-                            onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                            placeholder={f.placeholder}
-                            required={['name', 'phone', 'email'].includes(f.key)}
-                            style={{
-                              background: 'var(--bg-secondary)',
-                              border: '1px solid var(--border)',
-                              borderRadius: '12px',
-                              padding: '12px 16px',
-                              fontSize: '14px',
-                              color: 'var(--text-primary)'
-                            }}
-                          />
+                          <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px', marginBottom: '6px', display: 'block' }}>{f.label}</label>
+                          {f.key === 'date' ? (
+                            <DatePicker
+                              value={form.date}
+                              onChange={(val) => setForm(p => ({ ...p, date: val }))}
+                              placeholder="yyyy-mm-dd"
+                            />
+                          ) : (
+                            <input
+                              type={f.type}
+                              className="form-input"
+                              value={form[f.key]}
+                              onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                              placeholder={f.placeholder}
+                              required={['name', 'phone', 'email'].includes(f.key)}
+                              style={{
+                                background: 'var(--bg-secondary)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                fontSize: '14px',
+                                color: 'var(--text-primary)',
+                                height: '46px'
+                              }}
+                            />
+                          )}
                         </div>
                       ))}
 
