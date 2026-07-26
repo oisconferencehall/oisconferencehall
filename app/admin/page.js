@@ -115,13 +115,58 @@ export default function AdminPage() {
 
   const loadMdRegs = async () => {
     setMdLoading(true);
-    const { data } = await supabase.from('movie_registrations').select('*').order('created_at', { ascending: false });
-    setMdRegs(data || []);
-    setMdLoading(false);
+    try {
+      const { data: mdData } = await supabase.from('movie_registrations').select('*').order('created_at', { ascending: false });
+      const { data: ticketsData } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
+
+      const combined = [];
+      const seenCodes = new Set();
+
+      (mdData || []).forEach(r => {
+        const rawCode = (r.ticket_id || '').split('::')[0];
+        seenCodes.add(rawCode);
+        seenCodes.add(r.id);
+        combined.push(r);
+      });
+
+      (ticketsData || []).forEach(t => {
+        const shortCode = (t.id || '').slice(0, 8).toUpperCase();
+        if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
+          const nameParts = (t.payer_name || '').split(' ');
+          const fName = nameParts[0] || 'Attendee';
+          const lName = nameParts.slice(1).join(' ') || '';
+          combined.push({
+            id: t.id,
+            ticket_id: `${shortCode}::${t.event_id || ''}::${t.event_title || 'General Event'}`,
+            first_name: fName,
+            last_name: lName,
+            phone: t.payer_phone || '—',
+            english_level: 'Confirmed',
+            branch: t.event_title || 'General',
+            seat: 'Reserved Pass',
+            created_at: t.created_at,
+            source: 'tickets'
+          });
+        }
+      });
+
+      setMdRegs(combined);
+    } catch (err) {
+      console.error('Error loading registrations:', err);
+    } finally {
+      setMdLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (authenticated) {
+      loadMdRegs();
+    }
+  }, [authenticated, activeTab]);
 
   const deleteMdReg = async (id) => {
     await supabase.from('movie_registrations').delete().eq('id', id);
+    await supabase.from('tickets').delete().eq('id', id);
     setMdRegs(prev => prev.filter(r => r.id !== id));
   };
 
