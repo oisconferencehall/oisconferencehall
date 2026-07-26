@@ -341,8 +341,23 @@ export default function AdminPage() {
       `;
     }
 
-    const win = window.open('', '_blank');
-    win.document.write(`
+    let iframe = document.getElementById('a4-print-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'a4-print-iframe';
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0px';
+      iframe.style.height = '0px';
+      iframe.style.border = '0';
+      iframe.style.visibility = 'hidden';
+      document.body.appendChild(iframe);
+    }
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -378,16 +393,15 @@ export default function AdminPage() {
         </head>
         <body>
           ${pagesHtml}
-          <script>
-            setTimeout(() => {
-              window.print();
-              window.close();
-            }, 800);
-          </script>
         </body>
       </html>
     `);
-    win.document.close();
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 600);
   };
 
   const fetchCms = async () => {
