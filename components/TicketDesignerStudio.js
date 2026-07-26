@@ -158,8 +158,13 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
       fontWeight: '700',
       color: '#ffffff',
       fontFamily: 'Outfit',
-      width: type === 'rect' ? 80 : 40,
-      height: type === 'rect' ? 40 : 40,
+      width: type === 'rect' ? 120 : 40,
+      height: type === 'rect' ? 60 : 40,
+      borderColor: '#FFDD00',
+      bgColor: 'transparent',
+      borderWidth: 2,
+      borderRadius: 8,
+      opacity: 100,
       size: type === 'qr' ? 84 : 16,
     };
     setDesign(prev => ({ ...prev, elements: [...prev.elements, newEl] }));
@@ -402,6 +407,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                 </div>
               )}
 
+              {/* Coordinates */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <div>
                   <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>X POS</span>
@@ -413,11 +419,50 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                 </div>
               </div>
 
+              {/* Shape controls for Rect, Circ, Tri */}
+              {(selectedEl.type === 'rect' || selectedEl.type === 'circ' || selectedEl.type === 'tri') && (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>WIDTH (PX)</span>
+                      <input type="number" className="form-input" style={{ fontSize: '12px', background: 'rgba(0,0,0,0.5)' }} value={selectedEl.width || 80} onChange={e => updateSelected('width', Number(e.target.value))} />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>HEIGHT (PX)</span>
+                      <input type="number" className="form-input" style={{ fontSize: '12px', background: 'rgba(0,0,0,0.5)' }} value={selectedEl.height || 40} onChange={e => updateSelected('height', Number(e.target.value))} />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>BORDER COLOR</span>
+                      <input type="color" style={{ width: '100%', height: '34px', border: 'none', background: 'transparent', cursor: 'pointer' }} value={selectedEl.borderColor || '#FFDD00'} onChange={e => updateSelected('borderColor', e.target.value)} />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>FILL BG COLOR</span>
+                      <input type="color" style={{ width: '100%', height: '34px', border: 'none', background: 'transparent', cursor: 'pointer' }} value={selectedEl.bgColor || '#000000'} onChange={e => updateSelected('bgColor', e.target.value)} />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>BORDER WIDTH (PX)</span>
+                      <input type="number" className="form-input" style={{ fontSize: '12px', background: 'rgba(0,0,0,0.5)' }} value={selectedEl.borderWidth ?? 2} onChange={e => updateSelected('borderWidth', Number(e.target.value))} />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>CORNER RADIUS (PX)</span>
+                      <input type="number" className="form-input" style={{ fontSize: '12px', background: 'rgba(0,0,0,0.5)' }} value={selectedEl.borderRadius ?? 8} onChange={e => updateSelected('borderRadius', Number(e.target.value))} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Typography controls for Text */}
               {selectedEl.type === 'text' && (
                 <>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <div>
-                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>SIZE</span>
+                      <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>FONT SIZE</span>
                       <input type="number" className="form-input" style={{ fontSize: '12px', background: 'rgba(0,0,0,0.5)' }} value={selectedEl.fontSize || 14} onChange={e => updateSelected('fontSize', Number(e.target.value))} />
                     </div>
                     <div>
@@ -437,10 +482,20 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                   </div>
                 </>
               )}
+
+              {/* Opacity slider for all layers */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>OPACITY</span>
+                  <span style={{ fontSize: '11px', color: '#FFDD00', fontWeight: 800 }}>{selectedEl.opacity ?? 100}%</span>
+                </div>
+                <input type="range" min="0" max="100" style={{ width: '100%', accentColor: '#FFDD00', marginTop: '4px', cursor: 'pointer' }} value={selectedEl.opacity ?? 100} onChange={e => updateSelected('opacity', Number(e.target.value))} />
+              </div>
+
             </div>
           ) : (
             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '16px' }}>
-              Click or drag any element on the stage to move it directly!
+              Click or drag any element on the stage to move and edit properties!
             </div>
           )}
 
@@ -467,6 +522,8 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
             {/* Render Elements */}
             {design.elements.map(el => {
               const isSel = el.id === selectedId;
+              const op = el.opacity !== undefined ? el.opacity / 100 : 1;
+
               if (el.type === 'text') {
                 return (
                   <div
@@ -480,6 +537,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       fontWeight: el.fontWeight || '700',
                       color: el.color || '#ffffff',
                       fontFamily: el.fontFamily || 'Outfit',
+                      opacity: op,
                       cursor: 'grab',
                       userSelect: 'none',
                       padding: '2px 6px',
@@ -494,6 +552,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                   </div>
                 );
               }
+
               if (el.type === 'qr') {
                 return (
                   <div
@@ -506,6 +565,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       background: '#ffffff',
                       padding: '6px',
                       borderRadius: '10px',
+                      opacity: op,
                       cursor: 'grab',
                       userSelect: 'none',
                       boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
@@ -522,7 +582,8 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                   </div>
                 );
               }
-              if (el.type === 'rect') {
+
+              if (el.type === 'rect' || el.type === 'circ') {
                 return (
                   <div
                     key={el.id}
@@ -531,12 +592,15 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
                       position: 'absolute',
                       left: `${el.x}px`,
                       top: `${el.y}px`,
-                      width: `${el.width || 60}px`,
+                      width: `${el.width || 80}px`,
                       height: `${el.height || 40}px`,
-                      border: '2px solid #FFDD00',
-                      borderRadius: '8px',
+                      backgroundColor: el.bgColor || 'transparent',
+                      border: `${el.borderWidth ?? 2}px solid ${el.borderColor || '#FFDD00'}`,
+                      borderRadius: el.type === 'circ' ? '50%' : `${el.borderRadius ?? 8}px`,
+                      opacity: op,
                       cursor: 'grab',
                       outline: isSel ? '2px dashed #ea580c' : 'none',
+                      transform: el.rotate ? `rotate(${el.rotate}deg)` : 'none',
                     }}
                   />
                 );
@@ -547,7 +611,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
           </div>
 
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '16px' }}>
-            🖐️ Click and drag any text or QR Code on the canvas stage to move position in real-time!
+            🖐️ Click and drag any shape, rectangle, text, or QR Code on the canvas stage to move position!
           </div>
         </div>
 
