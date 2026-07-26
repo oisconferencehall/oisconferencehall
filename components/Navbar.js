@@ -266,20 +266,6 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Admin */}
-            <Link className="desktop-only" href="/admin" style={{
-              padding: '8px 16px', borderRadius: '10px',
-              background: '#FFDD00',
-              color: '#000000', fontSize: '13px', fontWeight: 700,
-              textDecoration: 'none', transition: 'all 0.2s ease',
-              boxShadow: '0 4px 12px rgba(255, 221, 0, 0.35)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(255, 221, 0, 0.45)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 221, 0, 0.35)'; }}
-            >
-              {t.nav.admin}
-            </Link>
-
             {/* Mobile menu toggle */}
             <button
               onClick={() => setMenuOpen(v => !v)}
@@ -342,16 +328,7 @@ export default function Navbar() {
                 {t.navbar?.loginRegister}
               </Link>
             )}
-            <div style={{ marginTop: '16px' }}>
-              <Link href="/admin" onClick={() => setMenuOpen(false)} style={{
-                display: 'block', padding: '14px 16px', borderRadius: '10px',
-                background: '#FFDD00',
-                color: '#000000', fontSize: '15px', fontWeight: 700,
-                textDecoration: 'none', textAlign: 'center'
-              }}>
-                {t.nav.admin}
-              </Link>
-            </div>
+
           </div>
         )}
       </nav>
