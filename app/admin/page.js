@@ -15,6 +15,7 @@ import {
 import { formatPrice } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
 import TicketDesignerStudio from '@/components/TicketDesignerStudio';
+import EventWorkspaceModal from '@/components/EventWorkspaceModal';
 
 const ADMIN_PASSWORD = 'admin2026';
 
@@ -42,6 +43,7 @@ export default function AdminPage() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedWorkspaceEvent, setSelectedWorkspaceEvent] = useState(null);
   const [cmsSections, setCmsSections] = useState([]);
   const [editingSection, setEditingSection] = useState(null);
 
@@ -677,18 +679,22 @@ export default function AdminPage() {
                   <div key={ev.id} style={{
                     display:'flex', alignItems:'center', gap:'14px', padding:'14px 18px',
                     background:'var(--bg-secondary)', border:'1px solid var(--border)',
-                    borderRadius:'12px', transition:'all 0.2s ease',
+                    borderRadius:'12px', transition:'all 0.2s ease', cursor: 'pointer'
                   }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255, 221, 0, 0.35)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255, 221, 0, 0.5)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; }}
+                    onClick={() => setSelectedWorkspaceEvent(ev)}
                   >
                     <img src={ev.image} alt={ev.title} style={{ width:'52px', height:'52px', borderRadius:'10px', objectFit:'cover', flexShrink:0 }} />
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontWeight:700, marginBottom:'2px', fontSize:'14px' }}>{ev.title}</div>
+                      <div style={{ fontWeight:800, marginBottom:'2px', fontSize:'15px', color:'#ffffff' }}>{ev.title}</div>
                       <div style={{ fontSize:'12px', color:'var(--text-muted)' }}>{ev.date} · {ev.organizer}</div>
                     </div>
-                    <div style={{ fontSize:'13px', fontWeight:700, color:'#FFDD00' }}>{formatPrice(ev.price)} UZS</div>
-                    <div style={{ display:'flex', gap:'8px' }}>
+                    <div style={{ fontSize:'13px', fontWeight:800, color:'#FFDD00' }}>{formatPrice(ev.price)} UZS</div>
+                    <div style={{ display:'flex', gap:'8px', alignItems:'center' }} onClick={e => e.stopPropagation()}>
+                      <button className="btn" onClick={() => setSelectedWorkspaceEvent(ev)} style={{ background:'linear-gradient(135deg, #FFDD00, #FFDD00)', color:'#000000', fontWeight:900, fontSize:'12px', border:'none', borderRadius:'8px', padding:'6px 14px', cursor:'pointer', display:'flex', alignItems:'center', gap:'4px', boxShadow:'0 2px 10px rgba(255, 221, 0, 0.25)' }}>
+                        ⚡ Open Workspace
+                      </button>
                       <button className="btn btn-ghost btn-sm" title="Copy Telegram Link" onClick={() => {
                         const link = `${window.location.origin}/registration?eventId=${ev.id}&source=telegram`;
                         navigator.clipboard.writeText(link);
@@ -2638,6 +2644,17 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ═══ EVENT MANAGEMENT WORKSPACE MODAL ═══ */}
+      {selectedWorkspaceEvent && (
+        <EventWorkspaceModal
+          event={selectedWorkspaceEvent}
+          onClose={() => setSelectedWorkspaceEvent(null)}
+          mdRegs={mdRegs}
+          loadMdRegs={loadMdRegs}
+          deleteMdReg={deleteMdReg}
+        />
       )}
     </div>
   );
