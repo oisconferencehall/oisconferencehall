@@ -11,7 +11,7 @@ import { HALL_INFO, HALLS_LIST, formatPrice } from '@/lib/data';
 import {
   Wifi, Monitor, Volume2, Wind, ParkingCircle, Utensils,
   Shield, PhoneCall, Users, Clock, CheckCircle, Send,
-  Calendar, CalendarDays, ArrowDown, Sparkles, MapPin, Award, Maximize, Building2
+  Calendar, CalendarDays, ArrowDown, Sparkles, MapPin, Award, Maximize, Building2, ChevronDown
 } from 'lucide-react';
 
 const amenityIcons = {
@@ -19,6 +19,131 @@ const amenityIcons = {
   ac: Wind, parking: ParkingCircle, catering: Utensils,
   security: Shield, reception: PhoneCall,
 };
+
+// ── Custom VIP Dark Dropdown Component for Hall Selection ──
+function CustomHallDropdown({ halls, selectedId, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const selectedHall = halls.find(h => String(h.id) === String(selectedId)) || halls[0];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={dropdownRef} style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          background: 'var(--bg-secondary)',
+          border: '2px solid #FFDD00',
+          borderRadius: '14px',
+          padding: '12px 16px',
+          color: 'var(--text-primary)',
+          fontWeight: 800,
+          fontSize: '14px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 16px rgba(255, 221, 0, 0.25)',
+          transition: 'all 0.2s ease'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img
+            src={selectedHall.image || 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=200&q=80'}
+            alt={selectedHall.title}
+            style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }}
+          />
+          <span style={{ color: 'var(--text-primary)' }}>{selectedHall.title}</span>
+          <span style={{ fontSize: '11px', color: '#000', background: '#FFDD00', padding: '2px 8px', borderRadius: '100px', fontWeight: 800 }}>
+            {selectedHall.capacity}
+          </span>
+        </div>
+        <ChevronDown size={18} style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', color: '#FFDD00' }} />
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 6px)',
+          left: 0,
+          right: 0,
+          zIndex: 999,
+          background: '#11141e',
+          border: '1.5px solid rgba(255, 221, 0, 0.5)',
+          borderRadius: '16px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.85)',
+          overflow: 'hidden',
+          padding: '6px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          animation: 'fadeInUp 0.2s ease'
+        }}>
+          {halls.map(h => {
+            const isSel = String(h.id) === String(selectedId);
+            return (
+              <div
+                key={h.id}
+                onClick={() => {
+                  onSelect(String(h.id));
+                  setOpen(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'space-between',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  background: isSel ? 'rgba(255, 221, 0, 0.18)' : 'transparent',
+                  border: isSel ? '1px solid rgba(255, 221, 0, 0.4)' : '1px solid transparent',
+                  color: isSel ? '#FFDD00' : 'rgba(255,255,255,0.9)',
+                  fontWeight: isSel ? 800 : 600,
+                  fontSize: '13px',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={e => {
+                  if (!isSel) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                }}
+                onMouseLeave={e => {
+                  if (!isSel) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img
+                    src={h.image || 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=200&q=80'}
+                    alt={h.title}
+                    style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 800, color: isSel ? '#FFDD00' : '#ffffff' }}>{h.title}</div>
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>{h.area || 'Spacious Area'}</div>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '11px', fontWeight: 800, color: isSel ? '#FFDD00' : 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.08)', padding: '3px 8px', borderRadius: '6px' }}>
+                  {h.capacity}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function RentPageContent() {
   const { t, addRentRequest, hallBlocks, hallsList: appHalls } = useApp();
@@ -43,11 +168,9 @@ function RentPageContent() {
     eventType: '', date: '', guests: '', message: '',
   });
 
-  const dynamicCapacity = selectedHall.capacity || (hallBlocks ? `${hallBlocks.reduce((sum, b) => sum + (b.rows * b.cols), 0)} people` : `${HALL_INFO.capacity} people`);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [cmsData, setCmsData] = useState(null);
-  const [fetchingCms, setFetchingCms] = useState(true);
 
   useEffect(() => {
     async function fetchCms() {
@@ -55,7 +178,6 @@ function RentPageContent() {
       if (data) {
         setCmsData(data.data);
       }
-      setFetchingCms(false);
     }
     fetchCms();
   }, []);
@@ -79,7 +201,6 @@ function RentPageContent() {
     }
   };
 
-  // Hall images for gallery
   const hallImages = selectedHall.images && selectedHall.images.length >= 3 
     ? selectedHall.images 
     : [
@@ -93,7 +214,7 @@ function RentPageContent() {
       <Navbar />
       <main className="main-content">
 
-        {/* ===== HERO / CTA BANNER SECTION (Yellow Theme & Multi-Hall Selector) ===== */}
+        {/* ===== HERO / CTA BANNER SECTION ===== */}
         <section style={{
           position: 'relative',
           padding: '150px 24px 80px',
@@ -102,7 +223,6 @@ function RentPageContent() {
           textAlign: 'center'
         }}>
 
-          {/* Ambient Glow */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%, -50%)',
@@ -113,7 +233,7 @@ function RentPageContent() {
 
           <div className="container" style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
             
-            {/* ── Multi-Hall Selector Pills ── */}
+            {/* Multi-Hall Selector Pills */}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
               {allHalls.map(h => {
                 const isSel = String(h.id) === String(selectedHallId);
@@ -144,7 +264,6 @@ function RentPageContent() {
               })}
             </div>
 
-            {/* Custom Heading */}
             <h1 style={{
               fontSize: 'clamp(32px, 5vw, 50px)',
               fontWeight: 900,
@@ -158,7 +277,6 @@ function RentPageContent() {
               Rent <span style={{ color: '#FFDD00' }}>{selectedHall.title}</span> at Oxford International School
             </h1>
 
-            {/* Subtitle */}
             <p style={{
               fontSize: '17px',
               color: 'var(--text-secondary)',
@@ -169,44 +287,35 @@ function RentPageContent() {
               {selectedHall.description || cmsData?.subtitle || `Reserve ${selectedHall.title} (${selectedHall.capacity}, ${selectedHall.area || 'spacious area'}) with 4K projection, acoustic isolation, and executive service.`}
             </p>
 
-            {/* CTA Button Container */}
-            <div style={{
-              position: 'relative',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justify: 'center'
-            }}>
+            <button 
+              onClick={scrollToForm}
+              style={{
+                padding: '16px 42px',
+                borderRadius: '100px',
+                background: '#FFDD00',
+                color: '#000000',
+                fontSize: '16px',
+                fontWeight: 900,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 10px 30px rgba(255, 221, 0, 0.4)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 14px 40px rgba(255, 221, 0, 0.5)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 221, 0, 0.4)';
+              }}
+            >
+              Book {selectedHall.title} Now <Send size={18} />
+            </button>
 
-              <button 
-                onClick={scrollToForm}
-                style={{
-                  padding: '16px 42px',
-                  borderRadius: '100px',
-                  background: '#FFDD00',
-                  color: '#000000',
-                  fontSize: '16px',
-                  fontWeight: 900,
-                  border: 'none',
-                  cursor: 'pointer',
-                  boxShadow: '0 10px 30px rgba(255, 221, 0, 0.4)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0 14px 40px rgba(255, 221, 0, 0.5)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 221, 0, 0.4)';
-                }}
-              >
-                Book {selectedHall.title} Now <Send size={18} />
-              </button>
-
-            </div>
           </div>
         </section>
 
@@ -215,10 +324,8 @@ function RentPageContent() {
           <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
             <div className="responsive-grid-2" style={{ gap: '64px', alignItems: 'start' }}>
 
-              {/* Left Column: Hall Showcase, Specs, Gallery & Pricing */}
+              {/* Left Column */}
               <div>
-                
-                {/* 3D Tilt Image Gallery for Selected Hall */}
                 <div style={{
                   display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '240px 170px',
                   gap: '12px', marginBottom: '40px', borderRadius: '24px',
@@ -262,7 +369,6 @@ function RentPageContent() {
                   ))}
                 </div>
 
-                {/* Key Venue Highlights / Specs */}
                 <div className="responsive-grid-2" style={{ gap: '16px', marginBottom: '36px' }}>
                   {[
                     { icon: <Users size={22} />, label: 'CAPACITY', value: selectedHall.capacity },
@@ -294,7 +400,6 @@ function RentPageContent() {
                   ))}
                 </div>
 
-                {/* Hall Amenities List */}
                 <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '18px', color: 'var(--text-primary)' }}>
                   {t.rentPage?.amenitiesTitle || 'Included Amenities & Technology'}
                 </h3>
@@ -369,30 +474,16 @@ function RentPageContent() {
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                       
-                      {/* Hall Selector Dropdown in Form */}
+                      {/* Custom Dark VIP Dropdown for Target Hall */}
                       <div className="form-group">
-                        <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px' }}>TARGET HALL</label>
-                        <select
-                          className="form-input"
-                          value={selectedHallId}
-                          onChange={e => setSelectedHallId(e.target.value)}
-                          style={{
-                            background: 'var(--bg-secondary)',
-                            border: '2px solid #FFDD00',
-                            borderRadius: '12px',
-                            padding: '12px 16px',
-                            fontSize: '14px',
-                            fontWeight: 800,
-                            color: 'var(--text-primary)',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {allHalls.map(h => (
-                            <option key={h.id} value={h.id}>
-                              🏛️ {h.title} — {h.capacity}
-                            </option>
-                          ))}
-                        </select>
+                        <label className="form-label" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '12px', marginBottom: '6px', display: 'block' }}>
+                          TARGET HALL
+                        </label>
+                        <CustomHallDropdown
+                          halls={allHalls}
+                          selectedId={selectedHallId}
+                          onSelect={(id) => setSelectedHallId(id)}
+                        />
                       </div>
 
                       {[
@@ -460,7 +551,7 @@ function RentPageContent() {
                           marginTop: '6px',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
+                          justify: 'center',
                           gap: '8px'
                         }}
                       >
