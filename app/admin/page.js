@@ -569,7 +569,6 @@ export default function AdminPage() {
     { id:'rentRequests', icon:<Building2 size={18}/>,       label:t.admin.rentRequests },
     { id:'hallMap',      icon:<Map size={18}/>,             label:'Hall Map' },
     { id:'pages',        icon:<LayoutTemplate size={18}/>,  label:'Pages (CMS)' },
-    { id:'movieDay',     icon:<span style={{fontSize:'16px'}}>🎬</span>, label:'Movie Day', accent: '#ea580c' },
   ];
 
   return (
