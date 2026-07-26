@@ -23,12 +23,13 @@ export function ToastNotification({ toast, onClose }) {
       right: '28px',
       zIndex: 999999,
       background: '#11141e',
-      border: `2px solid ${isError ? '#fb923c' : '#FFDD00'}`,
+      border: `1.5px solid ${isError ? '#fb923c' : '#FFDD00'}`,
       borderRadius: '16px',
       padding: '16px 22px',
-      boxShadow: '0 20px 50px rgba(0,0,0,0.85), 0 0 30px rgba(255, 221, 0, 0.25)',
+      boxShadow: '0 20px 50px rgba(0,0,0,0.7), 0 0 25px rgba(255, 221, 0, 0.2)',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: '14px',
       maxWidth: '440px',
       width: 'calc(100% - 56px)',
@@ -42,7 +43,7 @@ export function ToastNotification({ toast, onClose }) {
         background: isError ? 'rgba(251, 146, 60, 0.18)' : 'rgba(255, 221, 0, 0.18)',
         display: 'flex',
         alignItems: 'center',
-        justify: 'center',
+        justifyContent: 'center',
         flexShrink: 0
       }}>
         {isError ? <AlertCircle size={22} color="#fb923c" /> : <Sparkles size={22} color="#FFDD00" />}
@@ -68,7 +69,7 @@ export function ToastNotification({ toast, onClose }) {
           height: '28px',
           display: 'flex',
           alignItems: 'center',
-          justify: 'center',
+          justifyContent: 'center',
           cursor: 'pointer',
           flexShrink: 0
         }}
@@ -85,43 +86,48 @@ export function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, conf
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       zIndex: 999999,
-      background: 'rgba(0,0,0,0.85)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
+      background: 'rgba(0, 0, 0, 0.55)',
+      backdropFilter: 'blur(5px)',
+      WebkitBackdropFilter: 'blur(5px)',
       display: 'flex',
       alignItems: 'center',
-      justify: 'center',
+      justifyContent: 'center',
       padding: '24px',
       fontFamily: 'Outfit, sans-serif'
     }}>
       <div style={{
         background: '#11141e',
-        border: '2px solid #FFDD00',
+        border: '1.5px solid rgba(255, 221, 0, 0.4)',
         borderRadius: '24px',
-        padding: '32px',
-        maxWidth: '440px',
+        padding: '32px 28px',
+        maxWidth: '420px',
         width: '100%',
-        boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 45px rgba(255, 221, 0, 0.3)',
-        textAlign: 'center'
+        boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(255, 221, 0, 0.2)',
+        textAlign: 'center',
+        margin: 'auto',
+        animation: 'scaleIn 0.2s ease-out'
       }}>
         <div style={{
           width: '56px',
           height: '56px',
           borderRadius: '50%',
-          background: 'rgba(255, 221, 0, 0.15)',
-          border: '2px solid #FFDD00',
+          background: 'rgba(255, 221, 0, 0.12)',
+          border: '1.5px solid rgba(255, 221, 0, 0.4)',
           display: 'flex',
           alignItems: 'center',
-          justify: 'center',
+          justifyContent: 'center',
           margin: '0 auto 18px',
           color: '#FFDD00'
         }}>
           <AlertCircle size={28} />
         </div>
 
-        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', marginBottom: '10px', letterSpacing: '-0.01em' }}>
           {title || 'Confirm Action'}
         </h3>
         
@@ -134,14 +140,15 @@ export function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, conf
             onClick={onCancel}
             style={{
               flex: 1,
-              padding: '12px 20px',
+              padding: '13px 20px',
               borderRadius: '12px',
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.15)',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '14px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             {cancelText}
@@ -151,15 +158,16 @@ export function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, conf
             onClick={onConfirm}
             style={{
               flex: 1,
-              padding: '12px 20px',
+              padding: '13px 20px',
               borderRadius: '12px',
-              background: '#FFDD00',
+              background: 'linear-gradient(135deg, #FFDD00, #ffb700)',
               border: 'none',
               color: '#000000',
               fontWeight: 900,
               fontSize: '14px',
               cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(255, 221, 0, 0.35)'
+              boxShadow: '0 4px 16px rgba(255, 221, 0, 0.35)',
+              transition: 'all 0.2s ease'
             }}
           >
             {confirmText}
