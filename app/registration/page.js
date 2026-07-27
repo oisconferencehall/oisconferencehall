@@ -276,7 +276,9 @@ function RegistrationPageContent() {
             });
           }
         }
-        if (payload.old?.seat) {
+        if (payload.eventType === 'DELETE') {
+          loadSeats(); // Reload from DB to properly sync deletions (as payload.old lacks seat data by default)
+        } else if (payload.old?.seat) {
           const canonical = normalizeSeatId(payload.old.seat);
           if (canonical) {
             setTakenSeats(prev => {

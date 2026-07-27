@@ -132,6 +132,35 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
     }
 
     loadEventTakenSeats();
+
+    const channel = supabase
+      .channel('seat_map_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'movie_registrations' }, payload => {
+        if (payload.eventType === 'DELETE') {
+          loadEventTakenSeats();
+        } else if (payload.new?.seat) {
+          const { normalizeSeatId, SEAT_NUMBERS } = require('@/lib/seatUtils');
+          const canonical = normalizeSeatId(payload.new.seat);
+          if (canonical) {
+            setTakenSeatsList(prev => {
+              const next = new Set(prev);
+              next.add(canonical);
+              const parts = canonical.split('-');
+              if (parts.length === 3) {
+                next.add(`${parts[0]}${parts[1]}-${parts[2]}`);
+                const num = SEAT_NUMBERS[canonical];
+                if (num) next.add(`Seat #${num}`);
+              }
+              return Array.from(next);
+            });
+          }
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [eventId]);
 
   const bookedSet = new Set(takenSeatsList);
