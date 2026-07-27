@@ -27,13 +27,41 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     return (eId && rawId.includes(eId)) || (eId && String(r.event_id) === String(event?.id)) || rawId.includes(eventSlug) || rawId.includes(eventTitleLower) || branchName.includes(eventTitleLower);
   });
 
-  const getDisplaySeat = (r, i) => {
-    if (!r.seat) return `Seat #${i + 1}`;
-    const clean = String(r.seat).split('::').pop();
-    if (clean === 'Reserved Pass' || clean === 'Reserved' || clean === 'General Entry') {
-      return `Seat #${i + 1}`;
+  const getDisplaySeat = (r) => {
+    if (!r.seat) return 'Reserved Pass';
+    const clean = String(r.seat).split('::').pop().trim();
+    if (!clean || clean === 'Reserved Pass' || clean === 'Reserved' || clean === 'General Entry') {
+      return 'Reserved Pass';
     }
-    return clean.startsWith('Seat #') ? clean : clean;
+    if (clean.startsWith('Seat #')) return clean;
+
+    const blocks = [
+      { label: 'L1', rows: 2, cols: 3 }, { label: 'L2', rows: 2, cols: 3 },
+      { label: 'C1', rows: 2, cols: 5 }, { label: 'C2', rows: 2, cols: 5 },
+      { label: 'R1', rows: 2, cols: 3 }, { label: 'R2', rows: 2, cols: 3 },
+      { label: 'L3', rows: 4, cols: 3 }, { label: 'L4', rows: 4, cols: 3 },
+      { label: 'C3', rows: 4, cols: 5 }, { label: 'C4', rows: 4, cols: 5 },
+      { label: 'R3', rows: 4, cols: 3 }, { label: 'R4', rows: 4, cols: 3 },
+      { label: 'L5', rows: 2, cols: 3 }, { label: 'L6', rows: 2, cols: 3 },
+      { label: 'C5', rows: 3, cols: 5 }, { label: 'C6', rows: 3, cols: 5 },
+      { label: 'R5', rows: 2, cols: 3 }, { label: 'R6', rows: 2, cols: 3 },
+    ];
+
+    let counter = 1;
+    for (const b of blocks) {
+      for (let r = 1; r <= b.rows; r++) {
+        for (let c = 1; c <= b.cols; c++) {
+          const hyphenKey = `${b.label}-${r}-${c}`;
+          const noHyphenKey = `${b.label}${r}-${c}`;
+          if (clean === hyphenKey || clean === noHyphenKey) {
+            return `Seat #${counter} (${b.label} R${r}-${c})`;
+          }
+          counter++;
+        }
+      }
+    }
+
+    return clean;
   };
 
   const filteredRegs = eventRegs.filter(r => {
@@ -532,7 +560,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                       <td style={{ padding: '14px 16px', fontWeight: 700 }}>{r.first_name} {r.last_name}</td>
                       <td style={{ padding: '14px 16px' }}>{r.phone}</td>
                       <td style={{ padding: '14px 16px' }}>{r.branch}</td>
-                      <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{getDisplaySeat(r, i)}</td>
+                      <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{getDisplaySeat(r)}</td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <button className="btn btn-danger btn-sm" onClick={() => setConfirmDeleteId(r.id)}>
                           <Trash2 size={12}/>
@@ -573,7 +601,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                     <div style={{ fontSize: '11px', fontWeight: 800, color: '#FFDD00' }}>TICKET ID: {r.ticket_id}</div>
                     <div style={{ fontSize: '16px', fontWeight: 900, marginTop: '2px' }}>{r.first_name} {r.last_name}</div>
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>{r.phone} · {r.branch}</div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c', marginTop: '2px' }}>{getDisplaySeat(r, i)}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c', marginTop: '2px' }}>{getDisplaySeat(r)}</div>
                   </div>
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('TicketPass:' + r.ticket_id)}`} 

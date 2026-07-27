@@ -1297,7 +1297,7 @@ export default function AdminPage() {
                                 <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'11px', fontWeight:800, background:'rgba(234,88,12,0.1)', color:'#fb923c' }}>{r.english_level}</span>
                               </td>
                               <td style={{ padding:'12px 14px', color:'var(--text-secondary)', maxWidth:'120px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.branch}</td>
-                              <td style={{ padding:'12px 14px', fontWeight:700 }}>{r.seat || '—'}</td>
+                              <td style={{ padding:'12px 14px', fontWeight:700 }}>{r.seat ? String(r.seat).split('::').pop() : 'Reserved Pass'}</td>
                               <td style={{ padding:'12px 14px', color:'var(--text-muted)', fontSize:'12px', whiteSpace:'nowrap' }}>{new Date(r.created_at).toLocaleDateString()}</td>
                               <td style={{ padding:'12px 14px', display:'flex', gap:'6px' }}>
                                 <button className="btn btn-outline btn-sm" style={{ padding:'4px 8px', fontSize:'11px', display:'flex', alignItems:'center', gap:'4px' }} onClick={() => setDesignTicket({ ...r, parsed })}>
