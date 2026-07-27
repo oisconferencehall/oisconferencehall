@@ -43,7 +43,7 @@ function SeatBlock({ block, bookedSet, selectedSet, isLight, onSelect, t }) {
           {[...Array(cols)].map((_, ci) => {
             const seat = seats.find(s => s.row === ri+1 && s.col === ci+1);
             if (!seat) return <div key={ci} style={{width: 32, height: 32}}/>; // placeholder for empty seat
-            const status = selectedSet.has(seat.id) || bookedSet.has(seat.id) || bookedSet.has(`Seat #${seat.num}`) ? (selectedSet.has(seat.id) ? 'selected' : 'booked') : 'available';
+            const status = selectedSet.has(seat.id) || bookedSet.has(seat.id) || bookedSet.has(`${seat.block}-${seat.row}-${seat.col}`) || bookedSet.has(`Seat #${seat.num}`) ? (selectedSet.has(seat.id) ? 'selected' : 'booked') : 'available';
             return <Seat key={seat.id} seat={seat} status={status} isLight={isLight} onSelect={onSelect} t={t} />;
           })}
         </div>
@@ -112,30 +112,37 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
         combined.forEach(r => {
           const rawSeat = r.seat;
           const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
+          const hasNoEventId = !r.ticket_id || !r.ticket_id.includes('::');
+          const shortId = eventId ? String(eventId).slice(0, 8) : '';
           const isForThisEvent = eventId && (
-            (r.ticket_id && String(r.ticket_id).includes(eventId)) ||
-            (r.event_id && String(r.event_id) === String(eventId)) ||
-            (rawSeat && String(rawSeat).startsWith(eventId))
+            (r.ticket_id && String(r.ticket_id).includes(shortId)) ||
+            (r.event_id && String(r.event_id).includes(shortId)) ||
+            (rawSeat && String(rawSeat).includes(shortId)) ||
+            hasNoEventId
           );
           
           if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-            taken.add(cleanSeat);
-
-            // Map Seat #17 -> block coordinate like C21-2 / C2-1-2 / L11-1 and vice versa
-            if (cleanSeat.startsWith('Seat #')) {
-              const seatNumStr = cleanSeat.replace('Seat #', '').trim();
+            const tokens = cleanSeat.split(',').map(s => s.trim());
+            tokens.forEach(token => {
+              taken.add(token);
               allSeats.forEach(s => {
-                if (String(s.num) === seatNumStr) {
+                const hyphenId = `${s.block}-${s.row}-${s.col}`;
+                const noHyphenId = `${s.block}${s.row}-${s.col}`;
+                const seatNumStr = `Seat #${s.num}`;
+                if (
+                  token === s.id ||
+                  token === hyphenId ||
+                  token === noHyphenId ||
+                  token === seatNumStr ||
+                  (token.startsWith('Seat #') && token.replace('Seat #', '').trim() === String(s.num))
+                ) {
                   taken.add(s.id);
+                  taken.add(hyphenId);
+                  taken.add(noHyphenId);
+                  taken.add(seatNumStr);
                 }
               });
-            } else {
-              allSeats.forEach(s => {
-                if (s.id === cleanSeat || `Seat #${s.num}` === cleanSeat) {
-                  taken.add(s.id);
-                }
-              });
-            }
+            });
           }
         });
 
@@ -147,7 +154,12 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
   }, [eventId]);
 
   const bookedSet = new Set(takenSeatsList);
-  const totalAvail = allSeats.filter(s => !bookedSet.has(s.id) && !bookedSet.has(`Seat #${s.num}`)).length;
+  const totalAvail = allSeats.filter(s => 
+    !bookedSet.has(s.id) && 
+    !bookedSet.has(`${s.block}-${s.row}-${s.col}`) && 
+    !bookedSet.has(`${s.block}${s.row}-${s.col}`) && 
+    !bookedSet.has(`Seat #${s.num}`)
+  ).length;
 
   const handleSelect = (seat) => {
     const next = new Set(selectedIds);

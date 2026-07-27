@@ -255,26 +255,37 @@ function RegistrationPageContent() {
       combined.forEach(r => {
         const rawSeat = r.seat;
         const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
+        const hasNoEventId = !r.ticket_id || !r.ticket_id.includes('::');
+        const shortId = eventId ? String(eventId).slice(0, 8) : '';
         const isForThisEvent = eventId && (
-          (r.ticket_id && String(r.ticket_id).includes(eventId)) ||
-          (r.event_id && String(r.event_id) === String(eventId)) ||
-          (rawSeat && String(rawSeat).startsWith(eventId))
+          (r.ticket_id && String(r.ticket_id).includes(shortId)) ||
+          (r.event_id && String(r.event_id).includes(shortId)) ||
+          (rawSeat && String(rawSeat).includes(shortId)) ||
+          hasNoEventId
         );
         
         if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-          taken.add(cleanSeat);
+          const tokens = cleanSeat.split(',').map(s => s.trim());
+          tokens.forEach(token => {
+            taken.add(token);
 
-          // Map Seat #17 -> L1-1-1 coordinate and vice versa
-          if (cleanSeat.startsWith('Seat #')) {
-            const seatNumStr = cleanSeat.replace('Seat #', '').trim();
-            Object.entries(SEAT_NUMBERS).forEach(([blockId, seatNum]) => {
-              if (String(seatNum) === seatNumStr) {
-                taken.add(blockId);
+            Object.entries(SEAT_NUMBERS).forEach(([blockKey, seatNum]) => {
+              const parts = blockKey.split('-'); // e.g. C1-1-5
+              const noHyphenKey = `${parts[0]}${parts[1]}-${parts[2]}`; // e.g. C11-5
+              const seatNumStr = `Seat #${seatNum}`;
+
+              if (
+                token === blockKey ||
+                token === noHyphenKey ||
+                token === seatNumStr ||
+                (token.startsWith('Seat #') && token.replace('Seat #', '').trim() === String(seatNum))
+              ) {
+                taken.add(blockKey);
+                taken.add(noHyphenKey);
+                taken.add(seatNumStr);
               }
             });
-          } else if (SEAT_NUMBERS[cleanSeat] !== undefined) {
-            taken.add(`Seat #${SEAT_NUMBERS[cleanSeat]}`);
-          }
+          });
         }
       });
 
