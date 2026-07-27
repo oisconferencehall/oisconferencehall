@@ -655,7 +655,7 @@ function RegistrationPageContent() {
       <div className="reg-body">
         {/* Background */}
         <div className="reg-bg">
-          <img src="/reg-bg.png" alt="" />
+          <img src={event?.bgImage || event?.bg_image || event?.image || '/reg-bg.png'} alt="" />
           <div className="reg-bg-overlay" />
         </div>
 
