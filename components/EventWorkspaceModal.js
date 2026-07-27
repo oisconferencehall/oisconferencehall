@@ -497,7 +497,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                 />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button className="btn btn-outline btn-sm" onClick={exportCSV}>
+                <button className="btn btn-outline btn-sm" onClick={exportCSV} style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.5)' }}>
                   <Download size={14}/> Export CSV
                 </button>
                 <button className="btn btn-primary btn-sm" onClick={handlePrintAllTicketsA4}>
