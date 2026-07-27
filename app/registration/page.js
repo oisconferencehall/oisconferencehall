@@ -471,8 +471,8 @@ function RegistrationPageContent() {
       <style>{`
         .reg-body { min-height: 100vh; background: #0a0a0a; color: #fff; font-family: 'Outfit', 'Inter', sans-serif; padding-top: 72px; position: relative; overflow-x: hidden; }
         .reg-bg { position: fixed; inset: 0; z-index: 0; }
-        .reg-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.18; }
-        .reg-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.85) 100%); }
+        .reg-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .reg-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%); }
         .reg-content { position: relative; z-index: 1; }
 
         /* Hero */
