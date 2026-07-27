@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/lib/supabase';
+import { normalizeSeatId, SEAT_NUMBERS, buildTakenSeatsSet } from '@/lib/seatUtils';
 import styles from './SeatMap.module.css';
 
 // genSeats logic moved inside SeatMap component to allow global numbering
@@ -15,7 +16,7 @@ function Seat({ seat, status, isLight, onSelect }) {
   if (booked)   { bg = isLight ? '#f3f4f6' : 'var(--bg-secondary)'; border = isLight ? '#d1d5db' : 'var(--border)'; shadow='none'; cursor='not-allowed'; color = isLight ? '#9ca3af' : 'var(--text-muted)'; }
   else if (selected) { bg='linear-gradient(135deg,#FFDD00,#FFDD00)'; border='#FFDD00'; shadow='0 0 14px rgba(255, 221, 0, 0.35)'; cursor='pointer'; color='#fff'; }
   else if (vip) { bg = isLight ? 'rgba(124, 58, 237, 0.15)' : 'rgba(109, 40, 217, 0.15)'; border = isLight ? 'rgba(109, 40, 217, 0.4)' : 'rgba(139, 92, 246, 0.5)'; shadow='none'; cursor='pointer'; color = isLight ? '#6d28d9' : '#c4b5fd'; }
-  else          { bg = isLight ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)'; border = isLight ? 'rgba(5, 150, 105, 0.4)' : 'rgba(16, 185, 129, 0.4)'; shadow='none'; cursor='pointer'; color = isLight ? '#047857' : '#6ee7b7'; }
+  else          { bg = isLight ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)'; border = isLight ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.4)'; shadow='none'; cursor='pointer'; color = isLight ? '#047857' : '#6ee7b7'; }
 
   return (
     <div
@@ -43,7 +44,11 @@ function SeatBlock({ block, bookedSet, selectedSet, isLight, onSelect, t }) {
           {[...Array(cols)].map((_, ci) => {
             const seat = seats.find(s => s.row === ri+1 && s.col === ci+1);
             if (!seat) return <div key={ci} style={{width: 32, height: 32}}/>; // placeholder for empty seat
-            const status = selectedSet.has(seat.id) || bookedSet.has(seat.id) || bookedSet.has(`${seat.block}-${seat.row}-${seat.col}`) || bookedSet.has(`Seat #${seat.num}`) ? (selectedSet.has(seat.id) ? 'selected' : 'booked') : 'available';
+            // Use canonical ID for matching
+            const canonicalId = `${seat.block}-${seat.row}-${seat.col}`;
+            const isSelected = selectedSet.has(seat.id) || selectedSet.has(canonicalId);
+            const isBooked = bookedSet.has(seat.id) || bookedSet.has(canonicalId) || bookedSet.has(`Seat #${seat.num}`);
+            const status = isSelected ? 'selected' : isBooked ? 'booked' : 'available';
             return <Seat key={seat.id} seat={seat} status={status} isLight={isLight} onSelect={onSelect} t={t} />;
           })}
         </div>
@@ -58,13 +63,15 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [takenSeatsList, setTakenSeatsList] = useState(bookedSeats);
 
-  // Build blocks with global seat numbering
+  // Build blocks with global seat numbering — use CANONICAL format "C1-1-5"
   let currentNum = 1;
   const blocks = hallBlocks.map(block => {
     const seats = [];
     for (let r = 1; r <= block.rows; r++) {
       for (let c = 1; c <= block.cols; c++) {
-        seats.push({ id: `${block.label}${r}-${c}`, num: currentNum++, block: block.label, row: r, col: c, isVip: block.isVip });
+        // CANONICAL: "C1-1-5" (block-row-col with hyphens)
+        const canonicalId = `${block.label}-${r}-${c}`;
+        seats.push({ id: canonicalId, num: currentNum++, block: block.label, row: r, col: c, isVip: block.isVip });
       }
     }
     return { ...block, seats };
@@ -107,41 +114,12 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
           }
         });
 
-        const taken = new Set(bookedSeats);
-
-        combined.forEach(r => {
-          const rawSeat = r.seat;
-          const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
-          const shortId = eventId ? String(eventId).slice(0, 8) : '';
-          const isForThisEvent = !eventId || (
-            (r.ticket_id && String(r.ticket_id).includes(shortId)) ||
-            (r.event_id && String(r.event_id).includes(shortId)) ||
-            (rawSeat && String(rawSeat).includes(shortId))
-          );
-          
-          if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-            const tokens = cleanSeat.split(',').map(s => s.trim());
-            tokens.forEach(token => {
-              taken.add(token);
-              allSeats.forEach(s => {
-                const hyphenId = `${s.block}-${s.row}-${s.col}`;
-                const noHyphenId = `${s.block}${s.row}-${s.col}`;
-                const seatNumStr = `Seat #${s.num}`;
-                if (
-                  token === s.id ||
-                  token === hyphenId ||
-                  token === noHyphenId ||
-                  token === seatNumStr ||
-                  (token.startsWith('Seat #') && token.replace('Seat #', '').trim() === String(s.num))
-                ) {
-                  taken.add(s.id);
-                  taken.add(hyphenId);
-                  taken.add(noHyphenId);
-                  taken.add(seatNumStr);
-                }
-              });
-            });
-          }
+        // Use shared utility to build taken seats
+        const taken = buildTakenSeatsSet(combined, eventId);
+        // Also add any initially passed bookedSeats
+        bookedSeats.forEach(s => {
+          const canonical = normalizeSeatId(s);
+          if (canonical) taken.add(canonical);
         });
 
         setTakenSeatsList(Array.from(taken));
@@ -152,12 +130,10 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
   }, [eventId]);
 
   const bookedSet = new Set(takenSeatsList);
-  const totalAvail = allSeats.filter(s => 
-    !bookedSet.has(s.id) && 
-    !bookedSet.has(`${s.block}-${s.row}-${s.col}`) && 
-    !bookedSet.has(`${s.block}${s.row}-${s.col}`) && 
-    !bookedSet.has(`Seat #${s.num}`)
-  ).length;
+  const totalAvail = allSeats.filter(s => {
+    const canonicalId = `${s.block}-${s.row}-${s.col}`;
+    return !bookedSet.has(s.id) && !bookedSet.has(canonicalId) && !bookedSet.has(`Seat #${s.num}`);
+  }).length;
 
   const handleSelect = (seat) => {
     const next = new Set(selectedIds);

@@ -5,6 +5,7 @@ import {
   X, Printer, RotateCcw, Search, Film, Check, Trash2, ArrowLeft, Copy, Download
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { formatSeatDisplay } from '@/lib/seatUtils';
 import TicketDesignerStudio from './TicketDesignerStudio';
 import { ToastNotification, ConfirmModal } from './CustomPopup';
 
@@ -27,42 +28,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     return (eId && rawId.includes(eId)) || (eId && String(r.event_id) === String(event?.id)) || rawId.includes(eventSlug) || rawId.includes(eventTitleLower) || branchName.includes(eventTitleLower);
   });
 
-  const getDisplaySeat = (r) => {
-    if (!r.seat) return 'Reserved Pass';
-    const clean = String(r.seat).split('::').pop().trim();
-    if (!clean || clean === 'Reserved Pass' || clean === 'Reserved' || clean === 'General Entry') {
-      return 'Reserved Pass';
-    }
-    if (clean.startsWith('Seat #')) return clean;
-
-    const blocks = [
-      { label: 'L1', rows: 2, cols: 3 }, { label: 'L2', rows: 2, cols: 3 },
-      { label: 'C1', rows: 2, cols: 5 }, { label: 'C2', rows: 2, cols: 5 },
-      { label: 'R1', rows: 2, cols: 3 }, { label: 'R2', rows: 2, cols: 3 },
-      { label: 'L3', rows: 4, cols: 3 }, { label: 'L4', rows: 4, cols: 3 },
-      { label: 'C3', rows: 4, cols: 5 }, { label: 'C4', rows: 4, cols: 5 },
-      { label: 'R3', rows: 4, cols: 3 }, { label: 'R4', rows: 4, cols: 3 },
-      { label: 'L5', rows: 2, cols: 3 }, { label: 'L6', rows: 2, cols: 3 },
-      { label: 'C5', rows: 3, cols: 5 }, { label: 'C6', rows: 3, cols: 5 },
-      { label: 'R5', rows: 2, cols: 3 }, { label: 'R6', rows: 2, cols: 3 },
-    ];
-
-    let counter = 1;
-    for (const b of blocks) {
-      for (let r = 1; r <= b.rows; r++) {
-        for (let c = 1; c <= b.cols; c++) {
-          const hyphenKey = `${b.label}-${r}-${c}`;
-          const noHyphenKey = `${b.label}${r}-${c}`;
-          if (clean === hyphenKey || clean === noHyphenKey) {
-            return `Seat #${counter} (${b.label} R${r}-${c})`;
-          }
-          counter++;
-        }
-      }
-    }
-
-    return clean;
-  };
+  const getDisplaySeat = (r) => formatSeatDisplay(r.seat);
 
   const filteredRegs = eventRegs.filter(r => {
     if (branchFilter !== 'all' && r.branch !== branchFilter) return false;

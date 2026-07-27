@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { SEAT_NUMBERS, TOTAL_SEATS, normalizeSeatId, formatSeatDisplay, buildTakenSeatsSet } from '@/lib/seatUtils';
 
 // ─── Translations ──────────────────────────────────────────────
 const T = {
@@ -67,7 +68,7 @@ const T = {
   },
 };
 
-// ─── Hall Layout Blocks ────────────────────────────────────────
+// ─── Hall Layout Blocks (for seat map rendering in 3 visual rows) ──
 const BLOCKS = [
   [
     { id: 'L1', name: 'BLOCK L1', rows: 2, cols: 3, vip: false },
@@ -95,24 +96,10 @@ const BLOCKS = [
   ],
 ];
 
-// Build global seat number map
-const SEAT_NUMBERS = {};
-(function () {
-  let counter = 1;
-  BLOCKS.forEach(row => row.forEach(block => {
-    for (let r = 1; r <= block.rows; r++)
-      for (let c = 1; c <= block.cols; c++)
-        SEAT_NUMBERS[`${block.id}-${r}-${c}`] = counter++;
-  }));
-})();
-
+// formatSeat uses shared utility
 function formatSeat(id) {
   if (!id) return '—';
-  const cleanId = String(id).split('::').pop();
-  const num = SEAT_NUMBERS[cleanId];
-  if (num !== undefined) return `Seat #${num}`;
-  if (cleanId.startsWith('Seat #')) return cleanId;
-  return cleanId;
+  return formatSeatDisplay(id);
 }
 
 function formatEventDate(dateStr) {
@@ -150,7 +137,8 @@ function RegistrationPageContent() {
   const { lang, changeLang, t: globalT, events: appEvents } = useApp(); // Use global app language
   const eventId = searchParams.get('eventId');
   const isFromTelegram = searchParams.get('source') === 'telegram';
-  const preselectedSeats = searchParams.get('seats')?.split(',').filter(Boolean) || [];
+  // Normalize preselected seats from URL (may come as "C11-5" from event page SeatMap)
+  const preselectedSeats = (searchParams.get('seats')?.split(',').filter(Boolean) || []).map(s => normalizeSeatId(s.trim()) || s.trim());
   const [activePreselectedSeats, setActivePreselectedSeats] = useState(preselectedSeats);
 
   const [showLangModal, setShowLangModal] = useState(isFromTelegram);
@@ -250,43 +238,8 @@ function RegistrationPageContent() {
         }
       });
 
-      const taken = new Set();
-
-      combined.forEach(r => {
-        const rawSeat = r.seat;
-        const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
-        const shortId = eventId ? String(eventId).slice(0, 8) : '';
-        const isForThisEvent = !eventId || (
-          (r.ticket_id && String(r.ticket_id).includes(shortId)) ||
-          (r.event_id && String(r.event_id).includes(shortId)) ||
-          (rawSeat && String(rawSeat).includes(shortId))
-        );
-        
-        if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
-          const tokens = cleanSeat.split(',').map(s => s.trim());
-          tokens.forEach(token => {
-            taken.add(token);
-
-            Object.entries(SEAT_NUMBERS).forEach(([blockKey, seatNum]) => {
-              const parts = blockKey.split('-'); // e.g. C1-1-5
-              const noHyphenKey = `${parts[0]}${parts[1]}-${parts[2]}`; // e.g. C11-5
-              const seatNumStr = `Seat #${seatNum}`;
-
-              if (
-                token === blockKey ||
-                token === noHyphenKey ||
-                token === seatNumStr ||
-                (token.startsWith('Seat #') && token.replace('Seat #', '').trim() === String(seatNum))
-              ) {
-                taken.add(blockKey);
-                taken.add(noHyphenKey);
-                taken.add(seatNumStr);
-              }
-            });
-          });
-        }
-      });
-
+      // Use shared utility for consistent seat matching
+      const taken = buildTakenSeatsSet(combined, eventId);
       setTakenSeats(taken);
     } catch {
       setTakenSeats(new Set());
@@ -377,7 +330,11 @@ function RegistrationPageContent() {
     const baseCode = 'MD-' + Date.now().toString(36).toUpperCase();
     const fullTicketId = eventId ? `${baseCode}::${eventId}::${movieTitle}` : `${baseCode}::general::${movieTitle}`;
     const branch = form.branch === 'Other' ? form.otherBranch : form.branch;
-    const rawSeat = activePreselectedSeats.length > 0 ? activePreselectedSeats.join(', ') : selectedSeat;
+    // Normalize seat to canonical format before saving
+    const rawSeatInput = activePreselectedSeats.length > 0 ? activePreselectedSeats.join(', ') : selectedSeat;
+    const rawSeat = rawSeatInput ? (rawSeatInput.includes(',') 
+      ? rawSeatInput.split(',').map(s => normalizeSeatId(s.trim()) || s.trim()).join(', ')
+      : normalizeSeatId(rawSeatInput) || rawSeatInput) : rawSeatInput;
     
     // Store composite seat per event to make seat unique per event across database constraints
     const targetEventId = eventId || 'general';
@@ -840,8 +797,8 @@ function RegistrationPageContent() {
 
               {/* Legend */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '14px', padding: '8px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', fontSize: '13px', fontWeight: 800 }}>
-                <span style={{ color: '#10b981' }}>🟢 {Math.max(0, 186 - Array.from(takenSeats).filter(s => String(s).startsWith('Seat #')).length)} Available</span>
-                <span style={{ color: '#f87171' }}>🔴 {Array.from(takenSeats).filter(s => String(s).startsWith('Seat #')).length} Booked</span>
+                <span style={{ color: '#10b981' }}>🟢 {Math.max(0, TOTAL_SEATS - Array.from(takenSeats).filter(s => SEAT_NUMBERS[s] !== undefined).length)} Available</span>
+                <span style={{ color: '#f87171' }}>🔴 {Array.from(takenSeats).filter(s => SEAT_NUMBERS[s] !== undefined).length} Booked</span>
                 {selectedSeat && <span style={{ color: '#fb923c' }}>🟡 1 Selected</span>}
               </div>
 
