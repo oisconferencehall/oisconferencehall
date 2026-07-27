@@ -112,13 +112,11 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
         combined.forEach(r => {
           const rawSeat = r.seat;
           const cleanSeat = rawSeat ? String(rawSeat).split('::').pop() : '';
-          const hasNoEventId = !r.ticket_id || !r.ticket_id.includes('::');
           const shortId = eventId ? String(eventId).slice(0, 8) : '';
-          const isForThisEvent = eventId && (
+          const isForThisEvent = !eventId || (
             (r.ticket_id && String(r.ticket_id).includes(shortId)) ||
             (r.event_id && String(r.event_id).includes(shortId)) ||
-            (rawSeat && String(rawSeat).includes(shortId)) ||
-            hasNoEventId
+            (rawSeat && String(rawSeat).includes(shortId))
           );
           
           if (isForThisEvent && cleanSeat && cleanSeat !== 'Reserved Pass' && cleanSeat !== 'Reserved' && cleanSeat !== 'General Entry') {
