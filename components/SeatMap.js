@@ -129,7 +129,7 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
         });
 
         setTakenSeatsList(Array.from(taken));
-      } catch (err) {}
+      } catch (err) { console.error('loadEventTakenSeats error:', err); }
     }
 
     loadEventTakenSeats();
