@@ -44,7 +44,7 @@ export default function Typewriter({ title = '', titleHighlight = '', speed = 25
         </span>
       )}
 
-      {/* Multicolored Gradient Cursor */}
+      {/* Yellow Cursor */}
       <span style={{
         display: 'inline-block',
         width: '4px',
@@ -52,7 +52,7 @@ export default function Typewriter({ title = '', titleHighlight = '', speed = 25
         verticalAlign: 'text-bottom',
         marginLeft: '4px',
         borderRadius: '2px',
-        background: 'linear-gradient(to bottom, #4285F4, #34A853, #FBBC05, #EA4335)',
+        background: '#FFDD00',
         animation: 'cursorBlink 1s step-end infinite'
       }} />
       <style>{`
