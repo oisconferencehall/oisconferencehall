@@ -213,7 +213,7 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange, 
           {/* SCENE */}
           <div className={styles.sceneBar}>
             <div className={styles.scanLine} />
-            <span className={styles.sceneText} style={isLight ? { color: '#6d28d9' } : {}}>🎭 &nbsp; {t?.seatMap?.scene || 'SCENE / SCREEN'} &nbsp; 🎭</span>
+            <span className={styles.sceneText}>{t?.seatMap?.scene || 'SCENE / SCREEN'}</span>
             <div className={styles.sceneGlow} />
           </div>
 
