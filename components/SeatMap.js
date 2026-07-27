@@ -82,12 +82,17 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
     if (!eventId) return;
     async function loadEventTakenSeats() {
       try {
-        const { data: mdData } = await supabase
+        const { createClient } = require('@supabase/supabase-js');
+        const anonSupabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+          auth: { persistSession: false }
+        });
+
+        const { data: mdData } = await anonSupabase
           .from('movie_registrations')
           .select('id, seat, ticket_id, created_at')
           .order('created_at', { ascending: true });
 
-        const { data: ticketsData } = await supabase
+        const { data: ticketsData } = await anonSupabase
           .from('tickets')
           .select('id, event_id, event_title, created_at')
           .order('created_at', { ascending: true });
