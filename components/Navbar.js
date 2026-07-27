@@ -66,7 +66,7 @@ export default function Navbar() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div className="nav-container" style={{
-          maxWidth: '1200px', margin: '0 auto',
+          maxWidth: '1440px', margin: '0 auto',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           transition: 'padding 0.4s ease',
         }}>
@@ -80,7 +80,7 @@ export default function Navbar() {
               onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
             />
-            <div className="desktop-only" style={{ lineHeight: 1.1 }}>
+            <div className="desktop-only" style={{ lineHeight: 1.1, whiteSpace: 'nowrap' }}>
               <div style={{ fontWeight: 800, fontSize: '15px', color: isTransparent ? '#ffffff' : 'var(--text-primary)', letterSpacing: '-0.02em', transition: 'color 0.3s ease' }}>
                 {t.navbar?.brandName}
               </div>
