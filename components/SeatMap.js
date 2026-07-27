@@ -57,7 +57,7 @@ function SeatBlock({ block, bookedSet, selectedSet, isLight, onSelect, t }) {
   );
 }
 
-export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }) {
+export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange, maxSelections }) {
   const { t, hallBlocks, theme } = useApp();
   const isLight = theme === 'light';
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -172,7 +172,15 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange }
 
   const handleSelect = (seat) => {
     const next = new Set(selectedIds);
-    next.has(seat.id) ? next.delete(seat.id) : next.add(seat.id);
+    if (next.has(seat.id)) {
+      next.delete(seat.id);
+    } else {
+      if (maxSelections && next.size >= maxSelections) {
+        alert(t?.eventDetailPage?.maxSeatsReached || `You can only select up to ${maxSelections} seat(s).`);
+        return;
+      }
+      next.add(seat.id);
+    }
     setSelectedIds(next);
     onSelectionChange?.(allSeats.filter(s => next.has(s.id)));
   };

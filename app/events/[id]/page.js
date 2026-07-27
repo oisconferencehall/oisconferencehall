@@ -250,6 +250,7 @@ export default function EventDetailPage({ params }) {
                     eventId={event.id}
                     bookedSeats={event.bookedSeats || []}
                     onSelectionChange={setSelectedSeats}
+                    maxSelections={event.price <= 0 ? 1 : undefined}
                   />
                 </div>
               </div>
