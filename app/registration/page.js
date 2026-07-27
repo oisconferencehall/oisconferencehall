@@ -430,7 +430,8 @@ function RegistrationPageContent() {
         if (canvas) {
           const a = document.createElement('a');
           a.href = canvas.toDataURL('image/png');
-          a.download = `MovieDay-QR-${reg.ticket_id}.png`;
+          const safeTicketId = String(reg.ticket_id).replace(/:/g, '-');
+          a.download = `MovieDay-QR-${safeTicketId}.png`;
           document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
       }, 150);
