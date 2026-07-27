@@ -253,12 +253,40 @@ function RegistrationPageContent() {
     subRef.current = supabase
       .channel('movie_seats_ch')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'movie_registrations' }, payload => {
-        setTakenSeats(prev => {
-          const next = new Set(prev);
-          if (payload.new?.seat) next.add(payload.new.seat.split('::').pop());
-          if (payload.old?.seat) next.delete(payload.old.seat.split('::').pop());
-          return next;
-        });
+        // When a new registration comes in, normalize and add to taken set
+        if (payload.new?.seat) {
+          const canonical = normalizeSeatId(payload.new.seat);
+          if (canonical) {
+            setTakenSeats(prev => {
+              const next = new Set(prev);
+              next.add(canonical);
+              // Also add legacy and Seat # formats
+              const parts = canonical.split('-');
+              if (parts.length === 3) {
+                next.add(`${parts[0]}${parts[1]}-${parts[2]}`);
+                const num = SEAT_NUMBERS[canonical];
+                if (num) next.add(`Seat #${num}`);
+              }
+              return next;
+            });
+          }
+        }
+        if (payload.old?.seat) {
+          const canonical = normalizeSeatId(payload.old.seat);
+          if (canonical) {
+            setTakenSeats(prev => {
+              const next = new Set(prev);
+              next.delete(canonical);
+              const parts = canonical.split('-');
+              if (parts.length === 3) {
+                next.delete(`${parts[0]}${parts[1]}-${parts[2]}`);
+                const num = SEAT_NUMBERS[canonical];
+                if (num) next.delete(`Seat #${num}`);
+              }
+              return next;
+            });
+          }
+        }
       })
       .subscribe();
   }, []);
@@ -388,9 +416,8 @@ function RegistrationPageContent() {
   const generateQR = (reg) => {
     const text = `Name: ${reg.first_name} ${reg.last_name}\nPhone: ${reg.phone}\nBranch: ${reg.branch}\nLevel: ${reg.english_level}\nSeat: ${formatSeat(reg.seat)}\nTicket: ${reg.ticket_id}`;
     if (typeof window === 'undefined') return;
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    script.onload = () => {
+    
+    const doGenerate = () => {
       const div = document.createElement('div');
       new window.QRCode(div, { text, width: 512, height: 512, correctLevel: window.QRCode.CorrectLevel.H });
       setTimeout(() => {
@@ -403,6 +430,17 @@ function RegistrationPageContent() {
         }
       }, 150);
     };
+
+    // If QRCode library is already loaded, use it directly
+    if (window.QRCode) {
+      doGenerate();
+      return;
+    }
+    
+    // Otherwise load it first
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    script.onload = doGenerate;
     document.head.appendChild(script);
   };
 
