@@ -44,7 +44,7 @@ export default function HallDetailsPage(props) {
         <Navbar />
         <div style={{ padding: '200px 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="spinner"></div>
-          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Loading...</p>
+          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>{t.common?.loading || 'Yuklanmoqda...'}</p>
         </div>
         <Footer />
       </div>
