@@ -1,6 +1,6 @@
 'use client';
 import { use, useEffect, useRef } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Users, Maximize, ArrowRight, CheckCircle, Clock, CalendarDays, Calendar } from 'lucide-react';
@@ -10,6 +10,7 @@ import { formatPrice } from '@/lib/data';
 import { useApp } from '@/context/AppContext';
 
 export default function HallDetailsPage(props) {
+  const router = useRouter();
   const params = use(props.params);
   const { t, hallsList: appHalls } = useApp();
   const halls = appHalls || [];
@@ -31,8 +32,14 @@ export default function HallDetailsPage(props) {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (!hall) {
+      router.push('/');
+    }
+  }, [hall, router]);
+
   if (!hall) {
-    redirect('/');
+    return null;
   }
 
   // Common amenities to list (mock data for the visual)
