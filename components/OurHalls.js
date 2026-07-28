@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Users, Maximize, ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-
+import { HALLS_LIST } from '@/lib/data';
 import { useApp } from '@/context/AppContext';
 
 export default function OurHalls() {

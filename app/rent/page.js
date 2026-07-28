@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import YellowShapeBanner from '@/components/YellowShapeBanner';
 import DatePicker from '@/components/DatePicker';
 import Image from 'next/image';
-import { HALL_INFO, formatPrice } from '@/lib/data';
+import { HALL_INFO, HALLS_LIST, formatPrice } from '@/lib/data';
 import {
   Wifi, Monitor, Volume2, Wind, ParkingCircle, Utensils,
   Shield, PhoneCall, Users, Clock, CheckCircle, Send,
@@ -151,7 +151,7 @@ function RentPageContent() {
   const searchParams = useSearchParams();
   const formRef = useRef(null);
 
-  const allHalls = appHalls || [];
+  const allHalls = appHalls && appHalls.length > 0 ? appHalls : HALLS_LIST;
   const initialHallId = searchParams?.get('hallId') || '4';
   const [selectedHallId, setSelectedHallId] = useState(initialHallId);
 

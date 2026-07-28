@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { Users, Maximize, ArrowRight, CheckCircle, Clock, CalendarDays, Calendar } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { formatPrice } from '@/lib/data';
+import { HALLS_LIST, formatPrice } from '@/lib/data';
 import { useApp } from '@/context/AppContext';
 
 export default function HallDetailsPage(props) {
   const params = use(props.params);
   const { t, hallsList: appHalls } = useApp();
-  const halls = appHalls || [];
+  const halls = appHalls && appHalls.length > 0 ? appHalls : HALLS_LIST;
   const hall = halls.find(h => String(h.id) === String(params.id));
   const scrollRef = useRef(null);
 
