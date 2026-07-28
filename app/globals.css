@@ -408,7 +408,7 @@ body {
 .section-header { text-align: center; margin-bottom: 56px; }
 .section-title {
   font-size: clamp(28px, 4vw, 44px);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   color: var(--text-primary);
   margin-bottom: 14px;
   line-height: 1.15;
