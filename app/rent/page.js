@@ -164,8 +164,6 @@ function RentPageContent() {
 
   const selectedHall = allHalls.find(h => String(h.id) === String(selectedHallId)) || allHalls[0];
 
-  if (!selectedHall) return <div style={{ display: 'flex', justifyContent: 'center', padding: '100px', color: '#fff' }}>{t.common?.loading || 'Yuklanmoqda...'}</div>;
-
   const [form, setForm] = useState({
     name: '', phone: '', email: '',
     eventType: '', date: '', guests: '', message: '',
@@ -203,6 +201,19 @@ function RentPageContent() {
       formRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  if (!selectedHall) {
+    return (
+      <div className="page-wrapper" style={{ background: 'var(--bg-primary)' }}>
+        <Navbar />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '200px 0', flexDirection: 'column' }}>
+          <div className="spinner"></div>
+          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>{t.common?.loading || 'Yuklanmoqda...'}</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   const hallImages = selectedHall.images && selectedHall.images.length >= 3 
     ? selectedHall.images 
@@ -587,7 +598,7 @@ function RentPageContent() {
 
 export default function RentPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '100px', textAlign: 'center', color: '#fff' }}>{t.common?.loading || 'Yuklanmoqda...'}</div>}>
+    <Suspense fallback={<div style={{ padding: '100px', textAlign: 'center', color: 'var(--text-muted)' }}>Yuklanmoqda...</div>}>
       <RentPageContent />
     </Suspense>
   );
