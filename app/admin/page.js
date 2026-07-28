@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 import DatePicker from '@/components/DatePicker';
@@ -24,6 +25,7 @@ const ADMIN_PASSWORD = 'admin2026';
 const EMPTY_BLOCK = { id: '', label: '', rows: 5, cols: 6, isVip: false, gridRow: 1, gridCol: 1 };
 
 export default function AdminPage() {
+  const router = useRouter();
   const { lang, t, theme, events, addEvent, updateEvent, deleteEvent, checkConflict,
           tickets, addTicket,
           rentRequests, addRentRequest, updateRentRequest,
@@ -619,7 +621,7 @@ export default function AdminPage() {
           ))}
 
           <div style={{ marginTop:'auto', paddingTop:'16px', borderTop:'1px solid var(--border)' }}>
-            <button onClick={() => setAuthenticated(false)} style={{
+            <button onClick={() => { setAuthenticated(false); router.push('/'); }} style={{
               display:'flex', alignItems:'center', gap:'10px', padding:'11px 14px',
               borderRadius:'10px', border:'none', background:'transparent',
               color:'var(--text-muted)', fontSize:'13px', cursor:'pointer',
