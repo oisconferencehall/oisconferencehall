@@ -12,7 +12,7 @@ import { useApp } from '@/context/AppContext';
 export default function HallDetailsPage(props) {
   const router = useRouter();
   const params = use(props.params);
-  const { t, hallsList: appHalls } = useApp();
+  const { t, hallsList: appHalls, loading } = useApp();
   const halls = appHalls || [];
   const hall = halls.find(h => String(h.id) === String(params.id));
   const scrollRef = useRef(null);
@@ -33,10 +33,23 @@ export default function HallDetailsPage(props) {
   }, []);
 
   useEffect(() => {
-    if (!hall) {
-      router.push('/');
+    if (!loading && !hall) {
+      router.push('/halls');
     }
-  }, [hall, router]);
+  }, [loading, hall, router]);
+
+  if (loading) {
+    return (
+      <div className="page-wrapper">
+        <Navbar />
+        <div style={{ padding: '200px 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className="spinner"></div>
+          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Loading...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!hall) {
     return null;

@@ -27,7 +27,7 @@ function useReveal() {
 export default function EventDetailPage({ params }) {
   const router = useRouter();
   const { id } = use(params);
-  const { t, lang, events, addTicket, clearCart, user } = useApp();
+  const { t, lang, events, addTicket, clearCart, user, loading } = useApp();
 
   const event = events.find(ev => ev.id === id);
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -40,6 +40,19 @@ export default function EventDetailPage({ params }) {
   const headerReveal = useReveal();
   const infoReveal = useReveal();
   const mapReveal = useReveal();
+
+  if (loading) {
+    return (
+      <div className="page-wrapper">
+        <Navbar />
+        <div style={{ padding: '200px 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className="spinner"></div>
+          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Loading...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!event) {
     return (
