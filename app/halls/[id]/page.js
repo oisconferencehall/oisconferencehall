@@ -74,56 +74,42 @@ export default function HallDetailsPage(props) {
             ))}
           </div>
 
-          {/* Gallery Slider */}
-          <div ref={scrollRef} className="hide-scrollbar" style={{
-            display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', 
-            borderRadius: '24px', marginBottom: '48px',
-            scrollbarWidth: 'none', msOverflowStyle: 'none',
-            border: '1px solid var(--border)',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.06)'
-          }}>
-            {(hall.images && hall.images.length > 0 ? hall.images : [hall.image || "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80"]).map((img, idx) => (
-              <div key={idx} style={{ width: '100%', flexShrink: 0, scrollSnapAlign: 'start', display: 'flex', justifyContent: 'center', background: 'var(--bg-secondary)' }}>
-                <img src={img} alt={`${hall.title} - ${idx + 1}`} style={{ maxWidth: '100%', maxHeight: '500px', width: 'auto', height: 'auto', display: 'block', objectFit: 'contain' }} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="container">
+          {/* Main Layout Grid */}
           <div className="event-details-grid" style={{ gap: '48px', alignItems: 'start' }}>
             
-            {/* Left Column: Details */}
+            {/* Left Column: Gallery */}
             <div style={{ minWidth: 0, width: '100%' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px' }}>
-                {t.hallDetail?.aboutHall}
-              </h2>
-              <p style={{ fontSize: '16px', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '48px' }}>
-                {hall.description}
-              </p>
-
-              <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px' }}>
-                {t.hallDetail?.whatOffers}
-              </h2>
-              <div className="responsive-grid-2" style={{ gap: '20px', marginBottom: '48px' }}>
-                {amenities.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-primary)', fontSize: '16px', fontWeight: 500 }}>
-                    <CheckCircle size={20} style={{ color: '#10b981' }} />
-                    {item.label}
+              <div ref={scrollRef} className="hide-scrollbar" style={{
+                display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', 
+                borderRadius: '24px', marginBottom: '24px',
+                scrollbarWidth: 'none', msOverflowStyle: 'none',
+                border: '1px solid var(--border)',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.06)'
+              }}>
+                {(hall.images && hall.images.length > 0 ? hall.images : [hall.image || "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80"]).map((img, idx) => (
+                  <div key={idx} style={{ width: '100%', flexShrink: 0, scrollSnapAlign: 'start', display: 'flex', justifyContent: 'center', background: 'var(--bg-secondary)' }}>
+                    <img src={img} alt={`${hall.title} - ${idx + 1}`} style={{ maxWidth: '100%', maxHeight: '600px', width: 'auto', height: 'auto', display: 'block', objectFit: 'contain' }} />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right Column: Sticky Booking Card */}
+            {/* Right Column: Informations & Booking Card */}
             <div style={{ position: 'sticky', top: '100px', minWidth: 0, width: '100%' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px' }}>
+                {t.hallDetail?.aboutHall}
+              </h2>
+              <p style={{ fontSize: '16px', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '32px' }}>
+                {hall.description}
+              </p>
+
               <div style={{
                 background: 'var(--bg-card)',
                 borderRadius: '24px',
                 padding: '32px',
                 border: '1px solid var(--border)',
-                boxShadow: '0 24px 48px rgba(0,0,0,0.06)'
+                boxShadow: '0 24px 48px rgba(0,0,0,0.06)',
+                marginBottom: '32px'
               }}>
                 <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFDD00', marginBottom: '8px' }}>
                   {hall.price}
@@ -157,8 +143,19 @@ export default function HallDetailsPage(props) {
                   {t.hallDetail?.notCharged}
                 </div>
               </div>
-            </div>
 
+              <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px' }}>
+                {t.hallDetail?.whatOffers}
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '24px' }}>
+                {amenities.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 500 }}>
+                    <CheckCircle size={18} style={{ color: '#10b981', flexShrink: 0 }} />
+                    {item.label}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </main>
