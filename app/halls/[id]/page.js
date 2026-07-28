@@ -88,7 +88,7 @@ export default function HallDetailsPage(props) {
       <main className="main-content">
 
         {/* ===== HERO IMAGE SECTION ===== */}
-        <section style={{ position: 'relative', width: '100%', height: 'clamp(400px, 55vh, 650px)', overflow: 'hidden', marginTop: '72px' }}>
+        <section style={{ position: 'relative', width: '100%', height: '80vh', minHeight: '500px', overflow: 'hidden', marginTop: '72px' }}>
           {/* Image Carousel */}
           <div ref={scrollRef} className="hide-scrollbar" style={{
             display: 'flex', width: '100%', height: '100%',
