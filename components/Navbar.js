@@ -58,7 +58,7 @@ export default function Navbar() {
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         background: isTransparent 
           ? 'transparent' 
-          : (theme === 'dark' ? 'rgba(12, 12, 12, 0.92)' : 'rgba(255, 255, 255, 0.92)'),
+          : (theme === 'dark' ? 'rgba(12, 12, 12, 0.65)' : 'rgba(255, 255, 255, 0.65)'),
         backdropFilter: isTransparent ? 'none' : 'blur(20px)',
         WebkitBackdropFilter: isTransparent ? 'none' : 'blur(20px)',
         borderBottom: isTransparent ? '1px solid transparent' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)'),
