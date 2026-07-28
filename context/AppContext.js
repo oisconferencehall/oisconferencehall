@@ -2,7 +2,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from '@/lib/translations';
 import { supabase } from '@/lib/supabase';
-import { HALLS_LIST } from '@/lib/data';
 
 const AppContext = createContext();
 
