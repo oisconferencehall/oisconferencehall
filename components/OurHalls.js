@@ -41,7 +41,7 @@ export default function OurHalls() {
   };
 
   return (
-    <section className="reveal" style={{ padding: '60px 0 40px', background: 'var(--bg-primary)', overflow: 'hidden', position: 'relative' }}>
+    <section className="reveal" style={{ padding: '60px 0 90px', background: 'var(--bg-primary)', overflow: 'hidden', position: 'relative' }}>
       
       {/* iTicket Signature Header & Diagonal Background Shape */}
       <div style={{
