@@ -83,7 +83,7 @@ export default function RentCTASection() {
                 stroke="#000000" strokeWidth="2.5" strokeDasharray="5 5" fill="none" strokeLinecap="round" 
               />
               <path 
-                d="M 82 38 L 70 34 M 82 38 L 76 46" 
+                d="M 82 38 L 70 36 M 82 38 L 80 26" 
                 stroke="#000000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
               />
             </svg>
@@ -131,7 +131,7 @@ export default function RentCTASection() {
                 stroke="#000000" strokeWidth="2.5" strokeDasharray="5 5" fill="none" strokeLinecap="round" 
               />
               <path 
-                d="M 18 38 L 30 34 M 18 38 L 24 46" 
+                d="M 18 38 L 30 36 M 18 38 L 20 26" 
                 stroke="#000000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
               />
             </svg>
