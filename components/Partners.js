@@ -20,18 +20,18 @@ export default function Partners() {
         display: 'flex', width: 'max-content',
         willChange: 'transform',
         alignItems: 'center',
+        gap: '80px',
+        paddingLeft: '80px', // Prevent jump on loop
       }}>
         {/* Seamless loop array */}
         {[...displayPartners, ...displayPartners, ...displayPartners, ...displayPartners].map((partner, i) => (
           <div key={i} style={{
             flex: '0 0 auto',
-            width: '210px',
             height: '64px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: 0.9,
             transition: 'all 0.3s ease',
             cursor: 'pointer',
-            padding: '0 16px',
             boxSizing: 'border-box',
           }}
             onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.transform = 'scale(1.08)'; }}
@@ -39,7 +39,6 @@ export default function Partners() {
           >
             {partner.logo ? (
               <div style={{
-                width: '100%',
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
@@ -51,8 +50,6 @@ export default function Partners() {
                   style={{ 
                     height: '42px',
                     width: 'auto',
-                    maxWidth: '175px',
-                    maxHeight: '48px',
                     objectFit: 'contain',
                     transform: partner.scale ? `scale(${partner.scale})` : 'none',
                     transition: 'transform 0.2s ease',
