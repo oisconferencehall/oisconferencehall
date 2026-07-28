@@ -33,7 +33,7 @@ export default function RegisterPage() {
       setLoading(false);
     } else if (data?.user && !data?.session) {
       // Supabase requires email confirmation
-      setSuccessMsg(t.register?.successMsg || "Registration successful! Please check your email inbox (and spam folder) to confirm your account before signing in.");
+      setSuccessMsg(t.register?.successMsg || "Ro'yxatdan o'tish muvaffaqiyatli! Hisobingizni tasdiqlash uchun email pochta qutingizni tekshiring.");
       setLoading(false);
     } else {
       router.push('/profile');
@@ -78,8 +78,8 @@ export default function RegisterPage() {
             <div className="badge badge-gold" style={{ marginBottom: '16px' }}>
               <UserPlus size={13} />
             </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>{t.register?.createAccount || 'Create Account'}</h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t.register?.subtitle || 'Sign up to book tickets and manage your profile.'}</p>
+            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>{t.register?.createAccount || 'Hisob yaratish'}</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t.register?.subtitle || 'Chiptalar olish va profilingizni boshqarish uchun ro\'yxatdan o\'ting.'}</p>
           </div>
 
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -101,7 +101,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">{t.register?.password || 'Password'}</label>
+              <label className="form-label">{t.register?.password || 'Parol'}</label>
               <input
                 type="password"
                 required
@@ -131,12 +131,12 @@ export default function RegisterPage() {
             )}
 
             <button type="submit" className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: '10px', padding: '14px', fontSize: '15px', fontWeight: 700 }} disabled={loading || successMsg}>
-              {loading ? (t.register?.creatingAccount || 'Creating Account...') : (t.register?.signUp || 'Sign Up')}
+              {loading ? (t.register?.creatingAccount || 'Yaratilmoqda...') : (t.register?.signUp || 'Ro\'yxatdan o\'tish')}
             </button>
           </form>
 
           <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)' }}>
-            {t.register?.hasAccount || 'Already have an account?'} <Link href="/login" style={{ color: '#FFDD00', fontWeight: 600, textDecoration: 'none' }}>{t.register?.signIn || 'Sign In'}</Link>
+            {t.register?.hasAccount || 'Hisobingiz bormi?'} <Link href="/login" style={{ color: '#FFDD00', fontWeight: 600, textDecoration: 'none' }}>{t.register?.signIn || 'Kirish'}</Link>
           </div>
         </div>
       </main>

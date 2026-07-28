@@ -24,7 +24,7 @@ export default function HallsPage() {
               </div>
             ) : hallsList.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '100px 0', color: 'var(--text-secondary)' }}>
-                No halls available.
+                {t.events?.noEvents || 'Zal topilmadi'}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
@@ -80,7 +80,7 @@ export default function HallsPage() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
                       <div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t.halls?.startingFrom || 'STARTING FROM'}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t.halls?.startingFrom || 'BOSHLANISH NARXI'}</div>
                         <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFDD00' }}>{hall.price}</div>
                       </div>
                       <Link 
@@ -88,7 +88,7 @@ export default function HallsPage() {
                         className="btn btn-primary"
                         style={{ padding: '10px 20px', fontSize: '14px', textDecoration: 'none' }}
                       >
-                        {t.halls?.viewDetails || 'View Details'} <ArrowRight size={14} />
+                        {t.halls?.viewDetails || 'Batafsil ko\'rish'} <ArrowRight size={14} />
                       </Link>
                     </div>
                   </div>

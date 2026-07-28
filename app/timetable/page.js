@@ -153,13 +153,13 @@ export default function TimetablePage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px', marginBottom: '24px' }}>
             <div style={{ textAlign: 'left' }}>
               <div className="badge badge-gold" style={{ marginBottom: 12 }}>
-                {t.timetable?.schedule || 'Schedule'}
+                {t.timetable?.schedule || 'Jadval'}
               </div>
               <h1 className="section-title" style={{ marginBottom: 8, textAlign: 'left' }}>
-                {t.timetable?.title || 'Hall Schedule'}
+                {t.timetable?.title || 'Zal Jadvali'}
               </h1>
               <p className="section-subtitle" style={{ margin: 0, textAlign: 'left' }}>
-                {t.timetable?.subtitle || 'View all upcoming events and plan your time'}
+                {t.timetable?.subtitle || 'Barcha kelgusi tadbirlarni ko\'ring va vaqtingizni rejalashtiring'}
               </p>
             </div>
 
@@ -186,7 +186,7 @@ export default function TimetablePage() {
                 </div>
                 <button onClick={() => viewMode === 'week' ? changeWeek(1) : changeMonth(1)}><ChevronRight size={20} /></button>
                 <button className="today-btn" onClick={() => viewMode === 'week' ? jumpToToday() : jumpToTodayMonth()}>
-                  {t.timetable?.today || 'Today'}
+                  {t.timetable?.today || 'Bugun'}
                 </button>
               </div>
             </div>
@@ -390,7 +390,7 @@ export default function TimetablePage() {
                 style={{ width: '100%', justifyContent: 'center' }}
                 onClick={() => router.push(`/events/${selectedEvent.id}`)}
               >
-                {t.events?.viewDetails || 'View Full Details'}
+                {t.events?.viewDetails || 'Batafsil ko\'rish'}
               </button>
             </div>
           </div>

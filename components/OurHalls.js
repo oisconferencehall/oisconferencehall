@@ -88,7 +88,7 @@ export default function OurHalls() {
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: 'clamp(32px, 4vw, 44px)', fontWeight: 900, color: '#000000', letterSpacing: '-0.02em' }}>
-            {t.halls?.ourHalls || 'Our Halls'}
+            {t.halls?.ourHalls}
           </h2>
         </div>
       </div>
@@ -163,7 +163,7 @@ export default function OurHalls() {
                   fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textDecoration: 'none',
                   transition: 'color 0.2s'
                 }}>
-                  {t.halls?.details || 'Details'} <ArrowRight size={14} />
+                  {t.halls?.details} <ArrowRight size={14} />
                 </div>
               </div>
             </div>

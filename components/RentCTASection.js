@@ -32,7 +32,7 @@ export default function RentCTASection() {
             fontSize: '12px', fontWeight: 900, textTransform: 'uppercase',
             letterSpacing: '0.08em', marginBottom: '24px'
           }}>
-            <Sparkles size={14} /> {t.cta?.badge || t.rentPage?.badge || 'Grand Conference Hall 2026'}
+            <Sparkles size={14} /> {t.hero?.badge || t.announcement?.badge}
           </div>
 
           {/* Heading */}
@@ -46,7 +46,7 @@ export default function RentCTASection() {
             maxWidth: '820px',
             margin: '0 auto 24px'
           }}>
-            {t.rentPage?.heroTitle ? `${t.rentPage.heroTitle} ${t.rentPage.heroTitleHighlight}` : "Ready to host your event in the perfect venue? Book at Oxford International School today!"}
+            {t.rentPage?.heroTitle ? `${t.rentPage.heroTitle} ${t.rentPage.heroTitleHighlight}` : `${t.landingHero?.title} ${t.landingHero?.titleHighlight}`}
           </h2>
 
           {/* Subtitle */}
@@ -58,7 +58,7 @@ export default function RentCTASection() {
             fontWeight: 600,
             lineHeight: 1.6
           }}>
-            {t.rentPage?.heroSubtitle || t.landingHero?.subtitle || "Host your next big event at our Grand Hall with state-of-the-art facilities, cinema 4K projection, and executive service."}
+            {t.rentPage?.heroSubtitle || t.landingHero?.subtitle}
           </p>
 
           {/* Decorative Dashed Arrows & CTA Button Container */}
@@ -114,7 +114,7 @@ export default function RentCTASection() {
                 e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
               }}
             >
-              {t.rentPage?.applyBtn || t.cta?.rent || "Leave a Request"} <ArrowRight size={18} />
+              {t.rentPage?.applyBtn || t.cta?.rent} <ArrowRight size={18} />
             </Link>
 
             {/* Right Dashed Curved Arrow */}

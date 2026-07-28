@@ -3,10 +3,7 @@ import { useApp } from '@/context/AppContext';
 
 export default function Partners() {
   const { t, partners } = useApp();
-  const displayPartners = partners && partners.length > 0 ? partners : [
-    { id: 1, name: 'Microsoft' }, { id: 2, name: 'Google' }, { id: 3, name: 'Amazon' },
-    { id: 4, name: 'Tesla' }, { id: 5, name: 'Apple' }, { id: 6, name: 'Netflix' }
-  ];
+  const displayPartners = partners && partners.length > 0 ? partners : [];
 
   return (
     <section style={{ padding: '80px 0', background: 'var(--bg-primary)', overflow: 'hidden' }}>

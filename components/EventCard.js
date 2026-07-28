@@ -129,11 +129,11 @@ export default function EventCard({ event }) {
           zIndex: 2
         }}>
           {event.price <= 0 ? (
-            <span>{t?.eventsPage?.free || 'Free'}</span>
+            <span>{t.eventsPage?.free || 'Bepul'}</span>
           ) : (
             <>
               <span>{formatPrice(event.price)}</span>
-              <span style={{ fontSize: '11px', fontWeight: 800 }}>{t?.common?.currency || 'UZS'}</span>
+              <span style={{ fontSize: '11px', fontWeight: 800 }}>{t.common?.currency || "so'm"}</span>
             </>
           )}
         </div>

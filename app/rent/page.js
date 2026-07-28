@@ -164,6 +164,8 @@ function RentPageContent() {
 
   const selectedHall = allHalls.find(h => String(h.id) === String(selectedHallId)) || allHalls[0];
 
+  if (!selectedHall) return <div style={{ display: 'flex', justifyContent: 'center', padding: '100px', color: '#fff' }}>{t.common?.loading || 'Yuklanmoqda...'}</div>;
+
   const [form, setForm] = useState({
     name: '', phone: '', email: '',
     eventType: '', date: '', guests: '', message: '',
@@ -585,7 +587,7 @@ function RentPageContent() {
 
 export default function RentPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '100px', textAlign: 'center', color: '#fff' }}>Loading Rent Page...</div>}>
+    <Suspense fallback={<div style={{ padding: '100px', textAlign: 'center', color: '#fff' }}>{t.common?.loading || 'Yuklanmoqda...'}</div>}>
       <RentPageContent />
     </Suspense>
   );

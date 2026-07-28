@@ -299,7 +299,7 @@ export default function EventDetailPage({ params }) {
                           {seat.isVip && <span style={{ marginLeft: '6px', color: '#ffffff', fontSize: '10px', fontWeight: 700 }}>VIP</span>}
                         </span>
                         <span style={{ color: '#FFDD00', fontWeight: 700 }}>
-                          {event.price <= 0 ? (t.eventsPage?.free || 'Free') : formatPrice(event.price)}
+                          {event.price <= 0 ? (t.eventsPage?.free || 'Bepul') : formatPrice(event.price)}
                         </span>
                       </div>
                     ))}
@@ -313,10 +313,10 @@ export default function EventDetailPage({ params }) {
                   <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{t.eventDetail.totalPrice}</span>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-primary)' }}>
-                      {event.price <= 0 ? (t.eventsPage?.free || 'Free') : (
+                      {event.price <= 0 ? (t.eventsPage?.free || 'Bepul') : (
                         <>
                           {formatPrice(totalPrice)}
-                          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)', marginLeft: '4px' }}>{t.common?.currency || 'UZS'}</span>
+                          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)', marginLeft: '4px' }}>{t.common?.currency || 'so\'m'}</span>
                         </>
                       )}
                     </div>
@@ -399,7 +399,7 @@ export default function EventDetailPage({ params }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div className="form-group">
                 <label className="form-label">{t.payment.name}</label>
-                <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder={t.eventDetailPage?.fullName || "Full name"} />
+                <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder={t.eventDetailPage?.fullName || "To'liq ism"} />
               </div>
               <div className="form-group">
                 <label className="form-label">{t.payment.phone}</label>
@@ -407,7 +407,7 @@ export default function EventDetailPage({ params }) {
               </div>
               <div className="form-group">
                 <label className="form-label">{t.payment.email}</label>
-                <input className="form-input" type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="you@example.com" />
+                <input className="form-input" type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder={t.login?.email || "email@example.com"} />
               </div>
 
               {/* Removed Payment Methods and Summary for offline registration */}
@@ -422,7 +422,7 @@ export default function EventDetailPage({ params }) {
                     <span style={{ width: '16px', height: '16px', border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#1a0800', borderRadius: '50%', animation: 'rotate 0.8s linear infinite', display: 'inline-block' }} />
                     {t.payment.processing}
                   </span>
-                ) : (t.eventDetailPage?.confirmRegistration || `Confirm Registration`)}
+                ) : (t.eventDetailPage?.confirmRegistration || 'Ro\'yxatdan o\'tishni tasdiqlash')}
               </button>
             </div>
           </div>

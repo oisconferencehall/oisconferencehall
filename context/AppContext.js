@@ -48,10 +48,10 @@ export function AppProvider({ children }) {
   const [cmsVideos, setCmsVideosState] = useState([]);
 
   const [cmsContacts, setCmsContactsState] = useState({
-    address: '123 Main Street, Suite 400 Samarkand, 140100, Uzbekistan',
+    address: "Samarqand sh., Oksford ko'chasi 123-uy",
     phone1: '+998 90 123 45 67', phone2: '+998 71 234 56 78',
     email1: 'info@conferencehall.uz', email2: 'events@conferencehall.uz',
-    hoursWeek: 'Mon - Sat: 9:00 AM - 6:00 PM', hoursSun: 'Sun: Closed (Except for Events)'
+    hoursWeek: 'Dush - Shan: 9:00 - 18:00', hoursSun: 'Yak: Dam olish kuni (Tadbirlar bundan mustasno)'
   });
 
   const [cmsFaq, setCmsFaqState] = useState([]);

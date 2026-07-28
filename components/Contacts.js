@@ -5,10 +5,10 @@ import { useApp } from '@/context/AppContext';
 export default function Contacts() {
   const { t, cmsContacts } = useApp();
   const rawInfo = cmsContacts || {
-    address: '123 Main Street, Suite 400 Samarkand, 140100, Uzbekistan',
+    address: t.contactsSection?.addressValue,
     phone1: '+998 90 123 45 67', phone2: '+998 71 234 56 78',
     email1: 'info@conferencehall.uz', email2: 'events@conferencehall.uz',
-    hoursWeek: 'Mon - Sat: 9:00 AM - 6:00 PM', hoursSun: 'Sun: Closed (Except for Events)'
+    hoursWeek: t.contactsSection?.hoursWeekValue, hoursSun: t.contactsSection?.hoursSunValue
   };
 
   const info = {

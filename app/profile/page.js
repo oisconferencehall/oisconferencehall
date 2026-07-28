@@ -196,8 +196,8 @@ function TicketCard({ ticket, t, formatDate }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
             {[
-              { icon: <Calendar size={14} />, label: t.eventDetail.date, value: ticket.eventDate ? formatDate(ticket.eventDate) : 'TBD' },
-              { icon: <Clock size={14} />, label: t.eventDetail.time, value: ticket.eventTime || 'TBD' },
+              { icon: <Calendar size={14} />, label: t.eventDetail.date, value: ticket.eventDate ? formatDate(ticket.eventDate) : 'Noma\'lum' },
+              { icon: <Clock size={14} />, label: t.eventDetail.time, value: ticket.eventTime || 'Noma\'lum' },
               { icon: <MapPin size={14} />, label: t.eventDetail.venue, value: t.footer?.brandName },
               { icon: <User size={14} />, label: t.payment.name, value: ticket.payerName },
             ].map((d, i) => (

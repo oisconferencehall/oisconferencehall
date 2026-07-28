@@ -26,7 +26,6 @@ import {
   Volume2, Wind, ParkingCircle, Utensils, Shield, PhoneCall,
   ChevronRight, Play, CheckCircle, MapPin, Clock, Calendar,
 } from 'lucide-react';
-import { HALL_INFO } from '@/lib/data';
 
 const amenityIcons = {
   wifi: Wifi, projector: Monitor, sound: Volume2,
@@ -228,7 +227,7 @@ function AnimatedAmenity({ amenityKey, index, Icon, title, glowColor }) {
               fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)',
               display: 'flex', alignItems: 'center', gap: '6px'
             }}>
-              <span>+</span> {t.misc?.readMore || '+ Read More'}
+              <span>+</span> {t.misc?.readMore || '+ Batafsil'}
             </div>
           </div>
         </div>
@@ -269,7 +268,7 @@ function AnimatedAmenity({ amenityKey, index, Icon, title, glowColor }) {
               {extendedDetails[lang]?.[amenityKey] || extendedDetails.en[amenityKey]}
             </p>
             <button className="btn btn-primary" onClick={() => setIsModalOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
-              {t.misc?.close || 'Close'}
+              {t.misc?.close || 'Yopish'}
             </button>
           </div>
         </div>
@@ -392,7 +391,7 @@ function PricingCard({ plan, t, index, revealed }) {
           padding: '4px 16px', borderRadius: '9999px',
           letterSpacing: '0.07em', textTransform: 'uppercase',
           whiteSpace: 'nowrap', zIndex: 10,
-        }}>{t.misc?.bestValue || '⭐ Best Value'}</div>
+        }}>{t.misc?.bestValue || '⭐ Eng foydali'}</div>
       )}
 
       <div

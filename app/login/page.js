@@ -72,8 +72,8 @@ export default function LoginPage() {
             <div className="badge badge-violet" style={{ marginBottom: '16px' }}>
               <LogIn size={13} />
             </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>{t.login?.welcomeBack || 'Welcome Back'}</h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t.login?.subtitle || 'Sign in to manage your tickets and events.'}</p>
+            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>{t.login?.welcomeBack || 'Xush kelibsiz'}</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t.login?.subtitle || 'Chiptalaringizni va tadbirlaringizni boshqarish uchun tizimga kiring.'}</p>
           </div>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -95,7 +95,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">{t.login?.password || 'Password'}</label>
+              <label className="form-label">{t.login?.password || 'Parol'}</label>
               <input
                 type="password"
                 required
@@ -119,12 +119,12 @@ export default function LoginPage() {
             )}
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '10px', padding: '14px', fontSize: '15px', fontWeight: 700 }} disabled={loading}>
-              {loading ? (t.login?.signingIn || 'Signing in...') : (t.login?.signIn || 'Sign In')}
+              {loading ? (t.login?.signingIn || 'Kirilmoqda...') : (t.login?.signIn || 'Kirish')}
             </button>
           </form>
 
           <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)' }}>
-            {t.login?.noAccount || "Don't have an account?"} <Link href="/register" style={{ color: 'var(--text-accent)', fontWeight: 600, textDecoration: 'none' }}>{t.login?.register || 'Register'}</Link>
+            {t.login?.noAccount || "Hisobingiz yo'qmi?"} <Link href="/register" style={{ color: 'var(--text-accent)', fontWeight: 600, textDecoration: 'none' }}>{t.login?.register || 'Ro\'yxatdan o\'tish'}</Link>
           </div>
         </div>
       </main>

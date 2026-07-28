@@ -40,9 +40,9 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: t.nav.home },
-    { href: '/halls', label: t.navbar?.ourHalls || 'Our Halls' },
+    { href: '/halls', label: t.navbar?.ourHalls },
     { href: '/events', label: t.nav.events },
-    { href: '/timetable', label: t.timetable?.schedule || 'Timetable' },
+    { href: '/timetable', label: t.timetable?.schedule },
     { href: '/rent', label: t.nav.rent },
   ];
 
@@ -55,7 +55,7 @@ export default function Navbar() {
     <>
       {errorMsg && (
         <div style={{ background: '#ff4444', color: 'white', padding: '10px', textAlign: 'center', zIndex: 9999, position: 'relative' }}>
-          <strong>Error Fetching Data:</strong> {errorMsg}
+          <strong>{t.common?.error || 'Xatolik:'}</strong> {errorMsg}
         </div>
       )}
       <nav style={{
