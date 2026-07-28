@@ -135,13 +135,22 @@ export function AppProvider({ children }) {
 
     const fetchData = async () => {
       try {
-        const [eventsRes, bookedSeatsRes, rentRes, hallRes, featuresRes, cmsRes] = await Promise.all([
+        const fetchPromises = Promise.all([
           supabase.from('events').select('*').order('created_at', { ascending: true }),
           supabase.from('booked_seats').select('*'),
           supabase.from('rent_requests').select('*').order('created_at', { ascending: false }),
           supabase.from('hall_blocks').select('*'),
           fetch('/api/features').then(res => res.json()).catch(() => []),
           supabase.from('page_sections').select('*')
+        ]);
+        
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Database connection timed out. Your internet might be blocking Supabase.")), 15000)
+        );
+
+        const [eventsRes, bookedSeatsRes, rentRes, hallRes, featuresRes, cmsRes] = await Promise.race([
+          fetchPromises,
+          timeoutPromise
         ]);
 
         if (cmsRes && cmsRes.data) {
