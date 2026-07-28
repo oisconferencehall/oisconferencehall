@@ -586,7 +586,7 @@ export default function Home() {
              <Link href="/rent" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '18px', textDecoration: 'none' }}>
                {t.landingHero?.btnPrimary}
              </Link>
-             <Link href="/events" className="btn btn-outline-light" style={{ padding: '16px 40px', fontSize: '18px', textDecoration: 'none' }}>
+             <Link href="/halls" className="btn btn-outline-light" style={{ padding: '16px 40px', fontSize: '18px', textDecoration: 'none' }}>
                {t.landingHero?.btnSecondary}
              </Link>
           </div>
