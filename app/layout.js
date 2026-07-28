@@ -21,7 +21,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning style={{ overflowX: 'hidden', maxWidth: '100vw' }}>
+    <html lang="uz" suppressHydrationWarning style={{ overflowX: 'hidden', maxWidth: '100vw' }}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

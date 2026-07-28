@@ -1,13 +1,22 @@
 'use client';
-import { use, useEffect, useRef } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Maximize, ArrowRight, CheckCircle, Clock, CalendarDays, Calendar } from 'lucide-react';
+import { Users, Maximize, ArrowRight, CheckCircle, Wifi, Monitor, Volume2, Thermometer, Car, UtensilsCrossed, ChevronLeft, ChevronRight, MapPin, Clock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { formatPrice } from '@/lib/data';
 import { useApp } from '@/context/AppContext';
+
+const AMENITY_ICONS = {
+  wifi: Wifi,
+  projector: Monitor,
+  sound: Volume2,
+  ac: Thermometer,
+  parking: Car,
+  catering: UtensilsCrossed,
+};
 
 export default function HallDetailsPage(props) {
   const router = useRouter();
@@ -16,22 +25,28 @@ export default function HallDetailsPage(props) {
   const halls = appHalls || [];
   const hall = halls.find(h => String(h.id) === String(params.id));
   const scrollRef = useRef(null);
+  const [activeImg, setActiveImg] = useState(0);
 
+  const images = hall ? (hall.images && hall.images.length > 0 ? hall.images : [hall.image].filter(Boolean)) : [];
+
+  // Auto-scroll gallery
   useEffect(() => {
+    if (images.length <= 1) return;
     const timer = setInterval(() => {
-      if (scrollRef.current) {
-        const container = scrollRef.current;
-        const scrollAmount = container.clientWidth;
-        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
-          container.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          container.scrollTo({ left: container.scrollLeft + scrollAmount, behavior: 'smooth' });
-        }
-      }
-    }, 4000);
+      setActiveImg(prev => (prev + 1) % images.length);
+    }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [images.length]);
 
+  // Scroll to active image
+  useEffect(() => {
+    if (scrollRef.current && images.length > 1) {
+      const container = scrollRef.current;
+      container.scrollTo({ left: activeImg * container.clientWidth, behavior: 'smooth' });
+    }
+  }, [activeImg, images.length]);
+
+  // Redirect if hall doesn't exist after loading
   useEffect(() => {
     if (!loading && !hall) {
       router.push('/halls');
@@ -55,159 +70,268 @@ export default function HallDetailsPage(props) {
     return null;
   }
 
-  // Common amenities to list (mock data for the visual)
   const amenities = [
-    { icon: 'wifi', label: t.hallDetail?.amenities?.wifi },
-    { icon: 'projector', label: t.hallDetail?.amenities?.projector },
-    { icon: 'sound', label: t.hallDetail?.amenities?.sound },
-    { icon: 'ac', label: t.hallDetail?.amenities?.climate },
-    { icon: 'parking', label: t.hallDetail?.amenities?.parking },
-    { icon: 'catering', label: t.hallDetail?.amenities?.catering }
+    { key: 'wifi', label: t.hallDetail?.amenities?.wifi },
+    { key: 'projector', label: t.hallDetail?.amenities?.projector },
+    { key: 'sound', label: t.hallDetail?.amenities?.sound },
+    { key: 'ac', label: t.hallDetail?.amenities?.climate },
+    { key: 'parking', label: t.hallDetail?.amenities?.parking },
+    { key: 'catering', label: t.hallDetail?.amenities?.catering }
   ];
+
+  const goToPrev = () => setActiveImg(prev => (prev - 1 + images.length) % images.length);
+  const goToNext = () => setActiveImg(prev => (prev + 1) % images.length);
 
   return (
     <div className="page-wrapper">
       <Navbar />
-      <main className="main-content" style={{ paddingBottom: '100px' }}>
-        
-        <div className="container" style={{ paddingTop: '140px', paddingBottom: '48px' }}>
-          
-          {/* Breadcrumbs & Tabs */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '40px' }}>
-            <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              <Link href="/" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color='inherit'}>
-                {t.hallDetail?.home}
-              </Link> 
-              <span style={{ margin: '0 8px' }}>/</span> 
-              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{hall.title}</span>
-            </div>
-            
-            <div className="hide-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
-              {halls.map(h => (
-                <Link key={h.id} href={`/halls/${h.id}`} style={{
-                  padding: '10px 24px', borderRadius: '100px',
-                  background: h.id === hall.id ? 'var(--text-primary)' : 'transparent',
-                  color: h.id === hall.id ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                  border: h.id === hall.id ? '1px solid var(--text-primary)' : '1px solid var(--border)',
-                  fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', textDecoration: 'none',
-                  transition: 'all 0.2s'
-                }} onMouseEnter={e => { if(h.id !== hall.id) e.currentTarget.style.borderColor = 'var(--text-primary)'; }}
-                   onMouseLeave={e => { if(h.id !== hall.id) e.currentTarget.style.borderColor = 'var(--border)'; }}>
-                  {h.title}
-                </Link>
-              ))}
-            </div>
+      <main className="main-content">
+
+        {/* ===== HERO IMAGE SECTION ===== */}
+        <section style={{ position: 'relative', width: '100%', height: 'clamp(400px, 55vh, 650px)', overflow: 'hidden', marginTop: '72px' }}>
+          {/* Image Carousel */}
+          <div ref={scrollRef} className="hide-scrollbar" style={{
+            display: 'flex', width: '100%', height: '100%',
+            overflowX: 'auto', scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none', msOverflowStyle: 'none',
+          }}>
+            {images.map((img, idx) => (
+              <div key={idx} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative' }}>
+                <img src={img} alt={`${hall.title} - ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ))}
           </div>
 
-          {/* Main Layout Grid */}
-          <div className="event-details-grid" style={{ gap: '64px', alignItems: 'start' }}>
-            
-            {/* Left Column: Sticky Gallery */}
-            <div style={{ position: 'sticky', top: '120px', width: '100%', zIndex: 10 }}>
-              <div ref={scrollRef} className="hide-scrollbar" style={{
-                display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', 
-                borderRadius: '24px',
-                scrollbarWidth: 'none', msOverflowStyle: 'none',
-                border: '1px solid var(--border)',
-                boxShadow: '0 24px 48px rgba(0,0,0,0.08)',
-                aspectRatio: '4/3',
-                background: 'var(--bg-secondary)',
-                position: 'relative'
-              }}>
-                {(hall.images && hall.images.length > 0 ? hall.images : [hall.image || "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80"]).map((img, idx) => (
-                  <div key={idx} style={{ width: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative' }}>
-                    <img src={img} alt={`${hall.title} - ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 30%)' }} />
-                  </div>
+          {/* Dark gradient overlay */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 40%, transparent 70%)', pointerEvents: 'none' }} />
+
+          {/* Navigation arrows */}
+          {images.length > 1 && (
+            <>
+              <button onClick={goToPrev} style={{
+                position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)',
+                width: '48px', height: '48px', borderRadius: '50%',
+                background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.2)', color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'all 0.2s', zIndex: 10
+              }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
+                <ChevronLeft size={24} />
+              </button>
+              <button onClick={goToNext} style={{
+                position: 'absolute', right: '24px', top: '50%', transform: 'translateY(-50%)',
+                width: '48px', height: '48px', borderRadius: '50%',
+                background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.2)', color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'all 0.2s', zIndex: 10
+              }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
+                <ChevronRight size={24} />
+              </button>
+            </>
+          )}
+
+          {/* Bottom: Hall title overlay */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px', zIndex: 5 }}>
+            <div className="container">
+              {/* Breadcrumb */}
+              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginBottom: '12px' }}>
+                <Link href="/" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>
+                  {t.hallDetail?.home}
+                </Link>
+                <span style={{ margin: '0 8px' }}>/</span>
+                <Link href="/halls" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>
+                  {t.halls?.ourHalls || t.navbar?.ourHalls}
+                </Link>
+                <span style={{ margin: '0 8px' }}>/</span>
+                <span style={{ color: '#fff' }}>{hall.title}</span>
+              </div>
+              <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 800, color: '#fff', lineHeight: 1.1, letterSpacing: '-0.03em', margin: 0, textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
+                {hall.title}
+              </h1>
+
+              {/* Image dots */}
+              {images.length > 1 && (
+                <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+                  {images.map((_, idx) => (
+                    <button key={idx} onClick={() => setActiveImg(idx)} style={{
+                      width: idx === activeImg ? '32px' : '8px', height: '8px',
+                      borderRadius: '100px', border: 'none', cursor: 'pointer',
+                      background: idx === activeImg ? '#FFDD00' : 'rgba(255,255,255,0.4)',
+                      transition: 'all 0.3s'
+                    }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== HALL TABS (other halls) ===== */}
+        {halls.length > 1 && (
+          <div style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border)', position: 'sticky', top: '72px', zIndex: 20 }}>
+            <div className="container">
+              <div className="hide-scrollbar" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '16px 0' }}>
+                {halls.map(h => (
+                  <Link key={h.id} href={`/halls/${h.id}`} style={{
+                    padding: '10px 24px', borderRadius: '100px',
+                    background: String(h.id) === String(hall.id) ? 'var(--text-primary)' : 'transparent',
+                    color: String(h.id) === String(hall.id) ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                    border: String(h.id) === String(hall.id) ? '1px solid var(--text-primary)' : '1px solid var(--border)',
+                    fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', textDecoration: 'none',
+                    transition: 'all 0.2s'
+                  }} onMouseEnter={e => { if(String(h.id) !== String(hall.id)) { e.currentTarget.style.borderColor = 'var(--text-primary)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+                     onMouseLeave={e => { if(String(h.id) !== String(hall.id)) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}>
+                    {h.title}
+                  </Link>
                 ))}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Right Column: Informations & Booking Card */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', paddingTop: '8px' }}>
+        {/* ===== MAIN CONTENT ===== */}
+        <div className="container" style={{ paddingTop: '48px', paddingBottom: '100px' }}>
+          <div className="event-details-grid" style={{ gap: '64px', alignItems: 'start' }}>
+            
+            {/* LEFT: Description + Amenities */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
               
-              {/* Hall Header & Description */}
+              {/* About Section */}
               <div>
-                <h1 style={{ fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '32px', lineHeight: 1.1, letterSpacing: '-0.03em' }}>
-                  {hall.title}
-                </h1>
-                
-                <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#FFDD00', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   {t.hallDetail?.aboutHall}
-                </h3>
-                
-                <p style={{ fontSize: '17px', lineHeight: 1.8, color: 'var(--text-secondary)', marginBottom: '0' }}>
+                </h2>
+                <p style={{ fontSize: '18px', lineHeight: 1.8, color: 'var(--text-secondary)', margin: 0 }}>
                   {hall.description}
                 </p>
               </div>
 
-              {/* Booking Card */}
+              {/* Quick Stats Bar */}
               <div style={{
-                background: 'var(--bg-card)', borderRadius: '24px', padding: '40px',
+                display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px'
+              }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '16px',
+                  padding: '20px 24px', borderRadius: '16px',
+                  background: 'var(--bg-secondary)', border: '1px solid var(--border)'
+                }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,221,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Users size={22} style={{ color: '#FFDD00' }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.2 }}>{hall.capacity}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>{t.hallDetail?.capacity}</div>
+                  </div>
+                </div>
+                
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '16px',
+                  padding: '20px 24px', borderRadius: '16px',
+                  background: 'var(--bg-secondary)', border: '1px solid var(--border)'
+                }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Maximize size={22} style={{ color: '#38bdf8' }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.2 }}>{hall.area}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>{t.hallDetail?.area}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Amenities Grid */}
+              <div>
+                <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#FFDD00', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  {t.hallDetail?.whatOffers}
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                  {amenities.map((item, i) => {
+                    const IconComponent = AMENITY_ICONS[item.key] || CheckCircle;
+                    return (
+                      <div key={i} style={{
+                        display: 'flex', alignItems: 'center', gap: '16px',
+                        padding: '16px 20px', borderRadius: '16px',
+                        background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                        transition: 'all 0.2s'
+                      }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--text-primary)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                         onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <IconComponent size={20} style={{ color: 'var(--text-primary)' }} />
+                        </div>
+                        <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--text-primary)' }}>{item.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Sticky Booking Card */}
+            <div style={{ position: 'sticky', top: '140px' }}>
+              <div style={{
+                background: 'var(--bg-card)', borderRadius: '24px', padding: '36px',
                 border: '1px solid var(--border)',
-                boxShadow: '0 32px 64px rgba(0,0,0,0.05)',
+                boxShadow: '0 24px 64px rgba(0,0,0,0.08)',
                 position: 'relative', overflow: 'hidden'
               }}>
-                <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'rgba(255,221,0,0.15)', filter: 'blur(60px)', borderRadius: '50%' }} />
+                {/* Decorative glow */}
+                <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '250px', height: '250px', background: 'rgba(255,221,0,0.12)', filter: 'blur(60px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px', position: 'relative', zIndex: 1 }}>
-                  <span style={{ fontSize: '36px', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{hall.price}</span>
-                </div>
-                <div style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '40px', position: 'relative', zIndex: 1 }}>
-                  {t.hallDetail?.fullyEquipped}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px', position: 'relative', zIndex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-secondary)' }}>
-                      <Users size={22} style={{ color: 'var(--text-primary)' }} />
-                      <span style={{ fontSize: '16px' }}>{t.hallDetail?.capacity}</span>
-                    </div>
-                    <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '18px' }}>{hall.capacity}</span>
+                {/* Price */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '6px', lineHeight: 1.2 }}>
+                    {hall.price}
                   </div>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-secondary)' }}>
-                      <Maximize size={22} style={{ color: 'var(--text-primary)' }} />
-                      <span style={{ fontSize: '16px' }}>{t.hallDetail?.area}</span>
-                    </div>
-                    <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '18px' }}>{hall.area}</span>
+                  <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '32px' }}>
+                    {t.hallDetail?.fullyEquipped}
                   </div>
-                </div>
 
-                <Link href={`/rent?hallId=${hall.id}`} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
-                  width: '100%', padding: '20px',
-                  background: 'var(--text-primary)', color: 'var(--bg-primary)',
-                  borderRadius: '100px', fontSize: '18px', fontWeight: 700,
-                  textDecoration: 'none', transition: 'all 0.3s',
-                  position: 'relative', zIndex: 1
-                }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#FFDD00'; e.currentTarget.style.color = '#000'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(255, 221, 0, 0.3)'; }} 
-                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--text-primary)'; e.currentTarget.style.color = 'var(--bg-primary)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                  {t.hallDetail?.bookHall} <ArrowRight size={20} />
-                </Link>
-                <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: 'var(--text-muted)', position: 'relative', zIndex: 1 }}>
-                  {t.hallDetail?.notCharged}
-                </div>
-              </div>
+                  {/* Divider */}
+                  <div style={{ height: '1px', background: 'var(--border)', marginBottom: '24px' }} />
 
-              {/* Amenities Section */}
-              <div>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  {t.hallDetail?.whatOffers}
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px' }}>
-                  {amenities.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-secondary)', fontSize: '16px', fontWeight: 500 }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
-                        <CheckCircle size={20} style={{ color: 'var(--text-primary)' }} />
+                  {/* Capacity & Area compact */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)' }}>
+                        <Users size={18} />
+                        <span style={{ fontSize: '15px' }}>{t.hallDetail?.capacity}</span>
                       </div>
-                      {item.label}
+                      <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '15px' }}>{hall.capacity}</span>
                     </div>
-                  ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)' }}>
+                        <Maximize size={18} />
+                        <span style={{ fontSize: '15px' }}>{t.hallDetail?.area}</span>
+                      </div>
+                      <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '15px' }}>{hall.area}</span>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Link href={`/rent?hallId=${hall.id}`} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                    width: '100%', padding: '18px',
+                    background: '#FFDD00', color: '#000',
+                    borderRadius: '16px', fontSize: '16px', fontWeight: 700,
+                    textDecoration: 'none', transition: 'all 0.3s',
+                    boxShadow: '0 8px 24px rgba(255,221,0,0.25)'
+                  }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(255,221,0,0.4)'; }}
+                     onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(255,221,0,0.25)'; }}>
+                    {t.hallDetail?.bookHall} <ArrowRight size={18} />
+                  </Link>
+
+                  <p style={{ textAlign: 'center', marginTop: '16px', marginBottom: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
+                    {t.hallDetail?.notCharged}
+                  </p>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
