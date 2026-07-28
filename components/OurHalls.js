@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { Users, Maximize, ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
 import { useApp } from '@/context/AppContext';
+import { formatHallTitle, formatHallCapacity, formatHallPrice } from '@/lib/data';
 
 export default function OurHalls() {
-  const { t, hallsList: halls, loading } = useApp();
+  const { t, lang, hallsList: halls, loading } = useApp();
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -141,12 +142,12 @@ export default function OurHalls() {
             {/* Content */}
             <div style={{ padding: '24px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
               <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                {hall.title}
+                {formatHallTitle(hall, lang)}
               </h3>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
-                  <Users size={14} /> {hall.capacity}
+                  <Users size={14} /> {formatHallCapacity(hall.capacity, lang)}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
                   <Maximize size={14} /> {hall.area}
@@ -154,7 +155,7 @@ export default function OurHalls() {
               </div>
 
               <div style={{ fontSize: '16px', fontWeight: 800, color: '#FFDD00', marginBottom: '24px' }}>
-                {hall.price}
+                {formatHallPrice(hall.price, lang)}
               </div>
 
               <div style={{ marginTop: 'auto' }}>

@@ -6,10 +6,11 @@ import YellowShapeBanner from '@/components/YellowShapeBanner';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
+import { formatHallTitle, formatHallDesc, formatHallCapacity, formatHallPrice } from '@/lib/data';
 import { Users, Maximize, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function HallsPage() {
-  const { t, hallsList, loading } = useApp();
+  const { t, lang, hallsList, loading } = useApp();
   
   return (
     <div className="page-wrapper">
@@ -63,15 +64,15 @@ export default function HallsPage() {
 
                   <div style={{ padding: '28px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>
-                      {hall.title}
+                      {formatHallTitle(hall, lang)}
                     </h3>
                     <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px', flexGrow: 1 }}>
-                      {hall.description}
+                      {formatHallDesc(hall, lang)}
                     </p>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', padding: '12px 16px', background: 'var(--bg-secondary)', borderRadius: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600 }}>
-                        <Users size={16} style={{ color: 'var(--text-accent)' }} /> {hall.capacity}
+                        <Users size={16} style={{ color: 'var(--text-accent)' }} /> {formatHallCapacity(hall.capacity, lang)}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600 }}>
                         <Maximize size={16} style={{ color: 'var(--text-accent)' }} /> {hall.area}
@@ -81,7 +82,7 @@ export default function HallsPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
                       <div>
                         <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t.halls?.startingFrom || 'BOSHLANISH NARXI'}</div>
-                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFDD00' }}>{hall.price}</div>
+                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFDD00' }}>{formatHallPrice(hall.price, lang)}</div>
                       </div>
                       <Link 
                         href={`/halls/${hall.id}`} 

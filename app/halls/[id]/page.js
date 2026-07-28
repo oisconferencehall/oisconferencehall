@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Users, Maximize, ArrowRight, CheckCircle, Wifi, Monitor, Volume2, Thermometer, Car, UtensilsCrossed, ChevronLeft, ChevronRight, MapPin, Clock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { formatPrice } from '@/lib/data';
+import { formatPrice, formatHallPrice } from '@/lib/data';
 import { useApp } from '@/context/AppContext';
 
 const AMENITY_ICONS = {
@@ -311,7 +311,7 @@ export default function HallDetailsPage(props) {
                 {/* Price */}
                 <div style={{ position: 'relative', zIndex: 1 }}>
                   <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '6px', lineHeight: 1.2 }}>
-                    {hall.price}
+                    {formatHallPrice(hall.price, lang)}
                   </div>
                   <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '32px' }}>
                     {t.hallDetail?.fullyEquipped}
