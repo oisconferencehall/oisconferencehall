@@ -1,6 +1,6 @@
 'use client';
 import { use, useEffect, useRef } from 'react';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Users, Maximize, ArrowRight, CheckCircle, Clock, CalendarDays, Calendar } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function HallDetailsPage(props) {
   }, []);
 
   if (!hall) {
-    notFound();
+    redirect('/');
   }
 
   // Common amenities to list (mock data for the visual)
