@@ -126,8 +126,8 @@ export default function HallDetailsPage(props) {
             ))}
           </div>
 
-          {/* Dark gradient overlay */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 40%, transparent 70%)', pointerEvents: 'none' }} />
+          {/* Gradient overlay (darker at top for navbar contrast, subtle at bottom for title) */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 35%, rgba(0,0,0,0.5) 100%)', pointerEvents: 'none' }} />
 
           {/* Navigation arrows */}
           {images.length > 1 && (
