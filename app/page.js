@@ -576,7 +576,7 @@ export default function Home() {
         <FloatingParticles />
 
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px' }}>
-          <h1 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 900, color: '#fff', marginBottom: '20px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+          <h1 style={{ fontFamily: '"Montserrat", sans-serif', fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 900, color: '#fff', marginBottom: '20px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             <Typewriter key={t.landingHero?.title} title={t.landingHero?.title} titleHighlight={t.landingHero?.titleHighlight} />
           </h1>
           <p style={{ fontSize: 'clamp(16px, 1.5vw, 20px)', color: 'rgba(255,255,255,0.8)', maxWidth: '700px', margin: '0 auto 32px' }}>
