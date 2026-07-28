@@ -71,7 +71,7 @@ export function AppProvider({ children }) {
     { id: 3, question: "Is there parking available for guests?", answer: "Absolutely. We have a secure, underground parking facility that can accommodate up to 300 vehicles." }
   ]);
 
-  const [hallsList, setHallsListState] = useState(HALLS_LIST);
+  const [hallsList, setHallsListState] = useState([]);
 
   const [cmsAdvantages, setCmsAdvantagesState] = useState([
     { id: 1, image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80', label: 'Convenient location for everyone' },

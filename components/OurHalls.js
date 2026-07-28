@@ -2,13 +2,12 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Maximize, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Maximize, ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { HALLS_LIST } from '@/lib/data';
 import { useApp } from '@/context/AppContext';
 
 export default function OurHalls() {
-  const { t, hallsList: appHalls } = useApp();
-  const halls = appHalls && appHalls.length > 0 ? appHalls : HALLS_LIST;
+  const { t, hallsList: halls, loading } = useApp();
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -115,7 +114,11 @@ export default function OurHalls() {
         }}
         className="hide-scrollbar hall-slider-container"
       >
-        {halls.map((hall) => (
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '60px 0', color: 'var(--text-secondary)' }}>
+            <Loader2 className="animate-spin" size={40} />
+          </div>
+        ) : halls.map((hall) => (
           <Link href={`/halls/${hall.id}`} key={hall.id} className="hall-card" style={{
             background: 'var(--bg-card)',
             borderRadius: '24px',

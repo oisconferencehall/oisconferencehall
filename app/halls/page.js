@@ -6,13 +6,11 @@ import YellowShapeBanner from '@/components/YellowShapeBanner';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
-import { Users, Maximize, ArrowRight, CheckCircle } from 'lucide-react';
-import { HALLS_LIST } from '@/lib/data';
+import { Users, Maximize, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function HallsPage() {
-  const { t, hallsList } = useApp();
-  const halls = hallsList && hallsList.length > 0 ? hallsList : HALLS_LIST;
-
+  const { t, hallsList, loading } = useApp();
+  
   return (
     <div className="page-wrapper">
       <Navbar />
@@ -20,8 +18,17 @@ export default function HallsPage() {
         {/* Halls Grid Section */}
         <section style={{ padding: '130px 0 80px', background: 'var(--bg-primary)' }}>
           <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-              {halls.map((hall) => (
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '100px 0', color: 'var(--text-secondary)' }}>
+                <Loader2 className="animate-spin" size={48} />
+              </div>
+            ) : hallsList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '100px 0', color: 'var(--text-secondary)' }}>
+                No halls available.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+                {hallsList.map((hall) => (
                 <div 
                   key={hall.id}
                   style={{
@@ -87,7 +94,8 @@ export default function HallsPage() {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </div>
         </section>
 
