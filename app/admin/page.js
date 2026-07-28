@@ -579,8 +579,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', background:'var(--bg-primary)' }}>
-      <Navbar />
-      <div style={{ display:'flex', flex:1, paddingTop:'72px' }}>
+      <div style={{ display:'flex', flex:1, paddingTop:'0px' }}>
 
         {/* Sidebar */}
         <aside style={{
@@ -589,7 +588,7 @@ export default function AdminPage() {
           borderRight:'1px solid var(--border)',
           padding:'24px 12px',
           display:'flex', flexDirection:'column', gap:'4px',
-          position:'sticky', top:'72px', height:'calc(100vh - 72px)', overflowY:'auto',
+          position:'sticky', top:'0px', height:'100vh', overflowY:'auto',
         }}>
           <div style={{ padding:'8px 12px', marginBottom:'8px' }}>
             <div style={{ fontSize:'11px', fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.12em' }}>Admin Panel</div>
