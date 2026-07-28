@@ -34,7 +34,7 @@ export const DEFAULT_BLOCKS = [
 ];
 
 export function AppProvider({ children }) {
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState('uz');
   const [tickets, setTickets] = useState([]);
   const [events, setEvents] = useState([]);
   const [rentRequests, setRentRequests] = useState([]);
