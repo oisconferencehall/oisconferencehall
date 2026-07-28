@@ -83,8 +83,8 @@ export default function HallDetailsPage(props) {
             boxShadow: '0 10px 40px rgba(0,0,0,0.06)'
           }}>
             {(hall.images && hall.images.length > 0 ? hall.images : [hall.image || "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80"]).map((img, idx) => (
-              <div key={idx} style={{ position: 'relative', width: '100%', height: 'clamp(260px, 45vh, 500px)', flexShrink: 0, scrollSnapAlign: 'start' }}>
-                <Image src={img} alt={`${hall.title} - ${idx + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
+              <div key={idx} style={{ width: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}>
+                <img src={img} alt={`${hall.title} - ${idx + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
               </div>
             ))}
           </div>
