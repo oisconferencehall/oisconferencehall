@@ -61,8 +61,8 @@ export default function Navbar() {
           : (theme === 'dark' ? 'rgba(12, 12, 12, 0.92)' : 'rgba(255, 255, 255, 0.92)'),
         backdropFilter: isTransparent ? 'none' : 'blur(20px)',
         WebkitBackdropFilter: isTransparent ? 'none' : 'blur(20px)',
-        borderBottom: isTransparent ? 'none' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)'),
-        boxShadow: isTransparent ? 'none' : (theme === 'dark' ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.03)'),
+        borderBottom: isTransparent ? '1px solid transparent' : (theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)'),
+        boxShadow: isTransparent ? '0 4px 20px rgba(0,0,0,0)' : (theme === 'dark' ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.03)'),
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div className="nav-container" style={{
