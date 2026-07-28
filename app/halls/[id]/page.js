@@ -96,7 +96,10 @@ export default function HallDetailsPage(props) {
 
             {/* Right Column: Informations & Booking Card */}
             <div style={{ position: 'sticky', top: '100px', minWidth: 0, width: '100%' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px' }}>
+              <h1 style={{ fontSize: 'clamp(32px, 3.5vw, 48px)', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+                {hall.title}
+              </h1>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 {t.hallDetail?.aboutHall}
               </h2>
               <p style={{ fontSize: '16px', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '32px' }}>
