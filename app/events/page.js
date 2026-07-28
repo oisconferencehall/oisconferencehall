@@ -58,8 +58,8 @@ export default function EventsPage() {
       <main className="main-content">
         {/* Header */}
         <div style={{
-          background: 'linear-gradient(180deg, rgba(255, 221, 0, 0.08) 0%, transparent 100%)',
           padding: '120px 0 20px',
+          background: 'var(--bg-primary)'
         }}>
           <div className="container">
             <h1 className="section-title" style={{ marginBottom: '8px' }}>
@@ -69,7 +69,7 @@ export default function EventsPage() {
           </div>
         </div>
 
-        <div style={{ padding: '20px 0 80px' }}>
+        <div style={{ padding: '20px 0 80px', background: 'var(--bg-primary)' }}>
           <div className="container">
             {/* Filters */}
             <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap', alignItems: 'center' }}>
