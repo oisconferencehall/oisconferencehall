@@ -155,7 +155,7 @@ export default function AdvantagesSection({ t, cmsData, totalSeats }) {
   };
 
   return (
-    <section style={{ padding: '80px 0 60px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden', maxWidth: '100vw', width: '100%' }}>
+    <section style={{ padding: '20px 0 60px', background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden', maxWidth: '100vw', width: '100%' }}>
 
       <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', overflow: 'hidden' }}>
 
