@@ -12,7 +12,7 @@ const LANGS = [
 ];
 
 export default function Navbar() {
-  const { t, lang, changeLang, tickets, user, theme, toggleTheme } = useApp();
+  const { t, lang, changeLang, tickets, user, theme, toggleTheme, errorMsg } = useApp();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
@@ -53,6 +53,11 @@ export default function Navbar() {
 
   return (
     <>
+      {errorMsg && (
+        <div style={{ background: '#ff4444', color: 'white', padding: '10px', textAlign: 'center', zIndex: 9999, position: 'relative' }}>
+          <strong>Error Fetching Data:</strong> {errorMsg}
+        </div>
+      )}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',

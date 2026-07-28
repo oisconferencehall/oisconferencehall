@@ -42,6 +42,7 @@ export function AppProvider({ children }) {
   const [cart, setCart] = useState({ eventId: null, seats: [], payerInfo: null });
   const [hallBlocks, setHallBlocksState] = useState(DEFAULT_BLOCKS);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState('light');
   const [partners, setPartnersState] = useState([
@@ -133,69 +134,78 @@ export function AppProvider({ children }) {
     });
 
     const fetchData = async () => {
-      const [eventsRes, bookedSeatsRes, rentRes, hallRes, featuresRes, cmsRes] = await Promise.all([
-        supabase.from('events').select('*').order('created_at', { ascending: true }),
-        supabase.from('booked_seats').select('*'),
-        supabase.from('rent_requests').select('*').order('created_at', { ascending: false }),
-        supabase.from('hall_blocks').select('*'),
-        fetch('/api/features').then(res => res.json()).catch(() => []),
-        supabase.from('page_sections').select('*')
-      ]);
+      try {
+        const [eventsRes, bookedSeatsRes, rentRes, hallRes, featuresRes, cmsRes] = await Promise.all([
+          supabase.from('events').select('*').order('created_at', { ascending: true }),
+          supabase.from('booked_seats').select('*'),
+          supabase.from('rent_requests').select('*').order('created_at', { ascending: false }),
+          supabase.from('hall_blocks').select('*'),
+          fetch('/api/features').then(res => res.json()).catch(() => []),
+          supabase.from('page_sections').select('*')
+        ]);
 
-      if (cmsRes && cmsRes.data) {
-        cmsRes.data.forEach(sec => {
-          if (sec.type === 'partners' && sec.data?.partners) setPartnersState(sec.data.partners);
-          if (sec.type === 'cases_videos' && sec.data?.videos) setCmsVideosState(sec.data.videos);
-          if (sec.type === 'contacts' && sec.data) setCmsContactsState(sec.data);
-          if (sec.type === 'faq' && sec.data?.faq) setCmsFaqState(sec.data.faq);
-          if (sec.type === 'halls' && sec.data?.halls) setHallsListState(sec.data.halls);
-          if (sec.type === 'advantages' && sec.data?.advantages) setCmsAdvantagesState(sec.data.advantages);
-          if (sec.type === 'announcement' && sec.data) setCmsAnnouncementState({ ...DEFAULT_ANNOUNCEMENT, ...sec.data });
-        });
-      }
+        if (cmsRes && cmsRes.data) {
+          cmsRes.data.forEach(sec => {
+            if (sec.type === 'partners' && sec.data?.partners) setPartnersState(sec.data.partners);
+            if (sec.type === 'cases_videos' && sec.data?.videos) setCmsVideosState(sec.data.videos);
+            if (sec.type === 'contacts' && sec.data) setCmsContactsState(sec.data);
+            if (sec.type === 'faq' && sec.data?.faq) setCmsFaqState(sec.data.faq);
+            if (sec.type === 'halls' && sec.data?.halls) setHallsListState(sec.data.halls);
+            if (sec.type === 'advantages' && sec.data?.advantages) setCmsAdvantagesState(sec.data.advantages);
+            if (sec.type === 'announcement' && sec.data) setCmsAnnouncementState({ ...DEFAULT_ANNOUNCEMENT, ...sec.data });
+          });
+        }
+        if (cmsRes && cmsRes.error) {
+          throw new Error('cmsRes error: ' + JSON.stringify(cmsRes.error));
+        }
 
-      setFeatures(featuresRes || []);
+        setFeatures(featuresRes || []);
 
-      if (eventsRes.data) {
-        const formattedEvents = eventsRes.data.map(e => ({
-          id: e.id,
-          title: e.title, titleRu: e.title_ru, titleUz: e.title_uz,
-          description: e.description, descriptionRu: e.description_ru, descriptionUz: e.description_uz,
-          date: e.date, time: e.time, endTime: e.end_time,
-          category: e.category, image: e.image, bgImage: e.bg_image,
-          price: e.price, organizer: e.organizer, featured: e.featured,
-          bookedSeats: bookedSeatsRes.data ? bookedSeatsRes.data.filter(s => s.event_id === e.id).map(s => s.seat_id) : []
-        }));
-        setEvents(formattedEvents);
-      }
+        if (eventsRes.data) {
+          const formattedEvents = eventsRes.data.map(e => ({
+            id: e.id,
+            title: e.title, titleRu: e.title_ru, titleUz: e.title_uz,
+            description: e.description, descriptionRu: e.description_ru, descriptionUz: e.description_uz,
+            date: e.date, time: e.time, endTime: e.end_time,
+            category: e.category, image: e.image, bgImage: e.bg_image,
+            price: e.price, organizer: e.organizer, featured: e.featured,
+            bookedSeats: bookedSeatsRes.data ? bookedSeatsRes.data.filter(s => s.event_id === e.id).map(s => s.seat_id) : []
+          }));
+          setEvents(formattedEvents);
+        }
 
-      if (rentRes.data) {
-         setRentRequests(rentRes.data.map(r => ({
+        if (rentRes.data) {
+          const formattedRequests = rentRes.data.map(r => ({
             id: r.id, name: r.name, phone: r.phone, email: r.email,
             eventType: r.event_type, date: r.date, guests: r.guests,
             status: r.status, createdAt: r.created_at
-         })));
-      }
-      
-      if (hallRes.data && hallRes.data.length > 0) {
-        if (hallRes.data.length !== DEFAULT_BLOCKS.length) {
-          // Force reset to new layout
-          setHallBlocksState(DEFAULT_BLOCKS);
-          const supabaseBlocks = DEFAULT_BLOCKS.map(b => ({
-            id: b.id, label: b.label, rows: b.rows, cols: b.cols,
-            is_vip: b.isVip, grid_row: b.gridRow, grid_col: b.gridCol
           }));
-          await supabase.from('hall_blocks').delete().neq('id', '0'); 
-          await supabase.from('hall_blocks').insert(supabaseBlocks);
-        } else {
-          const blocks = hallRes.data.map(b => ({
-            id: b.id, label: b.label, rows: b.rows, cols: b.cols,
-            isVip: b.is_vip, gridRow: b.grid_row, gridCol: b.grid_col
-          }));
-          setHallBlocksState(blocks);
+          setRentRequests(formattedRequests);
         }
+
+        if (hallRes.data && hallRes.data.length > 0) {
+          if (hallRes.data.length !== DEFAULT_BLOCKS.length) {
+            setHallBlocksState(DEFAULT_BLOCKS);
+            const supabaseBlocks = DEFAULT_BLOCKS.map(b => ({
+              id: b.id, label: b.label, rows: b.rows, cols: b.cols,
+              is_vip: b.isVip, grid_row: b.gridRow, grid_col: b.gridCol
+            }));
+            await supabase.from('hall_blocks').delete().neq('id', '0'); 
+            await supabase.from('hall_blocks').insert(supabaseBlocks);
+          } else {
+            const blocks = hallRes.data.map(b => ({
+              id: b.id, label: b.label, rows: b.rows, cols: b.cols,
+              isVip: b.is_vip, gridRow: b.grid_row, gridCol: b.grid_col
+            }));
+            setHallBlocksState(blocks);
+          }
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('FetchData Error:', err);
+        setErrorMsg(err.message || String(err));
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchData();
@@ -520,7 +530,7 @@ export function AppProvider({ children }) {
       hallsList, saveHallsList,
       cmsAdvantages, saveCmsAdvantages,
       cmsAnnouncement, saveCmsAnnouncement,
-      loading
+      loading, errorMsg
     }}>
       {children}
     </AppContext.Provider>
