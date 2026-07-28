@@ -84,7 +84,7 @@ export default function Navbar() {
               <div style={{ fontWeight: 800, fontSize: '15px', color: isTransparent ? '#ffffff' : 'var(--text-primary)', letterSpacing: '-0.02em', transition: 'color 0.3s ease' }}>
                 {t.navbar?.brandName}
               </div>
-              <div style={{ fontSize: '10px', color: isTransparent ? '#FFDD00' : (theme === 'dark' ? '#FFDD00' : '#d97706'), fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', transition: 'color 0.3s ease' }}>
+              <div style={{ fontSize: '10px', color: isTransparent ? '#FFDD00' : (theme === 'dark' ? '#FFDD00' : '#eab308'), fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', transition: 'color 0.3s ease' }}>
                 {t.navbar?.brandSub}
               </div>
             </div>
