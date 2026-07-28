@@ -57,6 +57,13 @@ export default function OurHalls() {
       }} />
       
       <style dangerouslySetInnerHTML={{__html: `
+        @media (min-width: 1200px) {
+          .hall-slider-container {
+            justify-content: center;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+        }
         .hall-card {
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
           cursor: pointer;
@@ -101,13 +108,12 @@ export default function OurHalls() {
           msOverflowStyle: 'none',  // IE/Edge
           paddingTop: '24px', // Top padding so hover transform doesn't get clipped by overflowX
           paddingBottom: '48px', // Extra space for shadow and transform
-          // This aligns the first card with the 1200px container while allowing the slider to bleed to the screen edges
           paddingLeft: 'clamp(16px, 5vw, 48px)',
           paddingRight: 'clamp(16px, 5vw, 48px)',
           maxWidth: '100vw',
           width: '100%',
         }}
-        className="hide-scrollbar"
+        className="hide-scrollbar hall-slider-container"
       >
         {halls.map((hall) => (
           <Link href={`/halls/${hall.id}`} key={hall.id} className="hall-card" style={{
