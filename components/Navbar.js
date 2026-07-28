@@ -146,7 +146,7 @@ export default function Navbar() {
           </div>
 
           {/* Right: theme toggle + lang + tickets + admin */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="right-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             
             {/* Theme toggle */}
             <button
@@ -340,6 +340,12 @@ export default function Navbar() {
       <style>{`
         .nav-container {
           padding: ${scrolled ? '12px 24px' : '16px 24px'};
+        }
+        @media (min-width: 1024px) {
+          .right-nav-actions {
+            width: 350px;
+            justify-content: flex-start;
+          }
         }
         @media (max-width: 768px) {
           .nav-container {
