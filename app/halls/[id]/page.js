@@ -21,11 +21,35 @@ const AMENITY_ICONS = {
 export default function HallDetailsPage(props) {
   const router = useRouter();
   const params = use(props.params);
-  const { t, hallsList: appHalls, loading } = useApp();
+  const { t, lang, hallsList: appHalls, loading } = useApp();
   const halls = appHalls || [];
   const hall = halls.find(h => String(h.id) === String(params.id));
   const scrollRef = useRef(null);
   const [activeImg, setActiveImg] = useState(0);
+
+  const getHallTitle = (h) => {
+    if (!h) return '';
+    if (lang === 'ru' && (h.titleRu || h.title_ru)) return h.titleRu || h.title_ru;
+    if (lang === 'uz' && (h.titleUz || h.title_uz)) return h.titleUz || h.title_uz;
+    return h.title;
+  };
+
+  const getHallDesc = (h) => {
+    if (!h) return '';
+    if (lang === 'ru' && (h.descriptionRu || h.description_ru)) return h.descriptionRu || h.description_ru;
+    if (lang === 'uz' && (h.descriptionUz || h.description_uz)) return h.descriptionUz || h.description_uz;
+    return h.description;
+  };
+
+  const getHallCapacity = (h) => {
+    if (!h || !h.capacity) return '';
+    if (lang === 'ru' && (h.capacityRu || h.capacity_ru)) return h.capacityRu || h.capacity_ru;
+    if (lang === 'uz' && (h.capacityUz || h.capacity_uz)) return h.capacityUz || h.capacity_uz;
+    const str = String(h.capacity);
+    if (lang === 'ru') return str.replace(/\bseats\b|\bpeople\b/gi, 'человек').replace(/kishi|o'rindiq/gi, 'человек');
+    if (lang === 'uz') return str.replace(/\bseats\b|\bpeople\b/gi, 'kishi').replace(/человек|мест/gi, 'kishi');
+    return str;
+  };
 
   const images = hall ? (hall.images && hall.images.length > 0 ? hall.images : [hall.image].filter(Boolean)) : [];
 
@@ -150,10 +174,10 @@ export default function HallDetailsPage(props) {
                   {t.halls?.ourHalls || t.navbar?.ourHalls}
                 </Link>
                 <span style={{ margin: '0 8px' }}>/</span>
-                <span style={{ color: '#fff' }}>{hall.title}</span>
+                <span style={{ color: '#fff' }}>{getHallTitle(hall)}</span>
               </div>
               <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 800, color: '#fff', lineHeight: 1.1, letterSpacing: '-0.03em', margin: 0, textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
-                {hall.title}
+                {getHallTitle(hall)}
               </h1>
 
               {/* Image dots */}
@@ -188,7 +212,7 @@ export default function HallDetailsPage(props) {
                     transition: 'all 0.2s'
                   }} onMouseEnter={e => { if(String(h.id) !== String(hall.id)) { e.currentTarget.style.borderColor = 'var(--text-primary)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
                      onMouseLeave={e => { if(String(h.id) !== String(hall.id)) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}>
-                    {h.title}
+                    {getHallTitle(h)}
                   </Link>
                 ))}
               </div>
@@ -209,7 +233,7 @@ export default function HallDetailsPage(props) {
                   {t.hallDetail?.aboutHall}
                 </h2>
                 <p style={{ fontSize: '18px', lineHeight: 1.8, color: 'var(--text-secondary)', margin: 0 }}>
-                  {hall.description}
+                  {getHallDesc(hall)}
                 </p>
               </div>
 
@@ -226,7 +250,7 @@ export default function HallDetailsPage(props) {
                     <Users size={22} style={{ color: '#FFDD00' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.2 }}>{hall.capacity}</div>
+                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.2 }}>{getHallCapacity(hall)}</div>
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>{t.hallDetail?.capacity}</div>
                   </div>
                 </div>
@@ -303,7 +327,7 @@ export default function HallDetailsPage(props) {
                         <Users size={18} />
                         <span style={{ fontSize: '15px' }}>{t.hallDetail?.capacity}</span>
                       </div>
-                      <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '15px' }}>{hall.capacity}</span>
+                      <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '15px' }}>{getHallCapacity(hall)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)' }}>
