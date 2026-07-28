@@ -2,7 +2,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from '@/lib/translations';
 import { supabase } from '@/lib/supabase';
-import { HALLS_LIST } from '@/lib/data';
 
 const AppContext = createContext();
 
@@ -45,18 +44,8 @@ export function AppProvider({ children }) {
   const [errorMsg, setErrorMsg] = useState(null);
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState('light');
-  const [partners, setPartnersState] = useState([
-    { id: 1, name: 'Microsoft', logo: '' }, { id: 2, name: 'Google', logo: '' }, { id: 3, name: 'Amazon', logo: '' },
-    { id: 4, name: 'Tesla', logo: '' }, { id: 5, name: 'Apple', logo: '' }, { id: 6, name: 'Netflix', logo: '' },
-    { id: 7, name: 'Meta', logo: '' }, { id: 8, name: 'IBM', logo: '' }
-  ]);
-
-  const [cmsVideos, setCmsVideosState] = useState([
-    { id: 1, title: "Global Tech Summit Highlights", category: "Conference", platform: "youtube", image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80", embedUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1", videoUrl: "https://www.youtube.com/watch?v=5qap5aO4i9A" },
-    { id: 2, title: "Annual Award Gala Night", category: "Ceremony", platform: "youtube", image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80", embedUrl: "https://www.youtube.com/embed/L_LUpnjgPso?autoplay=1", videoUrl: "https://www.youtube.com/watch?v=L_LUpnjgPso" },
-    { id: 3, title: "Grand Hall Interior & Setup", category: "Instagram Reel", platform: "instagram", image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80", embedUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1", videoUrl: "https://www.instagram.com/" },
-    { id: 4, title: "Corporate Strategy Offsite", category: "Corporate", platform: "youtube", image: "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80", embedUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1", videoUrl: "https://www.youtube.com/watch?v=5qap5aO4i9A" }
-  ]);
+  const [partners, setPartnersState] = useState([]);
+  const [cmsVideos, setCmsVideosState] = useState([]);
 
   const [cmsContacts, setCmsContactsState] = useState({
     address: '123 Main Street, Suite 400 Samarkand, 140100, Uzbekistan',
@@ -65,36 +54,24 @@ export function AppProvider({ children }) {
     hoursWeek: 'Mon - Sat: 9:00 AM - 6:00 PM', hoursSun: 'Sun: Closed (Except for Events)'
   });
 
-  const [cmsFaq, setCmsFaqState] = useState([
-    { id: 1, question: "What is included in the hall rental?", answer: "Our standard rental includes access to the main hall, basic AV equipment (projector and sound system), high-speed Wi-Fi, and standard seating arrangements." },
-    { id: 2, question: "Can I bring my own catering service?", answer: "Yes, we allow external catering services, though we also offer premium in-house catering options." },
-    { id: 3, question: "Is there parking available for guests?", answer: "Absolutely. We have a secure, underground parking facility that can accommodate up to 300 vehicles." }
-  ]);
-
+  const [cmsFaq, setCmsFaqState] = useState([]);
   const [hallsList, setHallsListState] = useState([]);
-
-  const [cmsAdvantages, setCmsAdvantagesState] = useState([
-    { id: 1, image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=800&q=80', label: 'Convenient location for everyone' },
-    { id: 2, image: 'https://images.unsplash.com/photo-1572025442646-866d16c84a54?w=800&q=80', label: 'State-of-the-art technologies' },
-    { id: 3, image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80', label: 'Premium event spaces' },
-    { id: 4, image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80', label: 'High-level service' },
-    { id: 5, image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80', label: 'Spacious and bright halls' },
-  ]);
+  const [cmsAdvantages, setCmsAdvantagesState] = useState([]);
 
   const DEFAULT_ANNOUNCEMENT = {
-    enabled: true,
-    badge: "Grand Hall Premier Venue",
-    title: "KEYINGI TADBIRINGIZ UCHUN ZAL VA CHIPTALARNI TOPING",
-    desc: "Grand Conference Hall platformasi orqali zallarni 24/7 online bron qilish, film va tadbirlarga chiptalarni bir necha sekundda xarid qiling.",
-    btnPrimaryText: "Zalni bron qilish",
-    btnPrimaryLink: "/rent",
-    btnSecondaryText: "Barcha tadbirlar",
-    btnSecondaryLink: "/events",
-    cardTitle: "Main Auditorium & Cinema",
-    cardSubtitle: "98 Executive Seats • Cinema 4K • Acoustic Isolation",
-    cardPrice: "300,000 UZS / hr",
-    cardImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
-    tickerText: "Hozir yuklab oling ★ ONLINE BRON ★ OXFORD HALL ★ CHIPTA XARID QILISH ★ "
+    enabled: false,
+    badge: "",
+    title: "",
+    desc: "",
+    btnPrimaryText: "",
+    btnPrimaryLink: "",
+    btnSecondaryText: "",
+    btnSecondaryLink: "",
+    cardTitle: "",
+    cardSubtitle: "",
+    cardPrice: "",
+    cardImage: "",
+    tickerText: ""
   };
 
   const [cmsAnnouncement, setCmsAnnouncementState] = useState(DEFAULT_ANNOUNCEMENT);

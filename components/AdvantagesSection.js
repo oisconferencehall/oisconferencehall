@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import { HALLS_LIST } from '@/lib/data';
+
 import { useApp } from '@/context/AppContext';
 
 const CAROUSEL_ITEMS = [
