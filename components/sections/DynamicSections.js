@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function AuroraHero({ data }) {
   return (
@@ -87,13 +88,13 @@ export function BentoAdvantages({ data }) {
         </div>
 
         <div className="bento-grid">
-          <div className="bento-col-8" style={{
+          <div className="bento-col-4" style={{
             background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px',
             overflow: 'hidden', position: 'relative', minHeight: '400px', transition: 'transform 0.3s ease'
           }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-            <img src={data.bgImage1 || "https://images.unsplash.com/photo-1517502884422-41ea60d5b436?w=1200&q=80"} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
+            <Image src={data.bgImage2 || "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=600&q=80"} alt="" fill style={{ objectFit: 'cover', opacity: 0.6 }} />
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px', background: 'linear-gradient(to top, rgba(3,7,18,0.9), transparent)' }}>
-              <h3 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '8px' }}>{data.adv1}</h3>
+              <h3 style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', marginBottom: '8px' }}>{data.adv2}</h3>
             </div>
           </div>
 
@@ -130,7 +131,7 @@ export function BentoAdvantages({ data }) {
             background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px',
             overflow: 'hidden', position: 'relative'
           }}>
-            <img src={data.bgImage2 || "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=600&q=80"} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
+            <Image src={data.bgImage2 || "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=600&q=80"} alt="" fill style={{ objectFit: 'cover', opacity: 0.6 }} />
             <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20, padding: '20px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', borderRadius: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>{data.adv4}</h3>
             </div>

@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
@@ -174,11 +175,14 @@ export default function AppPromoBanner() {
             </div>
 
             {/* Hall Photo */}
-            <img
-              src={cardImage}
-              alt="Grand Conference Hall Showcase"
-              style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block' }}
-            />
+            <div style={{ position: 'relative', width: '100%', height: '240px' }}>
+              <Image
+                src={cardImage}
+                alt="Grand Conference Hall Showcase"
+                fill
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
 
             {/* Bottom Card Info */}
             <div style={{ padding: '22px', background: '#ffffff', color: '#000000' }}>

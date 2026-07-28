@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRef } from 'react';
 import { useApp } from '@/context/AppContext';
 import { Calendar, Clock, Users, ArrowRight, Star } from 'lucide-react';
@@ -80,10 +81,11 @@ export default function EventCard({ event }) {
     >
       {/* Image */}
       <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
-        <img
-          src={event.image}
+        <Image
+          src={event.image || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=75&auto=format'}
           alt={title}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+          fill
+          style={{ objectFit: 'cover', transition: 'transform 0.5s ease' }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         />

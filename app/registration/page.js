@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import { SEAT_NUMBERS, TOTAL_SEATS, normalizeSeatId, formatSeatDisplay, buildTakenSeatsSet } from '@/lib/seatUtils';
 
 // ─── Translations ──────────────────────────────────────────────
@@ -655,7 +657,7 @@ function RegistrationPageContent() {
       <div className="reg-body">
         {/* Background */}
         <div className="reg-bg">
-          <img src={event?.bgImage || event?.bg_image || event?.image || '/reg-bg.png'} alt="" />
+          <Image src={event?.bgImage || event?.bg_image || event?.image || '/reg-bg.png'} alt="Background" fill style={{ objectFit: 'cover', opacity: 0.8 }} priority />
           <div className="reg-bg-overlay" />
         </div>
 
