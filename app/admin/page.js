@@ -692,7 +692,7 @@ export default function AdminPage() {
                   >
                     <img src={ev.image} alt={ev.title} style={{ width:'52px', height:'52px', borderRadius:'10px', objectFit:'cover', flexShrink:0 }} />
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontWeight:800, marginBottom:'2px', fontSize:'15px', color:'#ffffff' }}>{ev.title}</div>
+                      <div style={{ fontWeight:800, marginBottom:'2px', fontSize:'15px', color:'var(--text-primary)' }}>{ev.title}</div>
                       <div style={{ fontSize:'12px', color:'var(--text-muted)' }}>{ev.date} · {ev.organizer}</div>
                     </div>
                     <div style={{ fontSize:'13px', fontWeight:800, color:'#FFDD00' }}>{formatPrice(ev.price)} UZS</div>
