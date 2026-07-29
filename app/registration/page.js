@@ -433,30 +433,32 @@ function RegistrationPageContent() {
   };
 
   const DEFAULT_TICKET_PRESET = {
-    title: 'Movie Day 2026',
+    title: 'Movie Day 2026 Card Pass',
     bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
-    width: 800, height: 280, flipX: false, flipY: false,
+    width: 480, height: 680, flipX: false, flipY: false,
     elements: [
-      { id: 'el-bg-rect', type: 'rect', x: 10, y: 10, width: 780, height: 260, bgColor: 'rgba(15, 12, 10, 0.88)', borderColor: 'rgba(234, 88, 12, 0.4)', borderWidth: 2, borderRadius: 16, opacity: 100 },
-      { id: 'el-hdr-bar', type: 'rect', x: 10, y: 10, width: 780, height: 56, bgColor: 'rgba(234, 88, 12, 0.2)', borderColor: 'rgba(234, 88, 12, 0.3)', borderWidth: 1, borderRadius: 16, opacity: 100 },
-      { id: 'el-title', type: 'text', text: 'MOVIE DAY 2026', x: 30, y: 20, fontSize: 22, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-subtitle', type: 'text', text: 'OFFICIAL VIP ENTRY PASS', x: 30, y: 46, fontSize: 10, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
-      { id: 'el-name-lbl', type: 'text', text: 'PASS HOLDER', x: 30, y: 78, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-name-val', type: 'text', text: '{first_name} {last_name}', x: 30, y: 92, fontSize: 19, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-phone-lbl', type: 'text', text: 'PHONE', x: 30, y: 126, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-phone-val', type: 'text', text: '+998 {phone}', x: 30, y: 138, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-branch-lbl', type: 'text', text: 'BRANCH', x: 220, y: 126, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-branch-val', type: 'text', text: '{branch}', x: 220, y: 138, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-level-lbl', type: 'text', text: 'ENGLISH LEVEL', x: 420, y: 126, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-level-val', type: 'text', text: '{level}', x: 420, y: 138, fontSize: 13, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
-      { id: 'el-seat-box', type: 'rect', x: 30, y: 174, width: 560, height: 76, bgColor: 'rgba(234, 88, 12, 0.18)', borderColor: '#ea580c', borderWidth: 1, borderRadius: 12, opacity: 100 },
-      { id: 'el-seat-lbl', type: 'text', text: '💺 RESERVED SEAT', x: 48, y: 186, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
-      { id: 'el-seat-val', type: 'text', text: '{seat}', x: 48, y: 206, fontSize: 22, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
-      { id: 'el-stub-line', type: 'rect', x: 615, y: 25, width: 2, height: 230, bgColor: 'rgba(255,255,255,0.15)', borderColor: 'transparent', borderWidth: 0, opacity: 100 },
-      { id: 'el-qr', type: 'qr', x: 645, y: 40, size: 96 },
-      { id: 'el-code-lbl', type: 'text', text: 'TICKET CODE', x: 640, y: 155, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-code-val', type: 'text', text: '{ticket_id}', x: 640, y: 168, fontSize: 11, fontWeight: '900', color: '#FFDD00', fontFamily: 'monospace' },
-      { id: 'el-venue', type: 'text', text: 'Oxford Int. School', x: 640, y: 225, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' }
+      { id: 'el-bg-card', type: 'rect', x: 10, y: 10, width: 460, height: 660, bgColor: 'rgba(15, 12, 10, 0.94)', borderColor: 'rgba(234, 88, 12, 0.5)', borderWidth: 2, borderRadius: 24, opacity: 100 },
+      { id: 'el-hdr-banner', type: 'rect', x: 10, y: 10, width: 460, height: 80, bgColor: 'rgba(234, 88, 12, 0.22)', borderColor: 'rgba(234, 88, 12, 0.35)', borderWidth: 1, borderRadius: 24, opacity: 100 },
+      { id: 'el-title', type: 'text', text: 'MOVIE DAY 2026', x: 30, y: 24, fontSize: 24, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-subtitle', type: 'text', text: 'OFFICIAL VIP ENTRY PASS CARD', x: 30, y: 56, fontSize: 10, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-qr-box', type: 'rect', x: 155, y: 110, width: 170, height: 170, bgColor: '#ffffff', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 0, borderRadius: 20, opacity: 100 },
+      { id: 'el-qr', type: 'qr', x: 165, y: 120, size: 150 },
+      { id: 'el-code-lbl', type: 'text', text: 'TICKET CODE', x: 200, y: 290, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-code-val', type: 'text', text: '{ticket_id}', x: 170, y: 304, fontSize: 12, fontWeight: '900', color: '#FFDD00', fontFamily: 'monospace' },
+      { id: 'el-name-lbl', type: 'text', text: 'PASS HOLDER', x: 30, y: 340, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-name-val', type: 'text', text: '{first_name} {last_name}', x: 30, y: 354, fontSize: 22, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-phone-lbl', type: 'text', text: 'PHONE', x: 30, y: 400, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-phone-val', type: 'text', text: '{phone}', x: 30, y: 414, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-branch-lbl', type: 'text', text: 'BRANCH', x: 240, y: 400, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-branch-val', type: 'text', text: '{branch}', x: 240, y: 414, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-level-lbl', type: 'text', text: 'ENGLISH LEVEL', x: 30, y: 450, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-level-val', type: 'text', text: '{level}', x: 30, y: 464, fontSize: 13, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
+      { id: 'el-venue-lbl', type: 'text', text: 'VENUE', x: 240, y: 450, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-venue-val', type: 'text', text: 'Oxford Int. School', x: 240, y: 464, fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.8)', fontFamily: 'Outfit' },
+      { id: 'el-seat-box', type: 'rect', x: 30, y: 510, width: 420, height: 110, bgColor: 'rgba(234, 88, 12, 0.22)', borderColor: '#ea580c', borderWidth: 2, borderRadius: 16, opacity: 100 },
+      { id: 'el-seat-lbl', type: 'text', text: '💺 RESERVED SEAT', x: 50, y: 528, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-seat-val', type: 'text', text: '{seat}', x: 50, y: 556, fontSize: 24, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
+      { id: 'el-footer-note', type: 'text', text: 'Present this official digital card pass at entry gate', x: 100, y: 642, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' }
     ]
   };
 
@@ -485,8 +487,8 @@ function RegistrationPageContent() {
       console.log('Using fallback preset for ticket generation');
     }
 
-    const width = design.width || 800;
-    const height = design.height || 280;
+    const width = design.width || 480;
+    const height = design.height || 680;
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -511,13 +513,18 @@ function RegistrationPageContent() {
 
         if (el.type === 'text') {
           const rawText = el.text || '';
+          const rawPhone = reg.phone || '';
+          const formattedPhone = rawPhone.startsWith('+998') ? rawPhone : (rawPhone ? `+998 ${rawPhone}` : '');
+          const rawTicketId = reg.ticket_id || '';
+          const formattedTicketId = rawTicketId.includes('::') ? rawTicketId.split('::')[0] : rawTicketId;
+
           const text = rawText
             .replace(/{first_name}/g, reg.first_name || '')
             .replace(/{last_name}/g, reg.last_name || '')
             .replace(/{movie}/g, event?.title || 'Movie Day 2026')
             .replace(/{seat}/g, formatSeat(reg.seat) || '')
-            .replace(/{ticket_id}/g, reg.ticket_id || '')
-            .replace(/{phone}/g, reg.phone || '')
+            .replace(/{ticket_id}/g, formattedTicketId)
+            .replace(/{phone}/g, formattedPhone)
             .replace(/{branch}/g, reg.branch || '')
             .replace(/{level}/g, reg.english_level || '');
 
