@@ -622,17 +622,17 @@ function RegistrationPageContent() {
         .reg-success-ticket { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; font-size: 14px; line-height: 1.8; margin-bottom: 24px; }
 
         /* Lang modal */
-        .reg-lang-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 24px; }
-        .reg-lang-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; padding: 40px 32px; max-width: 400px; width: 100%; text-align: center; }
+        .reg-lang-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .reg-lang-box { background: #121215; border: 1px solid rgba(255,255,255,0.18); border-radius: 28px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; color: #ffffff !important; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
         .reg-lang-icon { font-size: 48px; margin-bottom: 16px; }
-        .reg-lang-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
-        .reg-lang-box p { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 28px; }
-        .reg-lang-options { display: flex; flex-direction: column; gap: 10px; }
-        .reg-lang-option { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s; }
-        .reg-lang-option:hover { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.08); }
-        .reg-lang-code { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; flex-shrink: 0; }
-        .reg-lang-name { font-weight: 700; font-size: 15px; text-align: left; }
-        .reg-lang-native { font-size: 12px; color: rgba(255,255,255,0.4); }
+        .reg-lang-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; color: #ffffff !important; }
+        .reg-lang-box p { color: rgba(255,255,255,0.7) !important; font-size: 14px; margin-bottom: 28px; }
+        .reg-lang-options { display: flex; flex-direction: column; gap: 12px; }
+        .reg-lang-option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); cursor: pointer; transition: all 0.2s; color: #ffffff !important; text-align: left; width: 100%; box-sizing: border-box; }
+        .reg-lang-option:hover { border-color: #FFDD00 !important; background: rgba(255, 221, 0, 0.15) !important; transform: translateY(-2px); }
+        .reg-lang-code { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 221, 0, 0.15); border: 1.5px solid #FFDD00; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; flex-shrink: 0; color: #FFDD00 !important; }
+        .reg-lang-name { font-weight: 800; font-size: 16px; text-align: left; color: #ffffff !important; margin-bottom: 2px; }
+        .reg-lang-native { font-size: 13px; color: rgba(255,255,255,0.75) !important; text-align: left; }
         .reg-lang-switcher { position: fixed; top: 84px; right: 20px; z-index: 99; display: flex; gap: 4px; background: rgba(0,0,0,0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 4px; }
         .reg-lang-btn { padding: 5px 13px; border-radius: 99px; border: none; background: none; color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.18s; font-family: inherit; }
         .reg-lang-btn.active { background: linear-gradient(135deg,#ea580c,#fb923c); color: #fff; }
