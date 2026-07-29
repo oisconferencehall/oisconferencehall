@@ -555,19 +555,35 @@ function RegistrationPageContent() {
       });
     };
 
-    const triggerDownload = () => {
+    const triggerBlobDownload = () => {
       const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
+      const filename = `MovieDay-Ticket-${safeTicketId}.png`;
+
       try {
-        const dataUrl = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = `MovieDay-Ticket-${safeTicketId}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch (err) {
-        console.warn('Canvas tainted by cross-origin bgImage. Redrawing clean gradient ticket...', err);
-        // Clear canvas and render premium dark gradient background
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(blobUrl);
+            }, 2000);
+          } else {
+            const dataUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        }, 'image/png');
+      } catch (e) {
+        console.warn('Canvas export failed, redrawing background:', e);
         ctx.clearRect(0, 0, width, height);
         const grad = ctx.createLinearGradient(0, 0, width, height);
         grad.addColorStop(0, '#1c1917');
@@ -575,53 +591,28 @@ function RegistrationPageContent() {
         grad.addColorStop(1, '#0c0a09');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, width, height);
-
         renderAllElements();
 
-        const cleanDataUrl = canvas.toDataURL('image/png');
+        const dataUrl = canvas.toDataURL('image/png');
         const a = document.createElement('a');
-        a.href = cleanDataUrl;
-        a.download = `MovieDay-Ticket-${safeTicketId}.png`;
+        a.href = dataUrl;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
       }
     };
 
-    // Draw background image if available
-    if (design.bgImage) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        try {
-          ctx.drawImage(img, 0, 0, width, height);
-        } catch (e) {
-          console.warn('Could not draw bgImage to canvas:', e);
-        }
-        renderAllElements();
-        triggerDownload();
-      };
-      img.onerror = () => {
-        const grad = ctx.createLinearGradient(0, 0, width, height);
-        grad.addColorStop(0, '#1c1917');
-        grad.addColorStop(0.5, '#292524');
-        grad.addColorStop(1, '#0c0a09');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-        renderAllElements();
-        triggerDownload();
-      };
-      img.src = design.bgImage;
-    } else {
-      const grad = ctx.createLinearGradient(0, 0, width, height);
-      grad.addColorStop(0, '#1c1917');
-      grad.addColorStop(0.5, '#292524');
-      grad.addColorStop(1, '#0c0a09');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-      renderAllElements();
-      triggerDownload();
-    }
+    // Draw dark gold gradient background synchronously
+    const grad = ctx.createLinearGradient(0, 0, width, height);
+    grad.addColorStop(0, '#1c1917');
+    grad.addColorStop(0.5, '#292524');
+    grad.addColorStop(1, '#0c0a09');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+
+    renderAllElements();
+    triggerBlobDownload();
   };
 
   const LEVELS = [
