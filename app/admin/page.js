@@ -434,7 +434,13 @@ export default function AdminPage() {
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from('events').getPublicUrl(filePath);
-      setEventForm(p => ({ ...p, [fieldKey]: data.publicUrl }));
+      const url = data.publicUrl;
+      setEventForm(p => ({
+        ...p,
+        [fieldKey]: url,
+        ...(fieldKey === 'image' && !p.bgImage ? { bgImage: url } : {}),
+        ...(fieldKey === 'bgImage' && !p.image ? { image: url } : {})
+      }));
     } catch (error) {
       console.error('Error uploading image:', error.message);
       alert('Error uploading image!');
@@ -477,7 +483,9 @@ export default function AdminPage() {
   };
 
   const saveEvent = async () => {
-    const data = { ...eventForm, price: Number(eventForm.price) };
+    const img = eventForm.image || eventForm.bgImage || '';
+    const bgImg = eventForm.bgImage || eventForm.image || '';
+    const data = { ...eventForm, image: img, bgImage: bgImg, price: Number(eventForm.price) };
     let res;
     if (editingEvent) res = await updateEvent(editingEvent, data);
     else res = await addEvent(data);
@@ -1366,10 +1374,19 @@ export default function AdminPage() {
                 <div key={f.key} className="form-group" style={{ gridColumn: f.full ? 'span 2' : 'span 1' }}>
                   <label className="form-label">{f.label}</label>
                   {f.isImage ? (
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      {eventForm[f.key] && (
+                        <img 
+                          src={eventForm[f.key]} 
+                          alt="Preview" 
+                          style={{ width: '42px', height: '42px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)', flexShrink: 0 }} 
+                        />
+                      )}
                       <input type="text" className="form-input" style={{ flex: 1 }}
-                        value={eventForm[f.key]||''} onChange={e => setEventForm(p=>({...p,[f.key]:e.target.value}))} />
-                      <label className="btn btn-outline" style={{ cursor: 'pointer', padding: '0 16px', display: 'flex', alignItems: 'center' }}>
+                        value={eventForm[f.key]||''} onChange={e => setEventForm(p=>({...p,[f.key]:e.target.value}))} 
+                        placeholder={f.key === 'image' ? 'Poster Image URL...' : 'Banner Background Image URL...'}
+                      />
+                      <label className="btn btn-outline" style={{ cursor: 'pointer', padding: '0 16px', display: 'flex', alignItems: 'center', height: '42px' }}>
                         {isUploading ? 'Uploading...' : 'Upload'}
                         <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, f.key)} disabled={isUploading} />
                       </label>
