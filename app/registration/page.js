@@ -354,7 +354,15 @@ function RegistrationPageContent() {
   const goStep2 = () => { 
     if (validateStep1()) {
       if (activePreselectedSeats.length > 0) {
-        setStep(3); // Skip seat selection if seats were already passed from event page
+        const isAnyTaken = activePreselectedSeats.some(s => takenSeats.has(s) || takenSeats.has(normalizeSeatId(s)));
+        if (isAnyTaken) {
+          showToast('The preselected seat is already reserved. Please select another seat.', 'error');
+          setActivePreselectedSeats([]);
+          setSelectedSeat(null);
+          setStep(2);
+        } else {
+          setStep(3); // Skip seat selection if seats were already passed from event page
+        }
       } else {
         setStep(2); 
       }
