@@ -499,7 +499,7 @@ function RegistrationPageContent() {
         .reg-step-line.done { background: #10b981; }
 
         /* Card */
-        .reg-card { max-width: 640px; margin: 0 auto 32px; background: rgba(18, 18, 22, 0.75); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; padding: 32px; backdrop-filter: blur(20px); animation: fadeInUp 0.4s ease; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .reg-card { max-width: 640px; margin: 0 auto 32px; background: rgba(20, 20, 26, 0.45) !important; border: 1px solid rgba(255, 255, 255, 0.16) !important; border-radius: 24px; padding: 36px 32px; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; animation: fadeInUp 0.4s ease; }
         @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         .reg-card-header h2 { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; margin-bottom: 6px; color: #ffffff !important; }
         .reg-card-header p { font-size: 13px; color: rgba(255,255,255,0.7) !important; margin-bottom: 24px; }
@@ -510,67 +510,67 @@ function RegistrationPageContent() {
         .reg-form-group { display: flex; flex-direction: column; gap: 6px; }
         .reg-label { font-size: 14px; font-weight: 700; color: #ffffff !important; letter-spacing: 0.01em; }
         .reg-req { color: #fb923c; margin-left: 2px; }
-        .reg-input { background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.18) !important; border-radius: 12px; padding: 12px 16px; color: #ffffff !important; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-        .reg-input:focus { border-color: rgba(234,88,12,0.8) !important; box-shadow: 0 0 0 3px rgba(234,88,12,0.2) !important; }
+        .reg-input { background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.14) !important; border-radius: 14px; padding: 12px 16px; color: #ffffff !important; font-size: 14px; font-family: inherit; outline: none; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.2) !important; transition: all 0.2s ease; }
+        .reg-input:focus { background: rgba(255, 255, 255, 0.09) !important; border-color: rgba(251, 146, 60, 0.7) !important; box-shadow: 0 0 25px rgba(234, 88, 12, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important; }
         .reg-input::placeholder { color: rgba(255,255,255,0.45) !important; }
         .reg-input.err { border-color: rgba(239,68,68,0.8) !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important; }
         .reg-err { font-size: 12px; color: #f87171; display: flex; align-items: center; gap: 5px; margin-top: 4px; font-weight: 500; }
-        .reg-phone-wrap { display: flex; align-items: stretch; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.18) !important; border-radius: 12px; transition: border-color 0.2s, box-shadow 0.2s; }
-        .reg-phone-wrap:focus-within { border-color: rgba(234,88,12,0.8) !important; box-shadow: 0 0 0 3px rgba(234,88,12,0.2) !important; }
+        .reg-phone-wrap { display: flex; align-items: stretch; background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.14) !important; border-radius: 14px; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.2) !important; transition: all 0.2s ease; }
+        .reg-phone-wrap:focus-within { background: rgba(255, 255, 255, 0.09) !important; border-color: rgba(251, 146, 60, 0.7) !important; box-shadow: 0 0 25px rgba(234, 88, 12, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important; }
         .reg-phone-wrap.err { border-color: rgba(239,68,68,0.8) !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important; }
-        .reg-phone-prefix { padding: 12px 14px; font-size: 14px; font-weight: 700; color: #ffffff !important; border-right: 1px solid rgba(255,255,255,0.18) !important; }
-        .reg-phone-wrap .reg-input { border: none !important; box-shadow: none !important; background: transparent !important; flex: 1; border-radius: 0 12px 12px 0; }
+        .reg-phone-prefix { padding: 12px 14px; font-size: 14px; font-weight: 700; color: #ffffff !important; border-right: 1px solid rgba(255,255,255,0.14) !important; }
+        .reg-phone-wrap .reg-input { border: none !important; box-shadow: none !important; background: transparent !important; flex: 1; border-radius: 0 14px 14px 0; }
 
         /* Custom select */
         .reg-cs { position: relative; }
-        .reg-cs-trigger { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.18) !important; border-radius: 12px; cursor: pointer; transition: border-color 0.2s; user-select: none; }
-        .reg-cs-trigger:hover { border-color: rgba(255,255,255,0.35) !important; }
-        .reg-cs-trigger.open { border-color: rgba(234,88,12,0.8) !important; box-shadow: 0 0 0 3px rgba(234,88,12,0.2) !important; }
+        .reg-cs-trigger { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.14) !important; border-radius: 14px; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.2) !important; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+        .reg-cs-trigger:hover { background: rgba(255, 255, 255, 0.09) !important; border-color: rgba(255, 255, 255, 0.3) !important; }
+        .reg-cs-trigger.open { border-color: rgba(251, 146, 60, 0.7) !important; box-shadow: 0 0 25px rgba(234, 88, 12, 0.3) !important; }
         .reg-cs-trigger.err { border-color: rgba(239,68,68,0.8) !important; }
         .reg-cs-val { font-size: 14px; color: rgba(255,255,255,0.45) !important; }
         .reg-cs-val.filled { color: #ffffff !important; }
         .reg-cs-arrow { transition: transform 0.2s; color: rgba(255,255,255,0.6) !important; }
         .reg-cs-arrow.open { transform: rotate(180deg); }
-        .reg-cs-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #1c1c22 !important; border: 1px solid rgba(255,255,255,0.18) !important; border-radius: 14px; overflow: hidden; z-index: 50; box-shadow: 0 16px 40px rgba(0,0,0,0.5); animation: fadeInDown 0.15s ease; }
+        .reg-cs-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: rgba(22, 22, 28, 0.85) !important; border: 1px solid rgba(255,255,255,0.18) !important; border-radius: 16px; overflow: hidden; z-index: 50; backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: fadeInDown 0.15s ease; }
         @keyframes fadeInDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
         .reg-cs-option { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; font-size: 14px; transition: background 0.15s; color: #ffffff !important; }
-        .reg-cs-option:hover { background: rgba(255,255,255,0.1) !important; }
-        .reg-cs-option.selected { background: rgba(234,88,12,0.2) !important; }
+        .reg-cs-option:hover { background: rgba(255,255,255,0.12) !important; }
+        .reg-cs-option.selected { background: rgba(234,88,12,0.25) !important; }
         .reg-badge-pill { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; }
 
         /* Branch cards */
         .reg-branch-grid { display: flex; gap: 12px; }
-        .reg-branch-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 8px; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14); border-radius: 16px; cursor: pointer; transition: all 0.2s; min-height: 90px; }
-        .reg-branch-card:hover { border-color: rgba(234,88,12,0.6); background: rgba(234,88,12,0.1); }
-        .reg-branch-card.selected { border-color: #ea580c; background: rgba(234,88,12,0.2); box-shadow: 0 0 0 3px rgba(234,88,12,0.25); }
+        .reg-branch-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 8px; background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.14) !important; border-radius: 16px; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 16px rgba(0, 0, 0, 0.2) !important; cursor: pointer; transition: all 0.25s ease; min-height: 90px; }
+        .reg-branch-card:hover { border-color: rgba(251, 146, 60, 0.6) !important; background: rgba(234, 88, 12, 0.12) !important; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(234, 88, 12, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important; }
+        .reg-branch-card.selected { border-color: #ea580c !important; background: linear-gradient(135deg, rgba(234, 88, 12, 0.25), rgba(251, 146, 60, 0.12)) !important; box-shadow: 0 0 25px rgba(234, 88, 12, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important; }
         .reg-branch-logo { width: 52px; height: 32px; object-fit: contain; }
         .reg-branch-name { font-size: 12px; font-weight: 800; color: #ffffff !important; text-align: center; }
 
         /* Seat map */
-        .reg-seat-wrap { max-width: 1050px; margin: 0 auto 32px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 20px; backdrop-filter: blur(20px); width: 100%; box-sizing: border-box; }
+        .reg-seat-wrap { max-width: 1050px; margin: 0 auto 32px; background: rgba(20, 20, 26, 0.45) !important; border: 1px solid rgba(255,255,255,0.16) !important; border-radius: 24px; padding: 24px; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; width: 100%; box-sizing: border-box; }
         .reg-seat-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; justify-content: center; }
-        .reg-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.5); }
+        .reg-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.7); }
         .reg-legend-dot { width: 14px; height: 14px; border-radius: 4px; }
         .reg-legend-regular { background: rgba(16,185,129,0.3); border: 1px solid #10b981; }
         .reg-legend-vip { background: rgba(139,92,246,0.3); border: 1px solid #8b5cf6; }
         .reg-legend-selected { background: linear-gradient(135deg,#ea580c,#fb923c); }
         .reg-legend-taken { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); }
         .reg-zoom-panel { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; justify-content: center; }
-        .reg-zoom-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
-        .reg-zoom-btn:hover { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.1); }
-        .reg-zoom-label { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 700; min-width: 44px; text-align: center; }
-        .reg-fit-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-        .reg-fit-btn.active { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.1); color: #fb923c; }
+        .reg-zoom-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; backdrop-filter: blur(12px); }
+        .reg-zoom-btn:hover { border-color: rgba(251,146,60,0.6); background: rgba(234,88,12,0.15); }
+        .reg-zoom-label { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 700; min-width: 44px; text-align: center; }
+        .reg-fit-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; backdrop-filter: blur(12px); }
+        .reg-fit-btn.active { border-color: rgba(251,146,60,0.6); background: rgba(234,88,12,0.15); color: #fb923c; }
         .reg-screen-wrap { text-align: center; margin-bottom: 16px; }
-        .reg-screen { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 8px 32px; font-size: 12px; font-weight: 800; letter-spacing: 0.15em; color: rgba(255,255,255,0.4); }
-        .reg-seat-scroll { overflow-x: auto; overflow-y: hidden; border-radius: 12px; background: rgba(0,0,0,0.25); text-align: center; width: 100%; display: flex; justify-content: center; padding: 12px 0; }
+        .reg-screen { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 32px; font-size: 12px; font-weight: 800; letter-spacing: 0.15em; color: rgba(255,255,255,0.6); backdrop-filter: blur(12px); }
+        .reg-seat-scroll { overflow-x: auto; overflow-y: hidden; border-radius: 12px; background: rgba(0,0,0,0.35); text-align: center; width: 100%; display: flex; justify-content: center; padding: 12px 0; border: 1px solid rgba(255,255,255,0.08); }
         .reg-seat-inner { transform-origin: top left; display: inline-block; padding: 12px 8px; }
         .block-row { display: flex; gap: 8px; margin-bottom: 10px; justify-content: center; }
         .block-group { display: flex; gap: 6px; }
         .seat-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 6px; }
         .seat-block.vip { background: rgba(139,92,246,0.05); border-color: rgba(139,92,246,0.2); }
-        .block-title { font-size: 8.5px; font-weight: 800; color: rgba(255,255,255,0.25); letter-spacing: 0.08em; text-align: center; margin-bottom: 5px; }
-        .seat-block.vip .block-title { color: rgba(139,92,246,0.6); }
+        .block-title { font-size: 8.5px; font-weight: 800; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-align: center; margin-bottom: 5px; }
+        .seat-block.vip .block-title { color: rgba(139,92,246,0.7); }
         .block-rows-container { display: flex; flex-direction: column; gap: 3px; }
         .block-row-item { display: flex; gap: 3px; }
         .seat { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 800; cursor: pointer; transition: all 0.15s; user-select: none; }
@@ -580,50 +580,50 @@ function RegistrationPageContent() {
         .seat.vip:hover { background: rgba(139,92,246,0.3); transform: scale(1.12); box-shadow: 0 0 8px rgba(139,92,246,0.4); }
         .seat.selected { background: linear-gradient(135deg,#ea580c,#fb923c) !important; border-color: transparent !important; color: #fff !important; transform: scale(1.15); box-shadow: 0 0 12px rgba(234,88,12,0.6); cursor: default; }
         .seat.taken { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: rgba(255,255,255,0.2) !important; cursor: not-allowed !important; transform: none !important; }
-        .reg-entrance { text-align: center; margin-top: 12px; font-size: 11px; font-weight: 800; letter-spacing: 0.2em; color: rgba(255,255,255,0.2); }
-        .reg-selected-info { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(234,88,12,0.1); border: 1px solid rgba(234,88,12,0.3); border-radius: 10px; margin-top: 12px; font-size: 13px; font-weight: 700; color: #fb923c; }
+        .reg-entrance { text-align: center; margin-top: 12px; font-size: 11px; font-weight: 800; letter-spacing: 0.2em; color: rgba(255,255,255,0.4); }
+        .reg-selected-info { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(234,88,12,0.15); border: 1px solid rgba(234,88,12,0.4); border-radius: 10px; margin-top: 12px; font-size: 13px; font-weight: 700; color: #fb923c; backdrop-filter: blur(12px); }
 
         /* Buttons */
-        .reg-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 14px; background: linear-gradient(135deg,#ea580c,#fb923c); color: #fff; font-size: 14px; font-weight: 800; border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; width: 100%; }
-        .reg-btn-primary:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(234,88,12,0.35); }
-        .reg-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .reg-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 20px; border-radius: 14px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.18) !important; color: #ffffff !important; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-        .reg-btn-secondary:hover { background: rgba(255,255,255,0.16) !important; border-color: rgba(255,255,255,0.3) !important; color: #ffffff !important; }
+        .reg-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 14px; background: linear-gradient(135deg,#ea580c,#fb923c); color: #fff; font-size: 14px; font-weight: 800; border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; width: 100%; box-shadow: 0 8px 24px rgba(234,88,12,0.35); }
+        .reg-btn-primary:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 12px 30px rgba(234,88,12,0.5); }
+        .reg-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .reg-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 20px; border-radius: 14px; background: rgba(255, 255, 255, 0.06) !important; border: 1px solid rgba(255, 255, 255, 0.16) !important; color: #ffffff !important; font-size: 14px; font-weight: 700; cursor: pointer; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.2) !important; transition: all 0.2s ease; font-family: inherit; }
+        .reg-btn-secondary:hover { background: rgba(255, 255, 255, 0.14) !important; border-color: rgba(255, 255, 255, 0.35) !important; transform: translateY(-1px); }
         .reg-actions { display: flex; gap: 12px; margin-top: 24px; align-items: center; justify-content: center; }
         .reg-actions .reg-btn-primary { padding: 14px 48px; width: auto; }
         .reg-actions .reg-btn-secondary { flex-shrink: 0; }
 
         /* Ticket stub */
-        .reg-stub { background: linear-gradient(135deg,rgba(234,88,12,0.12),rgba(251,146,60,0.06)); border: 1px solid rgba(234,88,12,0.25); border-radius: 20px; overflow: hidden; }
-        .reg-stub-head { padding: 20px 24px; background: linear-gradient(135deg,rgba(234,88,12,0.2),rgba(139,92,246,0.15)); display: flex; justify-content: space-between; align-items: center; }
+        .reg-stub { background: linear-gradient(135deg,rgba(234,88,12,0.15),rgba(251,146,60,0.08)); border: 1px solid rgba(234,88,12,0.3); border-radius: 20px; overflow: hidden; backdrop-filter: blur(20px); }
+        .reg-stub-head { padding: 20px 24px; background: linear-gradient(135deg,rgba(234,88,12,0.25),rgba(139,92,246,0.18)); display: flex; justify-content: space-between; align-items: center; }
         .reg-stub-event { font-size: 18px; font-weight: 900; letter-spacing: 0.03em; }
-        .reg-stub-sub { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.15em; margin-top: 2px; }
+        .reg-stub-sub { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 0.15em; margin-top: 2px; }
         .reg-stub-logo { width: 52px; height: 36px; object-fit: contain; }
-        .reg-stub-divider { height: 1px; background: repeating-linear-gradient(90deg,rgba(255,255,255,0.15) 0,rgba(255,255,255,0.15) 8px,transparent 8px,transparent 16px); }
+        .reg-stub-divider { height: 1px; background: repeating-linear-gradient(90deg,rgba(255,255,255,0.18) 0,rgba(255,255,255,0.18) 8px,transparent 8px,transparent 16px); }
         .reg-stub-body { padding: 20px 24px; }
         .reg-stub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
         .reg-stub-item { display: flex; flex-direction: column; gap: 3px; }
-        .reg-stub-lbl { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; text-transform: uppercase; }
-        .reg-stub-val { font-size: 14px; font-weight: 700; }
-        .reg-stub-seat { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
-        .reg-stub-seat-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; }
+        .reg-stub-lbl { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+        .reg-stub-val { font-size: 14px; font-weight: 700; color: #ffffff; }
+        .reg-stub-seat { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(12px); }
+        .reg-stub-seat-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
         .reg-stub-seat-val { font-size: 20px; font-weight: 900; color: #fb923c; }
 
         /* Terms */
         .reg-terms-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; }
         .reg-terms-row input { margin-top: 2px; accent-color: #ea580c; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
-        .reg-terms-row label { font-size: 13px; color: rgba(255,255,255,0.6); cursor: pointer; }
+        .reg-terms-row label { font-size: 13px; color: rgba(255,255,255,0.75); cursor: pointer; }
 
         /* Success */
         .reg-success { text-align: center; padding: 48px 24px; }
-        .reg-success-icon { width: 80px; height: 80px; margin: 0 auto 24px; background: rgba(16,185,129,0.1); border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #10b981; }
-        .reg-success h2 { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
-        .reg-success p { color: rgba(255,255,255,0.55); font-size: 15px; margin-bottom: 24px; }
-        .reg-success-ticket { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; font-size: 14px; line-height: 1.8; margin-bottom: 24px; }
+        .reg-success-icon { width: 80px; height: 80px; margin: 0 auto 24px; background: rgba(16,185,129,0.15); border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #10b981; box-shadow: 0 0 30px rgba(16,185,129,0.3); }
+        .reg-success h2 { font-size: 28px; font-weight: 900; margin-bottom: 10px; color: #ffffff; }
+        .reg-success p { color: rgba(255,255,255,0.75); font-size: 15px; margin-bottom: 24px; }
+        .reg-success-ticket { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 20px; font-size: 14px; line-height: 1.8; margin-bottom: 24px; backdrop-filter: blur(16px); }
 
         /* Lang modal */
-        .reg-lang-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 24px; }
-        .reg-lang-box { background: #121215; border: 1px solid rgba(255,255,255,0.18); border-radius: 28px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; color: #ffffff !important; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+        .reg-lang-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .reg-lang-box { background: rgba(20, 20, 26, 0.55) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 28px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; color: #ffffff !important; backdrop-filter: blur(32px) saturate(180%) !important; -webkit-backdrop-filter: blur(32px) saturate(180%) !important; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; }
         .reg-lang-icon { font-size: 48px; margin-bottom: 16px; }
         .reg-lang-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; color: #ffffff !important; }
         .reg-lang-box p { color: rgba(255,255,255,0.7) !important; font-size: 14px; margin-bottom: 28px; }
