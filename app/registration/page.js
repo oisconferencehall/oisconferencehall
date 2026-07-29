@@ -472,7 +472,7 @@ function RegistrationPageContent() {
     canvas.height = height;
     const ctx = canvas.getContext('2d');
 
-    const drawElementsAndDownload = () => {
+    const renderAllElements = () => {
       ctx.save();
       // Dark overlay for background text readability
       ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -553,43 +553,74 @@ function RegistrationPageContent() {
         }
         ctx.globalAlpha = 1;
       });
+    };
 
+    const triggerDownload = () => {
+      const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
       try {
+        const dataUrl = canvas.toDataURL('image/png');
         const a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
+        a.href = dataUrl;
         a.download = `MovieDay-Ticket-${safeTicketId}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
       } catch (err) {
-        console.error('Error saving ticket canvas:', err);
+        console.warn('Canvas tainted by cross-origin bgImage. Redrawing clean gradient ticket...', err);
+        // Clear canvas and render premium dark gradient background
+        ctx.clearRect(0, 0, width, height);
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#1c1917');
+        grad.addColorStop(0.5, '#292524');
+        grad.addColorStop(1, '#0c0a09');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        renderAllElements();
+
+        const cleanDataUrl = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = cleanDataUrl;
+        a.download = `MovieDay-Ticket-${safeTicketId}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
     };
 
+    // Draw background image if available
     if (design.bgImage) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        ctx.drawImage(img, 0, 0, width, height);
-        drawElementsAndDownload();
+        try {
+          ctx.drawImage(img, 0, 0, width, height);
+        } catch (e) {
+          console.warn('Could not draw bgImage to canvas:', e);
+        }
+        renderAllElements();
+        triggerDownload();
       };
       img.onerror = () => {
         const grad = ctx.createLinearGradient(0, 0, width, height);
-        grad.addColorStop(0, '#181507');
-        grad.addColorStop(1, '#0a0802');
+        grad.addColorStop(0, '#1c1917');
+        grad.addColorStop(0.5, '#292524');
+        grad.addColorStop(1, '#0c0a09');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, width, height);
-        drawElementsAndDownload();
+        renderAllElements();
+        triggerDownload();
       };
       img.src = design.bgImage;
     } else {
       const grad = ctx.createLinearGradient(0, 0, width, height);
-      grad.addColorStop(0, '#181507');
-      grad.addColorStop(1, '#0a0802');
+      grad.addColorStop(0, '#1c1917');
+      grad.addColorStop(0.5, '#292524');
+      grad.addColorStop(1, '#0c0a09');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
-      drawElementsAndDownload();
+      renderAllElements();
+      triggerDownload();
     }
   };
 
@@ -1162,19 +1193,19 @@ function RegistrationPageContent() {
                   {t.register_another}
                 </button>
               </div>
-
-              {/* Hidden QR canvas for canvas ticket generator */}
-              <div style={{ display: 'none' }}>
-                <QRCodeCanvas
-                  id="ticket-qr-canvas"
-                  value={`TicketPass:${lastReg.ticket_id}`}
-                  size={256}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                />
-              </div>
             </div>
           )}
+
+          {/* Hidden QR canvas for canvas ticket generator */}
+          <div style={{ display: 'none' }}>
+            <QRCodeCanvas
+              id="ticket-qr-canvas"
+              value={`TicketPass:${lastReg ? lastReg.ticket_id : 'sample-pass'}`}
+              size={256}
+              bgColor="#ffffff"
+              fgColor="#000000"
+            />
+          </div>
 
           <div className="reg-footer">Movie Day 2026 • Oxford International School Grand Conference Hall</div>
         </div>
