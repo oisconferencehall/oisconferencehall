@@ -44,20 +44,30 @@ const EVENT_PRESETS = {
     ]
   },
   'movie-day': {
-    title: 'Movie Day 2026 (Jumanji)',
+    title: 'Movie Day 2026',
     bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
-    width: 800, height: 226, flipX: false, flipY: false,
+    width: 800, height: 280, flipX: false, flipY: false,
     elements: [
-      { id: 'el-1', type: 'text', text: 'PROUDLY PRESENTS', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
-      { id: 'el-2', type: 'text', text: 'JUMANJI', x: 24, y: 52, fontSize: 34, fontWeight: '900', color: '#ffffff', fontFamily: "'Playfair Display', serif" },
-      { id: 'el-3', type: 'text', text: 'Movie: {movie}', x: 24, y: 96, fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
-      { id: 'el-4', type: 'text', text: '{first_name} {last_name}', x: 24, y: 122, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-5', type: 'text', text: '{seat}', x: 24, y: 168, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
-      { id: 'el-6', type: 'text', text: 'SATURDAY, 11 JULY 2026', x: 420, y: 48, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-7', type: 'text', text: 'START 03:45 PM', x: 420, y: 76, fontSize: 12, fontWeight: '700', color: '#fb923c', fontFamily: 'Outfit' },
-      { id: 'el-8', type: 'text', text: 'Oxford International School, Samarkand', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
-      { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
-      { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
+      { id: 'el-bg-rect', type: 'rect', x: 10, y: 10, width: 780, height: 260, bgColor: 'rgba(15, 12, 10, 0.88)', borderColor: 'rgba(234, 88, 12, 0.4)', borderWidth: 2, borderRadius: 16, opacity: 100 },
+      { id: 'el-hdr-bar', type: 'rect', x: 10, y: 10, width: 780, height: 56, bgColor: 'rgba(234, 88, 12, 0.2)', borderColor: 'rgba(234, 88, 12, 0.3)', borderWidth: 1, borderRadius: 16, opacity: 100 },
+      { id: 'el-title', type: 'text', text: 'MOVIE DAY 2026', x: 30, y: 20, fontSize: 22, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-subtitle', type: 'text', text: 'OFFICIAL VIP ENTRY PASS', x: 30, y: 46, fontSize: 10, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-name-lbl', type: 'text', text: 'PASS HOLDER', x: 30, y: 78, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-name-val', type: 'text', text: '{first_name} {last_name}', x: 30, y: 92, fontSize: 19, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-phone-lbl', type: 'text', text: 'PHONE', x: 30, y: 126, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-phone-val', type: 'text', text: '+998 {phone}', x: 30, y: 138, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-branch-lbl', type: 'text', text: 'BRANCH', x: 220, y: 126, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-branch-val', type: 'text', text: '{branch}', x: 220, y: 138, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-level-lbl', type: 'text', text: 'ENGLISH LEVEL', x: 420, y: 126, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-level-val', type: 'text', text: '{level}', x: 420, y: 138, fontSize: 13, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
+      { id: 'el-seat-box', type: 'rect', x: 30, y: 174, width: 560, height: 76, bgColor: 'rgba(234, 88, 12, 0.18)', borderColor: '#ea580c', borderWidth: 1, borderRadius: 12, opacity: 100 },
+      { id: 'el-seat-lbl', type: 'text', text: '💺 RESERVED SEAT', x: 48, y: 186, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-seat-val', type: 'text', text: '{seat}', x: 48, y: 206, fontSize: 22, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
+      { id: 'el-stub-line', type: 'rect', x: 615, y: 25, width: 2, height: 230, bgColor: 'rgba(255,255,255,0.15)', borderColor: 'transparent', borderWidth: 0, opacity: 100 },
+      { id: 'el-qr', type: 'qr', x: 645, y: 40, size: 96 },
+      { id: 'el-code-lbl', type: 'text', text: 'TICKET CODE', x: 640, y: 155, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-code-val', type: 'text', text: '{ticket_id}', x: 640, y: 168, fontSize: 11, fontWeight: '900', color: '#FFDD00', fontFamily: 'monospace' },
+      { id: 'el-venue', type: 'text', text: 'Oxford Int. School', x: 640, y: 225, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' }
     ]
   }
 };
@@ -229,7 +239,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
     try {
       const { data: existing } = await supabase.from('page_sections').select('id').eq('type', templateKey).maybeSingle();
       if (existing?.id) {
-        await supabase.from('page_sections').update({ data: design, updated_at: new Date().toISOString() }).eq('id', existing.id);
+        await supabase.from('page_sections').update({ data: design }).eq('id', existing.id);
       } else {
         await supabase.from('page_sections').insert([{ page_slug: 'home', type: templateKey, order_index: 99, data: design }]);
       }

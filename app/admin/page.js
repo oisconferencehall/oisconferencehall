@@ -1632,7 +1632,7 @@ export default function AdminPage() {
             <div style={{ display:'flex', gap:'10px', justifyContent:'flex-end', marginTop:'30px' }}>
               <button className="btn btn-ghost" onClick={() => setEditingSection(null)}>Cancel</button>
               <button className="btn btn-primary" onClick={async () => {
-                await supabase.from('page_sections').update({ data: editingSection.data, updated_at: new Date().toISOString() }).eq('id', editingSection.id);
+                await supabase.from('page_sections').update({ data: editingSection.data }).eq('id', editingSection.id);
                 try {
                   if (editingSection.type === 'partners' && editingSection.data?.partners) localStorage.setItem('gch-partners', JSON.stringify(editingSection.data.partners));
                   if (editingSection.type === 'cases_videos' && editingSection.data?.videos) localStorage.setItem('gch-videos', JSON.stringify(editingSection.data.videos));
