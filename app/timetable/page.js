@@ -141,6 +141,7 @@ export default function TimetablePage() {
     { id: 'concert', color: 'var(--cat-concert)' },
     { id: 'exhibition', color: 'var(--cat-exhibition)' },
     { id: 'corporate', color: 'var(--cat-corporate)' },
+    { id: 'movie', color: '#fb923c' },
   ];
 
   const hours = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i);

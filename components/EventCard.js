@@ -12,6 +12,7 @@ const CATEGORY_COLORS = {
   concert:    { bg: 'rgba(255, 221, 0, 0.35)', color: '#FFDD00', border: 'rgba(255, 221, 0, 0.35)' },
   exhibition: { bg: 'rgba(236,72,153,0.12)', color: '#f472b6', border: 'rgba(236,72,153,0.3)' },
   corporate:  { bg: 'rgba(6,182,212,0.12)',  color: '#22d3ee', border: 'rgba(6,182,212,0.3)' },
+  movie:      { bg: 'rgba(234,88,12,0.15)',  color: '#fb923c', border: 'rgba(234,88,12,0.3)' },
 };
 
 export default function EventCard({ event }) {

@@ -7,7 +7,7 @@ import EventCard from '@/components/EventCard';
 import YellowShapeBanner from '@/components/YellowShapeBanner';
 import { Search, Filter } from 'lucide-react';
 
-const CATEGORIES = ['all', 'conference', 'seminar', 'concert', 'exhibition', 'corporate'];
+const CATEGORIES = ['all', 'conference', 'seminar', 'concert', 'exhibition', 'corporate', 'movie'];
 
 export default function EventsPage() {
   const { t, events } = useApp();
