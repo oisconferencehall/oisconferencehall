@@ -1062,3 +1062,64 @@ img, video, iframe, canvas, svg {
     font-size: 12px;
   }
 }
+
+/* ===== DARK STUDIO & WORKSPACE MODAL OVERRIDES ===== */
+.ticket-designer-studio,
+.event-workspace-modal {
+  color: #ffffff !important;
+}
+
+.ticket-designer-studio .form-input,
+.ticket-designer-studio .form-select,
+.ticket-designer-studio input,
+.ticket-designer-studio select,
+.ticket-designer-studio textarea,
+.event-workspace-modal .form-input,
+.event-workspace-modal .form-select,
+.event-workspace-modal input,
+.event-workspace-modal select,
+.event-workspace-modal textarea {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.ticket-designer-studio .form-input::placeholder,
+.ticket-designer-studio input::placeholder,
+.event-workspace-modal .form-input::placeholder,
+.event-workspace-modal input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.ticket-designer-studio option,
+.event-workspace-modal option {
+  background-color: #1c1917 !important;
+  color: #ffffff !important;
+}
+
+.ticket-designer-studio .btn-outline,
+.event-workspace-modal .btn-outline {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.ticket-designer-studio .btn-outline:hover,
+.event-workspace-modal .btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.ticket-designer-studio .btn-ghost,
+.event-workspace-modal .btn-ghost {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ticket-designer-studio .btn-ghost:hover,
+.event-workspace-modal .btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}

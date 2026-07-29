@@ -319,6 +319,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
 
   return (
     <div 
+      className="ticket-designer-studio"
       onMouseMove={handleMouseMove} 
       onMouseUp={handleMouseUp}
       style={{ background: '#0a0d14', borderRadius: '24px', border: '1px solid var(--border)', padding: '24px', color: '#fff', fontFamily: 'Outfit, sans-serif', userSelect: dragState ? 'none' : 'auto' }}

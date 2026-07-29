@@ -272,9 +272,11 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
+    <div 
+      className="event-workspace-modal"
+      style={{
+        position: 'fixed',
+        inset: 0,
       zIndex: 9999,
       background: '#090b10',
       color: '#ffffff',
