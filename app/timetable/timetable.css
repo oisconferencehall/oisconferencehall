@@ -312,6 +312,16 @@
   color: #22d3ee;
 }
 
+.cat-movie, .cat-kino, .cat-film {
+  background: rgba(251, 146, 60, 0.15);
+  border-left-color: var(--cat-movie, #fb923c);
+  color: #ea580c;
+}
+[data-theme='dark'] .cat-movie, [data-theme='dark'] .cat-kino, [data-theme='dark'] .cat-film {
+  background: rgba(251, 146, 60, 0.25);
+  color: #fb923c;
+}
+
 /* Current Time Line */
 .current-time-line {
   position: absolute;

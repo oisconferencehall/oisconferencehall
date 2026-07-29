@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SEAT_NUMBERS, TOTAL_SEATS, normalizeSeatId, formatSeatDisplay, buildTakenSeatsSet } from '@/lib/seatUtils';
+import { QRCodeCanvas } from 'qrcode.react';
 
 // ─── Translations ──────────────────────────────────────────────
 const T = {
@@ -19,9 +20,9 @@ const T = {
     confirm_seat: 'Confirm Seat', review_title: 'Review & Submit',
     review_sub: 'Please verify your details before submitting',
     terms: 'I confirm my details are correct and agree to attend the event',
-    submit_btn: 'Submit & Get QR Code', success_title: "You're registered!",
-    success_sub: 'Your QR code has been downloaded. See you at Movie Day!',
-    download_again: 'Download QR Code Again', register_another: 'Register Another Person',
+    submit_btn: 'Submit & Get Ticket', success_title: "You're registered!",
+    success_sub: 'Your ticket has been generated and downloaded. See you at Movie Day!',
+    download_again: 'Download Ticket Again', register_another: 'Register Another Person',
     ph_first_name: 'Enter your first name', ph_last_name: 'Enter your last name',
     ph_other_branch: 'Enter your branch name',
     err_first_name: 'Please enter your first name', err_last_name: 'Please enter your last name',
@@ -58,9 +59,9 @@ const T = {
     confirm_seat: 'Подтвердить место', review_title: 'Проверка и отправка',
     review_sub: 'Пожалуйста, проверьте ваши данные перед отправкой',
     terms: 'Я подтверждаю правильность своих данных и соглашаюсь посетить мероприятие',
-    submit_btn: 'Отправить и получить QR', success_title: 'Вы зарегистрированы!',
-    success_sub: 'Ваш QR-код загружен. Увидимся на Movie Day!',
-    download_again: 'Скачать QR-код снова', register_another: 'Зарегистрировать другого',
+    submit_btn: 'Отправить и получить билет', success_title: 'Вы зарегистрированы!',
+    success_sub: 'Ваш билет загружен. Увидимся на Movie Day!',
+    download_again: 'Скачать билет снова', register_another: 'Зарегистрировать другого',
     ph_first_name: 'Введите ваше имя', ph_last_name: 'Введите вашу фамилию',
     ph_other_branch: 'Введите название филиала',
     err_first_name: 'Пожалуйста, введите ваше имя', err_last_name: 'Пожалуйста, введите вашу фамилию',
@@ -418,41 +419,170 @@ function RegistrationPageContent() {
     };
     setLastReg(cleanReg);
     showToast("Registered successfully!", 'success');
-    generateQR(cleanReg);
+    generateTicketImage(cleanReg);
     setSubmitted(true);
     setSubmitting(false);
   };
 
-  const generateQR = (reg) => {
-    const text = `Name: ${reg.first_name} ${reg.last_name}\nPhone: ${reg.phone}\nBranch: ${reg.branch}\nLevel: ${reg.english_level}\nSeat: ${formatSeat(reg.seat)}\nTicket: ${reg.ticket_id}`;
-    if (typeof window === 'undefined') return;
-    
-    const doGenerate = () => {
-      const div = document.createElement('div');
-      new window.QRCode(div, { text, width: 512, height: 512, correctLevel: window.QRCode.CorrectLevel.H });
-      setTimeout(() => {
-        const canvas = div.querySelector('canvas');
-        if (canvas) {
-          const a = document.createElement('a');
-          a.href = canvas.toDataURL('image/png');
-          const safeTicketId = String(reg.ticket_id).replace(/:/g, '-');
-          a.download = `MovieDay-QR-${safeTicketId}.png`;
-          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  const DEFAULT_TICKET_PRESET = {
+    title: 'Movie Day 2026',
+    bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
+    width: 800, height: 226, flipX: false, flipY: false,
+    elements: [
+      { id: 'el-1', type: 'text', text: 'PROUDLY PRESENTS', x: 24, y: 24, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-2', type: 'text', text: 'JUMANJI', x: 24, y: 42, fontSize: 34, fontWeight: '900', color: '#ffffff', fontFamily: 'serif' },
+      { id: 'el-3', type: 'text', text: 'Movie: {movie}', x: 24, y: 88, fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
+      { id: 'el-4', type: 'text', text: '{first_name} {last_name}', x: 24, y: 114, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-5', type: 'text', text: '{seat}', x: 24, y: 160, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
+      { id: 'el-6', type: 'text', text: 'SATURDAY, 11 JULY 2026', x: 420, y: 40, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      { id: 'el-7', type: 'text', text: 'START 03:45 PM', x: 420, y: 68, fontSize: 12, fontWeight: '700', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-8', type: 'text', text: 'Oxford International School, Samarkand', x: 420, y: 172, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit' },
+      { id: 'el-9', type: 'text', text: 'ADMIT ONE', x: 740, y: 65, fontSize: 18, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit', rotate: 90 },
+      { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
+    ]
+  };
+
+  const generateTicketImage = async (reg) => {
+    if (typeof window === 'undefined' || !reg) return;
+
+    let design = DEFAULT_TICKET_PRESET;
+    try {
+      const templateKey = `ticket_template_movie-day`;
+      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
+      if (data?.data?.elements) {
+        design = data.data;
+      }
+    } catch (e) {
+      console.log('Using default preset for ticket generation');
+    }
+
+    const width = design.width || 800;
+    const height = design.height || 226;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    const drawElementsAndDownload = () => {
+      ctx.save();
+      // Dark overlay for background text readability
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.fillRect(0, 0, width, height);
+
+      // Border glow / accent
+      ctx.strokeStyle = 'rgba(255, 221, 0, 0.4)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(0, 0, width, height);
+      ctx.restore();
+
+      (design.elements || []).forEach(el => {
+        const op = el.opacity !== undefined ? el.opacity / 100 : 1;
+        ctx.globalAlpha = op;
+
+        if (el.type === 'text') {
+          const rawText = el.text || '';
+          const text = rawText
+            .replace(/{first_name}/g, reg.first_name || '')
+            .replace(/{last_name}/g, reg.last_name || '')
+            .replace(/{movie}/g, event?.title || 'Movie Day 2026')
+            .replace(/{seat}/g, formatSeat(reg.seat) || '')
+            .replace(/{ticket_id}/g, reg.ticket_id || '')
+            .replace(/{phone}/g, reg.phone || '')
+            .replace(/{branch}/g, reg.branch || '')
+            .replace(/{level}/g, reg.english_level || '');
+
+          ctx.save();
+          const fFamily = el.fontFamily || 'Outfit';
+          ctx.font = `${el.fontWeight || '700'} ${el.fontSize || 14}px ${fFamily}, sans-serif`;
+          ctx.fillStyle = el.color || '#ffffff';
+          ctx.textBaseline = 'top';
+
+          if (el.rotate) {
+            ctx.translate(el.x, el.y);
+            ctx.rotate((el.rotate * Math.PI) / 180);
+            ctx.fillText(text, 0, 0);
+          } else {
+            ctx.fillText(text, el.x, el.y);
+          }
+          ctx.restore();
+        } else if (el.type === 'qr') {
+          const qrCanvas = document.getElementById('ticket-qr-canvas');
+          const size = el.size || 84;
+          ctx.save();
+          const padding = 6;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(el.x, el.y, size + padding * 2, size + padding * 2, 8);
+          } else {
+            ctx.rect(el.x, el.y, size + padding * 2, size + padding * 2);
+          }
+          ctx.fill();
+          if (qrCanvas) {
+            ctx.drawImage(qrCanvas, el.x + padding, el.y + padding, size, size);
+          }
+          ctx.restore();
+        } else if (el.type === 'rect' || el.type === 'circ') {
+          ctx.save();
+          const w = el.width || 80;
+          const h = el.height || 40;
+          ctx.fillStyle = el.bgColor || 'transparent';
+          ctx.strokeStyle = el.borderColor || '#FFDD00';
+          ctx.lineWidth = el.borderWidth ?? 2;
+          if (el.type === 'circ') {
+            ctx.beginPath();
+            ctx.ellipse(el.x + w / 2, el.y + h / 2, w / 2, h / 2, 0, 0, 2 * Math.PI);
+            if (el.bgColor && el.bgColor !== 'transparent') ctx.fill();
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            ctx.rect(el.x, el.y, w, h);
+            if (el.bgColor && el.bgColor !== 'transparent') ctx.fill();
+            ctx.stroke();
+          }
+          ctx.restore();
         }
-      }, 150);
+        ctx.globalAlpha = 1;
+      });
+
+      try {
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
+        a.download = `MovieDay-Ticket-${safeTicketId}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (err) {
+        console.error('Error saving ticket canvas:', err);
+      }
     };
 
-    // If QRCode library is already loaded, use it directly
-    if (window.QRCode) {
-      doGenerate();
-      return;
+    if (design.bgImage) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, width, height);
+        drawElementsAndDownload();
+      };
+      img.onerror = () => {
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#181507');
+        grad.addColorStop(1, '#0a0802');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+        drawElementsAndDownload();
+      };
+      img.src = design.bgImage;
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, '#181507');
+      grad.addColorStop(1, '#0a0802');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+      drawElementsAndDownload();
     }
-    
-    // Otherwise load it first
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    script.onload = doGenerate;
-    document.head.appendChild(script);
   };
 
   const LEVELS = [
@@ -1019,10 +1149,21 @@ function RegistrationPageContent() {
                 Seat: {formatSeat(lastReg.seat)} · {lastReg.english_level}
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                <button className="reg-btn-primary" onClick={() => generateQR(lastReg)}>{t.download_again}</button>
+                <button className="reg-btn-primary" onClick={() => generateTicketImage(lastReg)}>{t.download_again}</button>
                 <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
                   {t.register_another}
                 </button>
+              </div>
+
+              {/* Hidden QR canvas for canvas ticket generator */}
+              <div style={{ display: 'none' }}>
+                <QRCodeCanvas
+                  id="ticket-qr-canvas"
+                  value={`TicketPass:${lastReg.ticket_id}`}
+                  size={256}
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                />
               </div>
             </div>
           )}
