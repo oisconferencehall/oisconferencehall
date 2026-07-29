@@ -79,9 +79,15 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     let design = null;
 
     try {
-      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
+      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
       if (data?.data && data.data.elements) {
         design = data.data;
+      } else {
+        const local = typeof window !== 'undefined' && localStorage.getItem(`gch_${templateKey}`);
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed?.elements) design = parsed;
+        }
       }
     } catch (e) {}
 

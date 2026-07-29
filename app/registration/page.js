@@ -455,13 +455,24 @@ function RegistrationPageContent() {
 
     let design = DEFAULT_TICKET_PRESET;
     try {
-      const templateKey = `ticket_template_movie-day`;
-      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
+      const slugKey = reg.movie_title ? reg.movie_title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'movie-day';
+      const templateKey = `ticket_template_${slugKey}`;
+      
+      // Try local storage first
+      try {
+        const local = localStorage.getItem(`gch_${templateKey}`);
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed?.elements) design = parsed;
+        }
+      } catch (e) {}
+
+      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
       if (data?.data?.elements) {
         design = data.data;
       }
     } catch (e) {
-      console.log('Using default preset for ticket generation');
+      console.log('Using fallback preset for ticket generation');
     }
 
     const width = design.width || 800;

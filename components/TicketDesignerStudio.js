@@ -95,12 +95,32 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   useEffect(() => {
     const loadTemplate = async () => {
       const templateKey = `ticket_template_${selectedMovieKey}`;
-      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
-      if (data?.data && data.data.elements) {
-        setDesign(data.data);
-      } else {
-        const fallback = EVENT_PRESETS[selectedMovieKey] || EVENT_PRESETS['movie-day'];
-        setDesign(fallback);
+      
+      // 1. Try loading from LocalStorage for instant restore
+      try {
+        const local = localStorage.getItem(`gch_${templateKey}`);
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed && parsed.elements) {
+            setDesign(parsed);
+          }
+        }
+      } catch (e) {}
+
+      // 2. Fetch latest from Supabase without crashing on single()
+      try {
+        const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
+        if (data?.data && data.data.elements) {
+          setDesign(data.data);
+          try {
+            localStorage.setItem(`gch_${templateKey}`, JSON.stringify(data.data));
+          } catch (e) {}
+        } else {
+          const fallback = EVENT_PRESETS[selectedMovieKey] || EVENT_PRESETS['movie-day'];
+          setDesign(prev => (prev?.elements?.length ? prev : fallback));
+        }
+      } catch (e) {
+        console.error('Error loading template from Supabase:', e);
       }
     };
     loadTemplate();
@@ -197,9 +217,18 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
   const saveDesign = async () => {
     setSaving(true);
     const templateKey = `ticket_template_${selectedMovieKey}`;
+    
+    // 1. Immediately save to LocalStorage so reload never wipes changes
     try {
-      const { data: existing } = await supabase.from('page_sections').select('id').eq('type', templateKey).single();
-      if (existing) {
+      localStorage.setItem(`gch_${templateKey}`, JSON.stringify(design));
+    } catch (e) {
+      console.error('LocalStorage save error:', e);
+    }
+
+    // 2. Upsert into Supabase database safely
+    try {
+      const { data: existing } = await supabase.from('page_sections').select('id').eq('type', templateKey).maybeSingle();
+      if (existing?.id) {
         await supabase.from('page_sections').update({ data: design, updated_at: new Date().toISOString() }).eq('id', existing.id);
       } else {
         await supabase.from('page_sections').insert([{ page_slug: 'home', type: templateKey, order_index: 99, data: design }]);
@@ -209,7 +238,7 @@ export default function TicketDesignerStudio({ onSaveSuccess }) {
       onSaveSuccess?.();
     } catch (err) {
       console.error('Error saving ticket template:', err);
-      alert('Error saving ticket design template');
+      alert('Design saved locally! Cloud sync notice: ' + (err.message || 'Saved to browser cache.'));
     } finally {
       setSaving(false);
     }

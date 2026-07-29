@@ -175,7 +175,7 @@ function RentPageContent() {
 
   useEffect(() => {
     async function fetchCms() {
-      const { data } = await supabase.from('page_sections').select('*').eq('type', 'rent_gallery').single();
+      const { data } = await supabase.from('page_sections').select('*').eq('type', 'rent_gallery').maybeSingle();
       if (data) {
         setCmsData(data.data);
       }

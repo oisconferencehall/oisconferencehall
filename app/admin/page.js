@@ -219,9 +219,15 @@ export default function AdminPage() {
     let design = null;
 
     try {
-      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).single();
+      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
       if (data?.data && data.data.elements) {
         design = data.data;
+      } else {
+        const local = localStorage.getItem(`gch_${templateKey}`);
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed?.elements) design = parsed;
+        }
       }
     } catch (e) {}
 
@@ -1626,7 +1632,17 @@ export default function AdminPage() {
             <div style={{ display:'flex', gap:'10px', justifyContent:'flex-end', marginTop:'30px' }}>
               <button className="btn btn-ghost" onClick={() => setEditingSection(null)}>Cancel</button>
               <button className="btn btn-primary" onClick={async () => {
-                await supabase.from('page_sections').update({ data: editingSection.data }).eq('id', editingSection.id);
+                await supabase.from('page_sections').update({ data: editingSection.data, updated_at: new Date().toISOString() }).eq('id', editingSection.id);
+                try {
+                  if (editingSection.type === 'partners' && editingSection.data?.partners) localStorage.setItem('gch-partners', JSON.stringify(editingSection.data.partners));
+                  if (editingSection.type === 'cases_videos' && editingSection.data?.videos) localStorage.setItem('gch-videos', JSON.stringify(editingSection.data.videos));
+                  if (editingSection.type === 'contacts') localStorage.setItem('gch-contacts', JSON.stringify(editingSection.data));
+                  if (editingSection.type === 'faq' && editingSection.data?.faq) localStorage.setItem('gch-faq', JSON.stringify(editingSection.data.faq));
+                  if (editingSection.type === 'halls' && editingSection.data?.halls) localStorage.setItem('gch-halls', JSON.stringify(editingSection.data.halls));
+                  if (editingSection.type === 'advantages' && editingSection.data?.advantages) localStorage.setItem('gch-advantages', JSON.stringify(editingSection.data.advantages));
+                  if (editingSection.type === 'announcement') localStorage.setItem('gch-announcement', JSON.stringify(editingSection.data));
+                  if (editingSection.type?.startsWith('ticket_template_')) localStorage.setItem(`gch_${editingSection.type}`, JSON.stringify(editingSection.data));
+                } catch (e) {}
                 setEditingSection(null);
                 fetchCms();
               }}>

@@ -132,13 +132,40 @@ export function AppProvider({ children }) {
 
         if (cmsRes && cmsRes.data) {
           cmsRes.data.forEach(sec => {
-            if (sec.type === 'partners' && sec.data?.partners) setPartnersState(sec.data.partners);
-            if (sec.type === 'cases_videos' && sec.data?.videos) setCmsVideosState(sec.data.videos);
-            if (sec.type === 'contacts' && sec.data) setCmsContactsState(sec.data);
-            if (sec.type === 'faq' && sec.data?.faq) setCmsFaqState(sec.data.faq);
-            if (sec.type === 'halls' && sec.data?.halls) setHallsListState(sec.data.halls);
-            if (sec.type === 'advantages' && sec.data?.advantages) setCmsAdvantagesState(sec.data.advantages);
-            if (sec.type === 'announcement' && sec.data) setCmsAnnouncementState({ ...DEFAULT_ANNOUNCEMENT, ...sec.data });
+            try {
+              if (sec.type === 'partners' && sec.data?.partners) {
+                setPartnersState(sec.data.partners);
+                localStorage.setItem('gch-partners', JSON.stringify(sec.data.partners));
+              }
+              if (sec.type === 'cases_videos' && sec.data?.videos) {
+                setCmsVideosState(sec.data.videos);
+                localStorage.setItem('gch-videos', JSON.stringify(sec.data.videos));
+              }
+              if (sec.type === 'contacts' && sec.data) {
+                setCmsContactsState(sec.data);
+                localStorage.setItem('gch-contacts', JSON.stringify(sec.data));
+              }
+              if (sec.type === 'faq' && sec.data?.faq) {
+                setCmsFaqState(sec.data.faq);
+                localStorage.setItem('gch-faq', JSON.stringify(sec.data.faq));
+              }
+              if (sec.type === 'halls' && sec.data?.halls) {
+                setHallsListState(sec.data.halls);
+                localStorage.setItem('gch-halls', JSON.stringify(sec.data.halls));
+              }
+              if (sec.type === 'advantages' && sec.data?.advantages) {
+                setCmsAdvantagesState(sec.data.advantages);
+                localStorage.setItem('gch-advantages', JSON.stringify(sec.data.advantages));
+              }
+              if (sec.type === 'announcement' && sec.data) {
+                const ann = { ...DEFAULT_ANNOUNCEMENT, ...sec.data };
+                setCmsAnnouncementState(ann);
+                localStorage.setItem('gch-announcement', JSON.stringify(ann));
+              }
+              if (sec.type?.startsWith('ticket_template_') && sec.data) {
+                localStorage.setItem(`gch_${sec.type}`, JSON.stringify(sec.data));
+              }
+            } catch (e) {}
           });
         }
         if (cmsRes && cmsRes.error) {
