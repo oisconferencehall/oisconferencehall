@@ -804,3 +804,261 @@ img, video, iframe, canvas, svg {
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .animate-spin { animation: spin 1s linear infinite; }
+
+/* ===== DIRECTIONS MAP ===== */
+.directions-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.directions-map-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Override leaflet default styles */
+.directions-map-container .leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.directions-map-container .leaflet-control-zoom a {
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 18px !important;
+  color: var(--text-primary) !important;
+  background: var(--bg-card) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  transition: background 0.2s ease;
+}
+
+.directions-map-container .leaflet-control-zoom a:last-child {
+  border-bottom: none !important;
+}
+
+.directions-map-container .leaflet-control-zoom a:hover {
+  background: var(--bg-secondary) !important;
+}
+
+.school-marker-icon,
+.user-marker-icon {
+  background: none !important;
+  border: none !important;
+}
+
+/* Controls */
+.directions-controls {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Mode toggle */
+.directions-mode-toggle {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border: 1px solid var(--border);
+}
+
+.directions-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.directions-mode-btn:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.directions-mode-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.directions-mode-btn.active {
+  background: #FFDD00;
+  color: #000;
+}
+
+/* Get directions button */
+.directions-get-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFDD00, #f59e0b);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(255, 221, 0, 0.35);
+  white-space: nowrap;
+}
+
+.directions-get-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(255, 221, 0, 0.45);
+}
+
+.directions-get-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Clear button */
+.directions-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.directions-clear-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+}
+
+/* Spin animation for loading icon */
+.directions-spin {
+  animation: directionsSpin 1s linear infinite;
+}
+
+@keyframes directionsSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Route info badge */
+.directions-info-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  animation: badgeSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.directions-info-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.directions-info-item svg {
+  color: #FFDD00;
+}
+
+.directions-info-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 14px;
+}
+
+/* Error */
+.directions-error {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 600;
+  animation: badgeSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .directions-controls {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    gap: 6px;
+  }
+
+  .directions-mode-btn span {
+    display: none;
+  }
+
+  .directions-mode-btn {
+    padding: 8px 12px;
+  }
+
+  .directions-get-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .directions-info-badge {
+    left: 8px;
+    bottom: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .directions-error {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    font-size: 12px;
+  }
+}

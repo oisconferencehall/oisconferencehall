@@ -1,5 +1,6 @@
 'use client';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import DirectionsMap from '@/components/DirectionsMap';
 import { useApp } from '@/context/AppContext';
 
 export default function Contacts() {
@@ -98,13 +99,9 @@ export default function Contacts() {
 
           </div>
 
-          {/* Map */}
+          {/* Map with Directions */}
           <div style={{ height: '450px', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', position: 'relative' }}>
-            <iframe 
-              src="https://maps.google.com/maps?q=39.6697673,66.9681312&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-              style={{ width: '100%', height: '100%', border: 0 }} 
-              allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade" 
-            />
+            <DirectionsMap />
           </div>
 
         </div>
