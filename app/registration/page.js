@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SEAT_NUMBERS, TOTAL_SEATS, normalizeSeatId, formatSeatDisplay, buildTakenSeatsSet } from '@/lib/seatUtils';
 import { QRCodeCanvas } from 'qrcode.react';
+import { jsPDF } from 'jspdf';
 
 // ─── Translations ──────────────────────────────────────────────
 const T = {
@@ -194,6 +195,7 @@ function RegistrationPageContent() {
   const [submitted, setSubmitted] = useState(false);
   const [lastReg, setLastReg] = useState(null);
   const [ticketUrl, setTicketUrl] = useState(null);
+  const [pdfData, setPdfData] = useState(null);
   const [toast, setToast] = useState(null);
   const [termsChecked, setTermsChecked] = useState(false);
 
@@ -476,7 +478,10 @@ function RegistrationPageContent() {
         }
       } catch (e) {}
 
-      const { data } = await supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
+      const fetchPromise = supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
+      const { data } = await Promise.race([fetchPromise, timeoutPromise]);
+      
       if (data?.data?.elements) {
         design = data.data;
       }
@@ -604,17 +609,26 @@ function RegistrationPageContent() {
 
     const triggerBlobDownload = () => {
       const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
-      const filename = `MovieDay-Ticket-${safeTicketId}.png`;
+      const filename = `MovieDay-Ticket-${safeTicketId}.pdf`;
 
       try {
-        const dataUrl = canvas.toDataURL('image/png', 1.0);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         setTicketUrl(dataUrl);
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        
+        // Generate PDF
+        const pdf = new jsPDF({
+          orientation: width > height ? 'l' : 'p',
+          unit: 'px',
+          format: [width, height]
+        });
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+        
+        // Output pdf as data URI for manual download
+        const pdfUri = pdf.output('datauristring');
+        setPdfData(pdfUri);
+
+        // Try automatic download
+        pdf.save(filename);
       } catch (e) {
         console.warn('Canvas export failed:', e);
       }
@@ -1217,10 +1231,17 @@ function RegistrationPageContent() {
                 <button 
                   className="reg-btn-primary" 
                   onClick={() => {
-                    if (ticketUrl) {
+                    if (pdfData) {
+                      const a = document.createElement('a');
+                      a.href = pdfData;
+                      a.download = `MovieDay-Ticket-${String(lastReg?.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-')}.pdf`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    } else if (ticketUrl) {
                       const a = document.createElement('a');
                       a.href = ticketUrl;
-                      a.download = `MovieDay-Ticket-${String(lastReg?.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-')}.png`;
+                      a.download = `MovieDay-Ticket-${String(lastReg?.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-')}.jpg`;
                       document.body.appendChild(a);
                       a.click();
                       document.body.removeChild(a);
@@ -1229,9 +1250,9 @@ function RegistrationPageContent() {
                     }
                   }}
                 >
-                  {t.download_again}
+                  {t.download_again} (PDF)
                 </button>
-                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setTicketUrl(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
+                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setTicketUrl(null); setPdfData(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
                   {t.register_another}
                 </button>
               </div>
