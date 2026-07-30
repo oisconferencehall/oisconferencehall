@@ -397,16 +397,6 @@ function RegistrationPageContent() {
     });
 
     const { data, error } = await anonSupabase.from('movie_registrations').insert([payload]).select().single();
-    
-    // Also insert into tickets table
-    await anonSupabase.from('tickets').insert([{
-      event_id: eventId || 'movie-day-2026',
-      event_title: movieTitle,
-      payer_name: `${form.firstName} ${form.lastName}`,
-      payer_phone: '+998 ' + form.phone,
-      total_price: 0,
-      status: 'confirmed'
-    }]);
 
     if (error) {
       if (error.message?.includes('unique constraint') || error.message?.includes('duplicate key') || error.code === '23505') {

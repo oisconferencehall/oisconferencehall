@@ -130,17 +130,29 @@ export default function AdminPage() {
 
       const combined = [];
       const seenCodes = new Set();
+      const seenPhones = new Set();
+      const seenNames = new Set();
 
       (mdData || []).forEach(r => {
         const rawCode = (r.ticket_id || '').split('::')[0];
         seenCodes.add(rawCode);
         seenCodes.add(r.id);
+        if (r.phone && r.phone !== '—') seenPhones.add(r.phone.replace(/\D/g, ''));
+        if (r.first_name && r.last_name) seenNames.add(`${r.first_name} ${r.last_name}`.toLowerCase().trim());
         combined.push(r);
       });
 
       (ticketsData || []).forEach(t => {
         const shortCode = (t.id || '').slice(0, 8).toUpperCase();
-        if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
+        const cleanPhone = (t.payer_phone || '').replace(/\D/g, '');
+        const cleanName = (t.payer_name || '').toLowerCase().trim();
+
+        if (
+          !seenCodes.has(t.id) &&
+          !seenCodes.has(shortCode) &&
+          (!cleanPhone || !seenPhones.has(cleanPhone)) &&
+          (!cleanName || !seenNames.has(cleanName))
+        ) {
           const nameParts = (t.payer_name || '').split(' ');
           const fName = nameParts[0] || 'Attendee';
           const lName = nameParts.slice(1).join(' ') || '';
