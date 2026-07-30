@@ -504,11 +504,28 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                     className="btn btn-danger btn-sm" 
                     onClick={async () => {
                       if (confirm(`Are you sure you want to delete ALL ${eventRegs.length} registrations for this event? This will free up all reserved seats.`)) {
-                        for (const r of eventRegs) {
-                          await deleteMdReg?.(r.id, r);
+                        try {
+                          const ids = eventRegs.map(r => r.id).filter(Boolean);
+                          const ticketIds = eventRegs.map(r => r.ticket_id).filter(Boolean);
+                          const phones = eventRegs.map(r => r.phone).filter(p => p && p !== '—');
+
+                          if (ids.length > 0) {
+                            await supabase.from('movie_registrations').delete().in('id', ids);
+                            try { await supabase.from('tickets').delete().in('id', ids); } catch (e) {}
+                          }
+                          if (ticketIds.length > 0) {
+                            await supabase.from('movie_registrations').delete().in('ticket_id', ticketIds);
+                          }
+                          if (phones.length > 0) {
+                            try { await supabase.from('tickets').delete().in('payer_phone', phones); } catch (e) {}
+                          }
+
+                          setToast({ title: 'Registrations Cleared', message: 'All attendee registrations deleted and seats freed up.', type: 'warning' });
+                          if (loadMdRegs) await loadMdRegs();
+                        } catch (err) {
+                          console.error('Clear All error:', err);
+                          setToast({ title: 'Error', message: 'Failed to clear registrations: ' + (err.message || err), type: 'error' });
                         }
-                        setToast({ title: 'Registrations Cleared', message: 'All attendee registrations deleted and seats freed up.', type: 'warning' });
-                        loadMdRegs?.();
                       }
                     }}
                     style={{ background: '#ef4444', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer' }}

@@ -202,31 +202,68 @@ export default function AdminPage() {
 
   const deleteMdReg = async (id, targetReg) => {
     try {
-      const reg = targetReg || mdRegs.find(r => r.id === id);
+      const reg = targetReg || mdRegs.find(r => r.id === id || r.ticket_id === id);
+      const ticketId = reg?.ticket_id || id;
       
-      // 1. Delete from movie_registrations table by primary key id
-      const { error: err1 } = await supabase.from('movie_registrations').delete().eq('id', id);
-      if (err1) throw err1;
+      // 1. Delete from movie_registrations table by primary key id AND ticket_id
+      if (id) {
+        await supabase.from('movie_registrations').delete().eq('id', id);
+      }
+      if (ticketId) {
+        await supabase.from('movie_registrations').delete().eq('ticket_id', ticketId);
+      }
       
-      // 2. Delete matching tickets table entry by phone, name, or ticket code
+      // 2. Delete matching tickets table entry safely
+      if (id) {
+        try { await supabase.from('tickets').delete().eq('id', id); } catch (e) {}
+      }
       if (reg) {
         if (reg.phone && reg.phone !== '—') {
-          await supabase.from('tickets').delete().eq('payer_phone', reg.phone);
+          try { await supabase.from('tickets').delete().eq('payer_phone', reg.phone); } catch (e) {}
         }
         if (reg.first_name && reg.last_name) {
           const fullName = `${reg.first_name} ${reg.last_name}`.trim();
-          await supabase.from('tickets').delete().eq('payer_name', fullName);
+          try { await supabase.from('tickets').delete().eq('payer_name', fullName); } catch (e) {}
         }
       }
       
-      // Direct delete on tickets table by id
-      await supabase.from('tickets').delete().eq('id', id);
-      
-      setMdRegs(prev => prev.filter(r => r.id !== id));
+      setMdRegs(prev => prev.filter(r => r.id !== id && r.ticket_id !== ticketId));
       setToast({ title: 'Success', message: 'Registration deleted', type: 'success' });
     } catch (err) {
       console.error('Delete error:', err);
-      setToast({ title: 'Error', message: 'Failed to delete registration: ' + err.message, type: 'error' });
+      setToast({ title: 'Error', message: 'Failed to delete registration: ' + (err.message || err), type: 'error' });
+    }
+  };
+
+  const clearAllMdRegs = async (filteredRegs) => {
+    const targetRegs = filteredRegs || mdRegs;
+    if (!targetRegs || targetRegs.length === 0) return;
+    
+    if (!confirm(`Are you sure you want to delete ALL ${targetRegs.length} registration records? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      const ids = targetRegs.map(r => r.id).filter(Boolean);
+      const ticketIds = targetRegs.map(r => r.ticket_id).filter(Boolean);
+      const phones = targetRegs.map(r => r.phone).filter(p => p && p !== '—');
+
+      if (ids.length > 0) {
+        await supabase.from('movie_registrations').delete().in('id', ids);
+        try { await supabase.from('tickets').delete().in('id', ids); } catch (e) {}
+      }
+      if (ticketIds.length > 0) {
+        await supabase.from('movie_registrations').delete().in('ticket_id', ticketIds);
+      }
+      if (phones.length > 0) {
+        try { await supabase.from('tickets').delete().in('payer_phone', phones); } catch (e) {}
+      }
+
+      setToast({ title: 'Registrations Cleared', message: 'All registrations deleted successfully.', type: 'warning' });
+      await loadMdRegs();
+    } catch (err) {
+      console.error('Error clearing registrations:', err);
+      setToast({ title: 'Error', message: 'Failed to clear registrations: ' + (err.message || err), type: 'error' });
     }
   };
 
