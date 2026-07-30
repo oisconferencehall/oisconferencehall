@@ -490,6 +490,9 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                 />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="btn btn-outline btn-sm" onClick={() => loadMdRegs?.()} style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.5)' }}>
+                  <RotateCcw size={14}/> Refresh
+                </button>
                 <button className="btn btn-outline btn-sm" onClick={exportCSV} style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.5)' }}>
                   <Download size={14}/> Export CSV
                 </button>
