@@ -301,9 +301,9 @@ function RegistrationPageContent() {
   }, []);
 
   useEffect(() => {
-    if (step === 2) { loadSeats(); subscribeSeats(); }
+    loadSeats(); subscribeSeats();
     return () => { if (subRef.current) supabase.removeChannel(subRef.current); };
-  }, [step, loadSeats, subscribeSeats]);
+  }, [loadSeats, subscribeSeats]);
 
   // ── Auto-fit zoom ───────────────────────────────────────────
   useEffect(() => {
@@ -402,6 +402,9 @@ function RegistrationPageContent() {
     if (error) {
       if (error.message?.includes('unique constraint') || error.message?.includes('duplicate key') || error.code === '23505') {
         showToast('This seat was just reserved by another attendee. Please select another seat.', 'error');
+        setActivePreselectedSeats([]);
+        setSelectedSeat(null);
+        setStep(2);
       } else {
         showToast('Registration failed: ' + error.message, 'error');
       }
@@ -1102,7 +1105,7 @@ function RegistrationPageContent() {
                                           return (
                                             <div key={id} title={`Seat #${num}${taken?' (Taken)':sel?' (Selected)':' (Available)'}`}
                                               className={`seat${block.vip?' vip':' regular'}${taken?' taken':''}${sel?' selected':''}`}
-                                              onClick={()=>{ if(!taken){ setSelectedSeat(id); } }}>
+                                              onClick={()=>{ if(!taken){ setSelectedSeat(id); setActivePreselectedSeats([]); } }}>
                                               {num}
                                             </div>
                                           );
