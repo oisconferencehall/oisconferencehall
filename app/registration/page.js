@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SEAT_NUMBERS, TOTAL_SEATS, normalizeSeatId, formatSeatDisplay, buildTakenSeatsSet } from '@/lib/seatUtils';
 import { QRCodeCanvas } from 'qrcode.react';
+import { jsPDF } from 'jspdf';
 
 // ─── Translations ──────────────────────────────────────────────
 const T = {
@@ -371,6 +372,9 @@ function RegistrationPageContent() {
 
   const submit = async () => {
     if (!termsChecked) { showToast('Please confirm your details first.', 'error'); return; }
+    // Ensure a seat is selected
+    const hasSeat = activePreselectedSeats.length > 0 || selectedSeat;
+    if (!hasSeat) { showToast('Please select a seat first.', 'error'); setStep(2); return; }
     setSubmitting(true);
     try {
       const movieTitle = event?.title || 'Movie Day 2026';
@@ -596,44 +600,58 @@ function RegistrationPageContent() {
     };
 
     const createPdfInstance = (options) => {
-      let PDFClass = null;
       try {
-        const mod = require('jspdf');
-        PDFClass = mod.jsPDF || mod.default;
-      } catch (e) {}
-
-      if (typeof PDFClass !== 'function' && typeof window !== 'undefined') {
-        PDFClass = window.jspdf?.jsPDF || window.jsPDF;
-      }
-
-      if (typeof PDFClass !== 'function') {
+        return new jsPDF(options);
+      } catch (e) {
+        console.warn('jsPDF instantiation failed:', e);
+        // Fallback: try window globals
+        if (typeof window !== 'undefined') {
+          const PDFClass = window.jspdf?.jsPDF || window.jsPDF;
+          if (typeof PDFClass === 'function') {
+            return new PDFClass(options);
+          }
+        }
         return null;
       }
-      return new PDFClass(options);
     };
 
     const triggerBlobDownload = () => {
       const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
-      const filename = `MovieDay-Ticket-${safeTicketId}.pdf`;
 
       try {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         setTicketUrl(dataUrl);
 
-        const pdf = createPdfInstance({
-          orientation: width > height ? 'l' : 'p',
-          unit: 'px',
-          format: [width, height]
-        });
+        let pdfCreated = false;
+        try {
+          const pdf = createPdfInstance({
+            orientation: width > height ? 'l' : 'p',
+            unit: 'px',
+            format: [width, height]
+          });
 
-        if (pdf) {
-          pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
-          const pdfUri = pdf.output('datauristring');
-          setPdfData(pdfUri);
-          pdf.save(filename);
+          if (pdf) {
+            pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+            const pdfUri = pdf.output('datauristring');
+            setPdfData(pdfUri);
+            pdf.save(`MovieDay-Ticket-${safeTicketId}.pdf`);
+            pdfCreated = true;
+          }
+        } catch (pdfErr) {
+          console.warn('PDF generation failed, falling back to image download:', pdfErr);
+        }
+
+        // Fallback: download as JPEG image if PDF failed
+        if (!pdfCreated) {
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = `MovieDay-Ticket-${safeTicketId}.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
         }
       } catch (e) {
-        console.warn('Canvas export or PDF generation failed:', e);
+        console.warn('Canvas export failed:', e);
       }
     };
 
@@ -645,7 +663,7 @@ function RegistrationPageContent() {
 
     // Then attempt to load background image asynchronously
     const bgUrl = reg?.movie_image || design.bgImage || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80';
-    const bgImg = new Image();
+    const bgImg = new window.Image();
     bgImg.crossOrigin = 'anonymous';
 
     let done = false;
