@@ -353,6 +353,7 @@ function RegistrationPageContent() {
 
   const goStep2 = () => { 
     if (validateStep1()) {
+      loadSeats();
       if (activePreselectedSeats.length > 0) {
         const isAnyTaken = activePreselectedSeats.some(s => takenSeats.has(s) || takenSeats.has(normalizeSeatId(s)));
         if (isAnyTaken) {
@@ -423,6 +424,7 @@ function RegistrationPageContent() {
       showToast("Registered successfully!", 'success');
       generateTicketImage(cleanReg);
       setSubmitted(true);
+      loadSeats();
     } catch (err) {
       console.error('Submission error:', err);
       showToast('Registration error: ' + (err.message || err), 'error');
@@ -1284,7 +1286,7 @@ function RegistrationPageContent() {
                 >
                   {t.download_again} (PDF)
                 </button>
-                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setTicketUrl(null); setPdfData(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
+                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setTicketUrl(null); setPdfData(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); loadSeats(); }}>
                   {t.register_another}
                 </button>
               </div>
