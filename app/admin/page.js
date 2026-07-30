@@ -125,8 +125,13 @@ export default function AdminPage() {
   const loadMdRegs = async () => {
     setMdLoading(true);
     try {
-      const { data: mdData } = await supabase.from('movie_registrations').select('*').order('created_at', { ascending: false });
-      const { data: ticketsData } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
+      const { createClient } = require('@supabase/supabase-js');
+      const noCacheSupabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        auth: { persistSession: false },
+        global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
+      });
+      const { data: mdData } = await noCacheSupabase.from('movie_registrations').select('*').order('created_at', { ascending: false });
+      const { data: ticketsData } = await noCacheSupabase.from('tickets').select('*').order('created_at', { ascending: false });
 
       const combined = [];
       const seenCodes = new Set();
