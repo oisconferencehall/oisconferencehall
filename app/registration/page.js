@@ -541,7 +541,7 @@ function RegistrationPageContent() {
           const formattedPhone = rawPhone.startsWith('+998') ? rawPhone : (rawPhone ? `+998 ${rawPhone}` : '');
           const rawTicketId = reg.ticket_id || '';
           const formattedTicketId = rawTicketId.includes('::') ? rawTicketId.split('::')[0] : rawTicketId;
-          const movieTitleText = reg.movie_title || selectedEvent?.title || 'Movie Day 2026';
+          const movieTitleText = reg.movie_title || event?.title || 'Movie Day 2026';
 
           const text = rawText
             .replace(/{first_name}/g, reg.first_name || '')
