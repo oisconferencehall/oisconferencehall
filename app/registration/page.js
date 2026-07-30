@@ -8,7 +8,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SEAT_NUMBERS, TOTAL_SEATS, normalizeSeatId, formatSeatDisplay, buildTakenSeatsSet } from '@/lib/seatUtils';
 import { QRCodeCanvas } from 'qrcode.react';
-import { jsPDF } from 'jspdf';
 
 // ─── Translations ──────────────────────────────────────────────
 const T = {
@@ -596,6 +595,23 @@ function RegistrationPageContent() {
       });
     };
 
+    const createPdfInstance = (options) => {
+      let PDFClass = null;
+      try {
+        const mod = require('jspdf');
+        PDFClass = mod.jsPDF || mod.default;
+      } catch (e) {}
+
+      if (typeof PDFClass !== 'function' && typeof window !== 'undefined') {
+        PDFClass = window.jspdf?.jsPDF || window.jsPDF;
+      }
+
+      if (typeof PDFClass !== 'function') {
+        return null;
+      }
+      return new PDFClass(options);
+    };
+
     const triggerBlobDownload = () => {
       const safeTicketId = String(reg.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-');
       const filename = `MovieDay-Ticket-${safeTicketId}.pdf`;
@@ -604,18 +620,13 @@ function RegistrationPageContent() {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         setTicketUrl(dataUrl);
 
-        // Safe constructor lookup for jsPDF across bundlers
-        let PDFClass = jsPDF;
-        if (typeof PDFClass !== 'function' && typeof window !== 'undefined') {
-          PDFClass = window.jspdf?.jsPDF || require('jspdf').jsPDF;
-        }
+        const pdf = createPdfInstance({
+          orientation: width > height ? 'l' : 'p',
+          unit: 'px',
+          format: [width, height]
+        });
 
-        if (PDFClass) {
-          const pdf = new PDFClass({
-            orientation: width > height ? 'l' : 'p',
-            unit: 'px',
-            format: [width, height]
-          });
+        if (pdf) {
           pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
           const pdfUri = pdf.output('datauristring');
           setPdfData(pdfUri);
