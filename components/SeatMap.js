@@ -108,15 +108,12 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange, 
           combined.push(r);
         });
 
-        (ticketsData || []).forEach((t, idx) => {
-          const shortCode = (t.id || '').slice(0, 8).toUpperCase();
-          if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
-            combined.push({
-              id: t.id,
-              ticket_id: `${shortCode}::${t.event_id || ''}::${t.event_title || ''}`,
-              seat: t.seat || `Seat #${idx + 1}`,
-              created_at: t.created_at
-            });
+        (ticketsData || []).forEach(t => {
+          if (t.seat) {
+            const shortCode = (t.id || '').slice(0, 8).toUpperCase();
+            if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
+              combined.push(t);
+            }
           }
         });
 

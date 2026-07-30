@@ -152,7 +152,7 @@ export default function AdminPage() {
             phone: t.payer_phone || '—',
             english_level: 'Confirmed',
             branch: t.event_title || 'General',
-            seat: t.seat || `Seat #${idx + 1}`,
+            seat: t.seat || '',
             created_at: t.created_at,
             source: 'tickets'
           });
@@ -173,10 +173,31 @@ export default function AdminPage() {
     }
   }, [authenticated, activeTab]);
 
-  const deleteMdReg = async (id) => {
-    await supabase.from('movie_registrations').delete().eq('id', id);
-    await supabase.from('tickets').delete().eq('id', id);
-    setMdRegs(prev => prev.filter(r => r.id !== id));
+  const deleteMdReg = async (id, targetReg) => {
+    try {
+      const reg = targetReg || mdRegs.find(r => r.id === id);
+      
+      // 1. Delete from movie_registrations table by primary key id
+      await supabase.from('movie_registrations').delete().eq('id', id);
+      
+      // 2. Delete matching tickets table entry by phone, name, or ticket code
+      if (reg) {
+        if (reg.phone && reg.phone !== '—') {
+          await supabase.from('tickets').delete().eq('payer_phone', reg.phone);
+        }
+        if (reg.first_name && reg.last_name) {
+          const fullName = `${reg.first_name} ${reg.last_name}`.trim();
+          await supabase.from('tickets').delete().eq('payer_name', fullName);
+        }
+      }
+      
+      // Direct delete on tickets table by id
+      await supabase.from('tickets').delete().eq('id', id);
+      
+      setMdRegs(prev => prev.filter(r => r.id !== id));
+    } catch (err) {
+      console.error('Error deleting registration:', err);
+    }
   };
 
   const exportMdCSV = () => {
@@ -1319,7 +1340,7 @@ export default function AdminPage() {
                                 <button className="btn btn-outline btn-sm" style={{ padding:'4px 8px', fontSize:'11px', display:'flex', alignItems:'center', gap:'4px' }} onClick={() => setDesignTicket({ ...r, parsed })}>
                                   <Eye size={12}/> Ticket
                                 </button>
-                                <button className="btn btn-danger btn-sm" onClick={()=>{ if(confirm('Delete this registration?')) deleteMdReg(r.id); }}>
+                                <button className="btn btn-danger btn-sm" onClick={()=>{ if(confirm('Delete this registration?')) deleteMdReg(r.id, r); }}>
                                   <Trash2 size={12}/>
                                 </button>
                               </td>

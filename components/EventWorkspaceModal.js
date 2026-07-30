@@ -643,7 +643,8 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
         onCancel={() => setConfirmDeleteId(null)}
         onConfirm={async () => {
           if (confirmDeleteId) {
-            await deleteMdReg?.(confirmDeleteId);
+            const targetObj = mdRegs.find(r => r.id === confirmDeleteId);
+            await deleteMdReg?.(confirmDeleteId, targetObj);
             setToast({ title: 'Attendee Deleted', message: 'Attendee registration deleted successfully.', type: 'warning' });
             setConfirmDeleteId(null);
           }
