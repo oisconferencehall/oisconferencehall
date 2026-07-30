@@ -204,6 +204,7 @@ export default function AdminPage() {
     try {
       const reg = targetReg || mdRegs.find(r => r.id === id || r.ticket_id === id);
       const ticketId = reg?.ticket_id || id;
+      const rawCode = ticketId ? String(ticketId).split('::')[0] : '';
       
       // 1. Delete from movie_registrations table by primary key id AND ticket_id
       if (id) {
@@ -213,11 +214,17 @@ export default function AdminPage() {
         await supabase.from('movie_registrations').delete().eq('ticket_id', ticketId);
       }
       
-      // 2. Delete matching tickets table entry safely
+      // 2. Delete matching tickets table entries by id, rawCode, seat, phone, name
       if (id) {
         try { await supabase.from('tickets').delete().eq('id', id); } catch (e) {}
       }
+      if (rawCode) {
+        try { await supabase.from('tickets').delete().eq('id', rawCode); } catch (e) {}
+      }
       if (reg) {
+        if (reg.seat) {
+          try { await supabase.from('tickets').delete().eq('seat', reg.seat); } catch (e) {}
+        }
         if (reg.phone && reg.phone !== '—') {
           try { await supabase.from('tickets').delete().eq('payer_phone', reg.phone); } catch (e) {}
         }
@@ -227,8 +234,9 @@ export default function AdminPage() {
         }
       }
       
-      setMdRegs(prev => prev.filter(r => r.id !== id && r.ticket_id !== ticketId));
+      setMdRegs(prev => prev.filter(r => r.id !== id && r.ticket_id !== ticketId && (!rawCode || !String(r.ticket_id).startsWith(rawCode))));
       setToast({ title: 'Success', message: 'Registration deleted', type: 'success' });
+      await loadMdRegs();
     } catch (err) {
       console.error('Delete error:', err);
       setToast({ title: 'Error', message: 'Failed to delete registration: ' + (err.message || err), type: 'error' });
@@ -246,6 +254,8 @@ export default function AdminPage() {
     try {
       const ids = targetRegs.map(r => r.id).filter(Boolean);
       const ticketIds = targetRegs.map(r => r.ticket_id).filter(Boolean);
+      const rawCodes = targetRegs.map(r => r.ticket_id ? String(r.ticket_id).split('::')[0] : null).filter(Boolean);
+      const seats = targetRegs.map(r => r.seat).filter(Boolean);
       const phones = targetRegs.map(r => r.phone).filter(p => p && p !== '—');
 
       if (ids.length > 0) {
@@ -254,6 +264,12 @@ export default function AdminPage() {
       }
       if (ticketIds.length > 0) {
         await supabase.from('movie_registrations').delete().in('ticket_id', ticketIds);
+      }
+      if (rawCodes.length > 0) {
+        try { await supabase.from('tickets').delete().in('id', rawCodes); } catch (e) {}
+      }
+      if (seats.length > 0) {
+        try { await supabase.from('tickets').delete().in('seat', seats); } catch (e) {}
       }
       if (phones.length > 0) {
         try { await supabase.from('tickets').delete().in('payer_phone', phones); } catch (e) {}

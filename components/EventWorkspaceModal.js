@@ -507,6 +507,8 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                         try {
                           const ids = eventRegs.map(r => r.id).filter(Boolean);
                           const ticketIds = eventRegs.map(r => r.ticket_id).filter(Boolean);
+                          const rawCodes = eventRegs.map(r => r.ticket_id ? String(r.ticket_id).split('::')[0] : null).filter(Boolean);
+                          const seats = eventRegs.map(r => r.seat).filter(Boolean);
                           const phones = eventRegs.map(r => r.phone).filter(p => p && p !== '—');
 
                           if (ids.length > 0) {
@@ -515,6 +517,12 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                           }
                           if (ticketIds.length > 0) {
                             await supabase.from('movie_registrations').delete().in('ticket_id', ticketIds);
+                          }
+                          if (rawCodes.length > 0) {
+                            try { await supabase.from('tickets').delete().in('id', rawCodes); } catch (e) {}
+                          }
+                          if (seats.length > 0) {
+                            try { await supabase.from('tickets').delete().in('seat', seats); } catch (e) {}
                           }
                           if (phones.length > 0) {
                             try { await supabase.from('tickets').delete().in('payer_phone', phones); } catch (e) {}
@@ -680,10 +688,11 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
         onCancel={() => setConfirmDeleteId(null)}
         onConfirm={async () => {
           if (confirmDeleteId) {
-            const targetObj = mdRegs.find(r => r.id === confirmDeleteId);
+            const targetObj = mdRegs.find(r => r.id === confirmDeleteId || r.ticket_id === confirmDeleteId);
             await deleteMdReg?.(confirmDeleteId, targetObj);
             setToast({ title: 'Attendee Deleted', message: 'Attendee registration deleted successfully.', type: 'warning' });
             setConfirmDeleteId(null);
+            if (loadMdRegs) await loadMdRegs();
           }
         }}
       />
