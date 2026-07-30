@@ -205,7 +205,8 @@ export default function AdminPage() {
       const reg = targetReg || mdRegs.find(r => r.id === id);
       
       // 1. Delete from movie_registrations table by primary key id
-      await supabase.from('movie_registrations').delete().eq('id', id);
+      const { error: err1 } = await supabase.from('movie_registrations').delete().eq('id', id);
+      if (err1) throw err1;
       
       // 2. Delete matching tickets table entry by phone, name, or ticket code
       if (reg) {
@@ -222,8 +223,10 @@ export default function AdminPage() {
       await supabase.from('tickets').delete().eq('id', id);
       
       setMdRegs(prev => prev.filter(r => r.id !== id));
+      setToast({ title: 'Success', message: 'Registration deleted', type: 'success' });
     } catch (err) {
-      console.error('Error deleting registration:', err);
+      console.error('Delete error:', err);
+      setToast({ title: 'Error', message: 'Failed to delete registration: ' + err.message, type: 'error' });
     }
   };
 
