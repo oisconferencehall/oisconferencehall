@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -212,7 +213,6 @@ function RegistrationPageContent() {
   const loadSeats = useCallback(async () => {
     setSeatsLoading(true);
     try {
-      const { createClient } = require('@supabase/supabase-js');
       const anonSupabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
         auth: { persistSession: false },
         global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
@@ -373,56 +373,59 @@ function RegistrationPageContent() {
   const submit = async () => {
     if (!termsChecked) { showToast('Please confirm your details first.', 'error'); return; }
     setSubmitting(true);
-    const movieTitle = event?.title || 'Movie Day 2026';
-    const baseCode = 'MD-' + Date.now().toString(36).toUpperCase();
-    const fullTicketId = eventId ? `${baseCode}::${eventId}::${movieTitle}` : `${baseCode}::general::${movieTitle}`;
-    const branch = form.branch === 'Other' ? form.otherBranch : form.branch;
-    // Normalize seat to canonical format before saving
-    const rawSeatInput = activePreselectedSeats.length > 0 ? activePreselectedSeats.join(', ') : selectedSeat;
-    const rawSeat = rawSeatInput ? (rawSeatInput.includes(',') 
-      ? rawSeatInput.split(',').map(s => normalizeSeatId(s.trim()) || s.trim()).join(', ')
-      : normalizeSeatId(rawSeatInput) || rawSeatInput) : rawSeatInput;
-    
-    // Store composite seat per event to make seat unique per event across database constraints
-    const targetEventId = eventId || 'general';
-    const dbSeatVal = `${targetEventId}::${rawSeat}`;
-    
-    const payload = {
-      first_name: form.firstName, last_name: form.lastName,
-      phone: '+998 ' + form.phone, english_level: form.englishLevel,
-      branch, seat: dbSeatVal, ticket_id: fullTicketId,
-    };
-    
-    // Create an anonymous client so it doesn't send the authenticated user's JWT, avoiding RLS 'anon' policy violations
-    const { createClient } = require('@supabase/supabase-js');
-    const anonSupabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-      auth: { persistSession: false }
-    });
+    try {
+      const movieTitle = event?.title || 'Movie Day 2026';
+      const baseCode = 'MD-' + Date.now().toString(36).toUpperCase();
+      const fullTicketId = eventId ? `${baseCode}::${eventId}::${movieTitle}` : `${baseCode}::general::${movieTitle}`;
+      const branch = form.branch === 'Other' ? form.otherBranch : form.branch;
+      // Normalize seat to canonical format before saving
+      const rawSeatInput = activePreselectedSeats.length > 0 ? activePreselectedSeats.join(', ') : selectedSeat;
+      const rawSeat = rawSeatInput ? (rawSeatInput.includes(',') 
+        ? rawSeatInput.split(',').map(s => normalizeSeatId(s.trim()) || s.trim()).join(', ')
+        : normalizeSeatId(rawSeatInput) || rawSeatInput) : rawSeatInput;
+      
+      // Store composite seat per event to make seat unique per event across database constraints
+      const targetEventId = eventId || 'general';
+      const dbSeatVal = `${targetEventId}::${rawSeat}`;
+      
+      const payload = {
+        first_name: form.firstName, last_name: form.lastName,
+        phone: '+998 ' + form.phone, english_level: form.englishLevel,
+        branch, seat: dbSeatVal, ticket_id: fullTicketId,
+      };
+      
+      const anonSupabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        auth: { persistSession: false }
+      });
 
-    const { data, error } = await anonSupabase.from('movie_registrations').insert([payload]).select().single();
+      const { data, error } = await anonSupabase.from('movie_registrations').insert([payload]).select().single();
 
-    if (error) {
-      if (error.message?.includes('unique constraint') || error.message?.includes('duplicate key') || error.code === '23505') {
-        showToast('This seat was just reserved by another attendee. Please select another seat.', 'error');
-        setActivePreselectedSeats([]);
-        setSelectedSeat(null);
-        setStep(2);
-      } else {
-        showToast('Registration failed: ' + error.message, 'error');
+      if (error) {
+        if (error.message?.includes('unique constraint') || error.message?.includes('duplicate key') || error.code === '23505') {
+          showToast('This seat was just reserved by another attendee. Please select another seat.', 'error');
+          setActivePreselectedSeats([]);
+          setSelectedSeat(null);
+          setStep(2);
+        } else {
+          showToast('Registration failed: ' + error.message, 'error');
+        }
+        return;
       }
-      setSubmitting(false);
-      return;
-    }
 
-    const cleanReg = {
-      ...(data || payload),
-      seat: rawSeat
-    };
-    setLastReg(cleanReg);
-    showToast("Registered successfully!", 'success');
-    generateTicketImage(cleanReg);
-    setSubmitted(true);
-    setSubmitting(false);
+      const cleanReg = {
+        ...(data || payload),
+        seat: rawSeat
+      };
+      setLastReg(cleanReg);
+      showToast("Registered successfully!", 'success');
+      generateTicketImage(cleanReg);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Submission error:', err);
+      showToast('Registration error: ' + (err.message || err), 'error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const DEFAULT_TICKET_PRESET = {
