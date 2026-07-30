@@ -461,33 +461,19 @@ function RegistrationPageContent() {
     ]
   };
 
-  const generateTicketImage = async (reg) => {
+  const generateTicketImage = (reg) => {
     if (typeof window === 'undefined' || !reg) return;
 
     let design = DEFAULT_TICKET_PRESET;
     try {
       const slugKey = reg.movie_title ? reg.movie_title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'movie-day';
       const templateKey = `ticket_template_${slugKey}`;
-      
-      // Try local storage first
-      try {
-        const local = localStorage.getItem(`gch_${templateKey}`);
-        if (local) {
-          const parsed = JSON.parse(local);
-          if (parsed?.elements) design = parsed;
-        }
-      } catch (e) {}
-
-      const fetchPromise = supabase.from('page_sections').select('data').eq('type', templateKey).maybeSingle();
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
-      const { data } = await Promise.race([fetchPromise, timeoutPromise]);
-      
-      if (data?.data?.elements) {
-        design = data.data;
+      const local = localStorage.getItem(`gch_${templateKey}`);
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (parsed?.elements) design = parsed;
       }
-    } catch (e) {
-      console.log('Using fallback preset for ticket generation');
-    }
+    } catch (e) {}
 
     const width = design.width || 480;
     const height = design.height || 680;
@@ -614,26 +600,36 @@ function RegistrationPageContent() {
       try {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         setTicketUrl(dataUrl);
-        
-        // Generate PDF
-        const pdf = new jsPDF({
-          orientation: width > height ? 'l' : 'p',
-          unit: 'px',
-          format: [width, height]
-        });
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
-        
-        // Output pdf as data URI for manual download
-        const pdfUri = pdf.output('datauristring');
-        setPdfData(pdfUri);
 
-        // Try automatic download
-        pdf.save(filename);
+        // Safe constructor lookup for jsPDF across bundlers
+        let PDFClass = jsPDF;
+        if (typeof PDFClass !== 'function' && typeof window !== 'undefined') {
+          PDFClass = window.jspdf?.jsPDF || require('jspdf').jsPDF;
+        }
+
+        if (PDFClass) {
+          const pdf = new PDFClass({
+            orientation: width > height ? 'l' : 'p',
+            unit: 'px',
+            format: [width, height]
+          });
+          pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+          const pdfUri = pdf.output('datauristring');
+          setPdfData(pdfUri);
+          pdf.save(filename);
+        }
       } catch (e) {
-        console.warn('Canvas export failed:', e);
+        console.warn('Canvas export or PDF generation failed:', e);
       }
     };
 
+    // First render immediately with background gradient so image is set instantly!
+    renderAllElements(null);
+    try {
+      setTicketUrl(canvas.toDataURL('image/jpeg', 0.95));
+    } catch (e) {}
+
+    // Then attempt to load background image asynchronously
     const bgUrl = reg?.movie_image || design.bgImage || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80';
     const bgImg = new Image();
     bgImg.crossOrigin = 'anonymous';
@@ -647,10 +643,6 @@ function RegistrationPageContent() {
         triggerBlobDownload();
       } catch (err) {
         console.error('Ticket rendering error:', err);
-        try {
-          const fallbackDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          setTicketUrl(fallbackDataUrl);
-        } catch (e) {}
       }
     };
 
@@ -658,7 +650,7 @@ function RegistrationPageContent() {
     bgImg.onerror = finish;
     bgImg.src = bgUrl;
 
-    setTimeout(finish, 1200);
+    setTimeout(finish, 300);
   };
 
   const LEVELS = [
