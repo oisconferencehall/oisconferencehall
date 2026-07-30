@@ -552,7 +552,7 @@ function RegistrationPageContent() {
           const formattedPhone = rawPhone.startsWith('+998') ? rawPhone : (rawPhone ? `+998 ${rawPhone}` : '');
           const rawTicketId = reg.ticket_id || '';
           const formattedTicketId = rawTicketId.includes('::') ? rawTicketId.split('::')[0] : rawTicketId;
-          const movieTitleText = reg.movie_title || event?.title || 'Movie Day 2026';
+          const movieTitleText = reg.movie_title || selectedEvent?.title || 'Movie Day 2026';
 
           const text = rawText
             .replace(/{first_name}/g, reg.first_name || '')
@@ -642,8 +642,16 @@ function RegistrationPageContent() {
     const finish = () => {
       if (done) return;
       done = true;
-      renderAllElements(bgImg);
-      triggerBlobDownload();
+      try {
+        renderAllElements(bgImg);
+        triggerBlobDownload();
+      } catch (err) {
+        console.error('Ticket rendering error:', err);
+        try {
+          const fallbackDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          setTicketUrl(fallbackDataUrl);
+        } catch (e) {}
+      }
     };
 
     bgImg.onload = finish;
