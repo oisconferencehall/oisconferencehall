@@ -607,30 +607,14 @@ function RegistrationPageContent() {
       const filename = `MovieDay-Ticket-${safeTicketId}.png`;
 
       try {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const blobUrl = URL.createObjectURL(blob);
-            setTicketUrl(blobUrl);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-              document.body.removeChild(a);
-              // Do not revoke immediately as the user might click download again
-            }, 2000);
-          } else {
-            const dataUrl = canvas.toDataURL('image/png');
-            setTicketUrl(dataUrl);
-            const a = document.createElement('a');
-            a.href = dataUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }
-        }, 'image/png');
+        const dataUrl = canvas.toDataURL('image/png', 1.0);
+        setTicketUrl(dataUrl);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       } catch (e) {
         console.warn('Canvas export failed:', e);
       }
@@ -1218,6 +1202,17 @@ function RegistrationPageContent() {
                 {lastReg.first_name} {lastReg.last_name} · {lastReg.branch}<br/>
                 Seat: {formatSeat(lastReg.seat)} · {lastReg.english_level}
               </div>
+              
+              <div style={{margin: '20px 0', textAlign: 'center'}}>
+                {ticketUrl ? (
+                  <img src={ticketUrl} alt="Your Ticket" style={{maxWidth: '100%', borderRadius: 16, border: '2px solid rgba(255,255,255,0.1)'}} />
+                ) : (
+                  <div style={{padding: '40px 20px', border: '2px dashed rgba(255,255,255,0.15)', borderRadius: 16, color: 'rgba(255,255,255,0.5)', fontSize: 13}}>
+                    Generating your ticket image...
+                  </div>
+                )}
+              </div>
+
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
                 <button 
                   className="reg-btn-primary" 
