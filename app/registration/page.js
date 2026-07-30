@@ -1219,13 +1219,23 @@ function RegistrationPageContent() {
                 Seat: {formatSeat(lastReg.seat)} · {lastReg.english_level}
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {ticketUrl ? (
-                  <a href={ticketUrl} download={`MovieDay-Ticket-${String(lastReg?.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-')}.png`} className="reg-btn-primary" style={{display:'flex',justifyContent:'center',textDecoration:'none'}}>
-                    {t.download_again}
-                  </a>
-                ) : (
-                  <button className="reg-btn-primary" onClick={() => generateTicketImage(lastReg)}>{t.download_again}</button>
-                )}
+                <button 
+                  className="reg-btn-primary" 
+                  onClick={() => {
+                    if (ticketUrl) {
+                      const a = document.createElement('a');
+                      a.href = ticketUrl;
+                      a.download = `MovieDay-Ticket-${String(lastReg?.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-')}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    } else {
+                      generateTicketImage(lastReg);
+                    }
+                  }}
+                >
+                  {t.download_again}
+                </button>
                 <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setTicketUrl(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
                   {t.register_another}
                 </button>
