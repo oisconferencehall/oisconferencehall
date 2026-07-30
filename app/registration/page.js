@@ -193,6 +193,7 @@ function RegistrationPageContent() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [lastReg, setLastReg] = useState(null);
+  const [ticketUrl, setTicketUrl] = useState(null);
   const [toast, setToast] = useState(null);
   const [termsChecked, setTermsChecked] = useState(false);
 
@@ -606,6 +607,7 @@ function RegistrationPageContent() {
         canvas.toBlob((blob) => {
           if (blob) {
             const blobUrl = URL.createObjectURL(blob);
+            setTicketUrl(blobUrl);
             const a = document.createElement('a');
             a.href = blobUrl;
             a.download = filename;
@@ -613,10 +615,11 @@ function RegistrationPageContent() {
             a.click();
             setTimeout(() => {
               document.body.removeChild(a);
-              URL.revokeObjectURL(blobUrl);
+              // Do not revoke immediately as the user might click download again
             }, 2000);
           } else {
             const dataUrl = canvas.toDataURL('image/png');
+            setTicketUrl(dataUrl);
             const a = document.createElement('a');
             a.href = dataUrl;
             a.download = filename;
@@ -1213,8 +1216,14 @@ function RegistrationPageContent() {
                 Seat: {formatSeat(lastReg.seat)} · {lastReg.english_level}
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                <button className="reg-btn-primary" onClick={() => generateTicketImage(lastReg)}>{t.download_again}</button>
-                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
+                {ticketUrl ? (
+                  <a href={ticketUrl} download={`MovieDay-Ticket-${String(lastReg?.ticket_id || 'ticket').replace(/[^a-zA-Z0-9-]/g, '-')}.png`} className="reg-btn-primary" style={{display:'flex',justifyContent:'center',textDecoration:'none'}}>
+                    {t.download_again}
+                  </a>
+                ) : (
+                  <button className="reg-btn-primary" onClick={() => generateTicketImage(lastReg)}>{t.download_again}</button>
+                )}
+                <button className="reg-btn-secondary" style={{justifyContent:'center'}} onClick={() => { setStep(1); setSubmitted(false); setLastReg(null); setTicketUrl(null); setForm({firstName:'',lastName:'',phone:'',englishLevel:'',branch:'',otherBranch:''}); setSelectedSeat(null); setActivePreselectedSeats([]); setTermsChecked(false); }}>
                   {t.register_another}
                 </button>
               </div>
