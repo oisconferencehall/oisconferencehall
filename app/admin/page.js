@@ -152,7 +152,7 @@ export default function AdminPage() {
             phone: t.payer_phone || '—',
             english_level: 'Confirmed',
             branch: t.event_title || 'General',
-            seat: 'Reserved Pass',
+            seat: t.seat || `Seat #${idx + 1}`,
             created_at: t.created_at,
             source: 'tickets'
           });
@@ -246,13 +246,13 @@ export default function AdminPage() {
       };
     }
 
-    const renderAttendeeTicketHtml = (r) => {
+    const renderAttendeeTicketHtml = (r, idx) => {
       const parsed = parseTicketId(r.ticket_id);
       const attendeeData = {
         first_name: r.first_name || '',
         last_name: r.last_name || '',
         movie: parsed.movieTitle || 'Movie Day 2026',
-        seat: r.seat || 'Reserved Pass',
+        seat: formatSeatDisplay(r.seat, idx),
         ticket_id: parsed.code || r.ticket_id || 'MD-PASS',
         phone: r.phone || '',
         branch: r.branch || '',
@@ -1313,7 +1313,7 @@ export default function AdminPage() {
                                 <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'11px', fontWeight:800, background:'rgba(234,88,12,0.1)', color:'#fb923c' }}>{r.english_level}</span>
                               </td>
                               <td style={{ padding:'12px 14px', color:'var(--text-secondary)', maxWidth:'120px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.branch}</td>
-                              <td style={{ padding:'12px 14px', fontWeight:700 }}>{formatSeatDisplay(r.seat)}</td>
+                              <td style={{ padding:'12px 14px', fontWeight:700 }}>{formatSeatDisplay(r.seat, i)}</td>
                               <td style={{ padding:'12px 14px', color:'var(--text-muted)', fontSize:'12px', whiteSpace:'nowrap' }}>{new Date(r.created_at).toLocaleDateString()}</td>
                               <td style={{ padding:'12px 14px', display:'flex', gap:'6px' }}>
                                 <button className="btn btn-outline btn-sm" style={{ padding:'4px 8px', fontSize:'11px', display:'flex', alignItems:'center', gap:'4px' }} onClick={() => setDesignTicket({ ...r, parsed })}>
@@ -2611,16 +2611,8 @@ export default function AdminPage() {
                   <div style={{ fontSize: '15px', fontWeight: 800, marginTop: '2px' }}>{designTicket.first_name} {designTicket.last_name}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>PHONE</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, marginTop: '2px' }}>{designTicket.phone}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>BRANCH</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, marginTop: '2px' }}>{designTicket.branch}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>ENGLISH LEVEL</div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '2px' }}>{designTicket.english_level}</div>
+                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>LOCATION ADDRESS</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, marginTop: '2px' }}>{designTicket.branch}, Oxford Int. School</div>
                 </div>
               </div>
 
@@ -2638,26 +2630,21 @@ export default function AdminPage() {
               }}>
                 <div>
                   <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em' }}>RESERVED SEAT</div>
-                  <div style={{ fontSize: '18px', fontWeight: 900 }}>{designTicket.seat || 'General Admission'}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 900 }}>{formatSeatDisplay(designTicket.seat)}</div>
                 </div>
                 <div style={{ fontSize: '11px', fontWeight: 700 }}>
                   Oxford Grand Conference Hall
                 </div>
               </div>
 
-              {/* QR Code section */}
+              {/* Movie Title section (replaces QR Code) */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px dashed currentColor', opacity: 0.85 }}>
-                <div style={{ fontSize: '11px' }}>
-                  <div>Scan QR at hall entrance</div>
-                  <div style={{ opacity: 0.6, fontSize: '10px' }}>{new Date(designTicket.created_at).toLocaleDateString()}</div>
+                <div>
+                  <div style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>MOVIE TITLE</div>
+                  <div style={{ fontSize: '16px', fontWeight: 900, color: 'var(--text-accent, #FFDD00)' }}>🎬 {designTicket.parsed?.movieTitle || 'Movie Day 2026'}</div>
                 </div>
-                <div style={{ background: '#ffffff', padding: '6px', borderRadius: '8px' }}>
-                  <QRCodeSVG
-                    value={JSON.stringify({ id: designTicket.ticket_id, name: `${designTicket.first_name} ${designTicket.last_name}`, seat: designTicket.seat, movie: designTicket.parsed?.movieTitle })}
-                    size={64}
-                    bgColor="#ffffff"
-                    fgColor="#000000"
-                  />
+                <div style={{ opacity: 0.6, fontSize: '10px', textAlign: 'right' }}>
+                  {new Date(designTicket.created_at).toLocaleDateString()}
                 </div>
               </div>
             </div>

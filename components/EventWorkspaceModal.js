@@ -28,7 +28,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     return (eId && rawId.includes(eId)) || (eId && String(r.event_id) === String(event?.id)) || rawId.includes(eventSlug) || rawId.includes(eventTitleLower) || branchName.includes(eventTitleLower);
   });
 
-  const getDisplaySeat = (r) => formatSeatDisplay(r.seat);
+  const getDisplaySeat = (r, idx) => formatSeatDisplay(r.seat, idx);
 
   const filteredRegs = eventRegs.filter(r => {
     if (branchFilter !== 'all' && r.branch !== branchFilter) return false;
@@ -97,28 +97,33 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
         width: 800, height: 226, flipX: false, flipY: false,
         elements: [
           { id: 'el-1', type: 'text', text: 'OFFICIAL ENTRY PASS', x: 24, y: 32, fontSize: 11, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
-          { id: 'el-2', type: 'text', text: event.title, x: 24, y: 52, fontSize: 26, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-          { id: 'el-3', type: 'text', text: '{first_name} {last_name}', x: 24, y: 110, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-          { id: 'el-4', type: 'text', text: '{seat}', x: 24, y: 160, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
-          { id: 'el-5', type: 'text', text: 'Oxford Grand Conference Hall', x: 420, y: 180, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit' },
-          { id: 'el-qr', type: 'qr', x: 615, y: 35, size: 84 },
+          { id: 'el-2', type: 'text', text: `Movie: ${event.title}`, x: 24, y: 52, fontSize: 24, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+          { id: 'el-3', type: 'text', text: '{first_name} {last_name}', x: 24, y: 105, fontSize: 20, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+          { id: 'el-4', type: 'text', text: '{seat}', x: 24, y: 155, fontSize: 15, fontWeight: '800', color: '#FFDD00', fontFamily: 'monospace' },
+          { id: 'el-5', type: 'text', text: '{branch}, Oxford Int. School', x: 420, y: 175, fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.85)', fontFamily: 'Outfit' }
         ]
       };
     }
 
-    const renderAttendeeTicketHtml = (r) => {
+    const renderAttendeeTicketHtml = (r, idx) => {
       const attendeeData = {
         first_name: r.first_name || '',
         last_name: r.last_name || '',
         movie: event.title || 'Movie Event',
-        seat: r.seat || 'Reserved Pass',
+        seat: formatSeatDisplay(r.seat, idx),
         ticket_id: (r.ticket_id || '').split('::')[0] || 'MD-PASS',
-        phone: r.phone || '',
-        branch: r.branch || '',
-        level: r.english_level || ''
+        branch: r.branch || ''
       };
 
-      const elementsHtml = design.elements.map(el => {
+      const cleanElements = (design.elements || []).filter(el => {
+        if (el.type === 'qr') return false;
+        if (el.id === 'el-qr-box' || el.id === 'el-qr') return false;
+        if (el.id === 'el-phone-lbl' || el.id === 'el-phone-val') return false;
+        if (el.id === 'el-level-lbl' || el.id === 'el-level-val') return false;
+        return true;
+      });
+
+      const elementsHtml = cleanElements.map(el => {
         const op = el.opacity !== undefined ? el.opacity / 100 : 1;
         if (el.type === 'text') {
           let text = (el.text || '')
@@ -127,9 +132,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
             .replace(/{movie}/g, attendeeData.movie)
             .replace(/{seat}/g, attendeeData.seat)
             .replace(/{ticket_id}/g, attendeeData.ticket_id)
-            .replace(/{phone}/g, attendeeData.phone)
-            .replace(/{branch}/g, attendeeData.branch)
-            .replace(/{level}/g, attendeeData.level);
+            .replace(/{branch}/g, attendeeData.branch);
 
           return `
             <div style="
@@ -144,24 +147,6 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
               transform: ${el.rotate ? `rotate(${el.rotate}deg)` : 'none'};
               white-space: nowrap;
             ">${text}</div>
-          `;
-        }
-
-        if (el.type === 'qr') {
-          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent('TicketPass:' + attendeeData.ticket_id)}`;
-          return `
-            <div style="
-              position: absolute;
-              left: ${el.x}px;
-              top: ${el.y}px;
-              background: #ffffff;
-              padding: 6px;
-              border-radius: 10px;
-              opacity: ${op};
-              transform: ${el.rotate ? `rotate(${el.rotate}deg)` : 'none'};
-            ">
-              <img src="${qrUrl}" width="${el.size || 84}" height="${el.size || 84}" style="display:block;" />
-            </div>
           `;
         }
 
@@ -205,7 +190,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
     
     for (let i = 0; i < targetRegs.length; i += TICKETS_PER_PAGE) {
       const pageTickets = targetRegs.slice(i, i + TICKETS_PER_PAGE);
-      const ticketsMarkup = pageTickets.map(r => renderAttendeeTicketHtml(r)).join('');
+      const ticketsMarkup = pageTickets.map((r, pageIdx) => renderAttendeeTicketHtml(r, i + pageIdx)).join('');
       pagesHtml += `
         <div class="a4-page">
           ${ticketsMarkup}
@@ -535,7 +520,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                       <td style={{ padding: '14px 16px', fontWeight: 700 }}>{r.first_name} {r.last_name}</td>
                       <td style={{ padding: '14px 16px' }}>{r.phone}</td>
                       <td style={{ padding: '14px 16px' }}>{r.branch}</td>
-                      <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{getDisplaySeat(r)}</td>
+                      <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: '#fb923c' }}>{getDisplaySeat(r, i)}</td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <button className="btn btn-danger btn-sm" onClick={() => setConfirmDeleteId(r.id)}>
                           <Trash2 size={12}/>
@@ -576,7 +561,7 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                     <div style={{ fontSize: '11px', fontWeight: 800, color: '#FFDD00' }}>TICKET ID: {r.ticket_id}</div>
                     <div style={{ fontSize: '16px', fontWeight: 900, marginTop: '2px' }}>{r.first_name} {r.last_name}</div>
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>{r.phone} · {r.branch}</div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c', marginTop: '2px' }}>{getDisplaySeat(r)}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c', marginTop: '2px' }}>{getDisplaySeat(r, i)}</div>
                   </div>
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('TicketPass:' + r.ticket_id)}`} 

@@ -235,13 +235,13 @@ function RegistrationPageContent() {
         combined.push(r);
       });
 
-      (ticketsData || []).forEach(t => {
+      (ticketsData || []).forEach((t, idx) => {
         const shortCode = (t.id || '').slice(0, 8).toUpperCase();
         if (!seenCodes.has(t.id) && !seenCodes.has(shortCode)) {
           combined.push({
             id: t.id,
             ticket_id: `${shortCode}::${t.event_id || ''}::${t.event_title || ''}`,
-            seat: 'Reserved Pass',
+            seat: t.seat || `Seat #${idx + 1}`,
             created_at: t.created_at
           });
         }
@@ -437,28 +437,34 @@ function RegistrationPageContent() {
     bgImage: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80',
     width: 480, height: 680, flipX: false, flipY: false,
     elements: [
-      { id: 'el-bg-card', type: 'rect', x: 10, y: 10, width: 460, height: 660, bgColor: 'rgba(15, 12, 10, 0.94)', borderColor: 'rgba(234, 88, 12, 0.5)', borderWidth: 2, borderRadius: 24, opacity: 100 },
+      { id: 'el-bg-card', type: 'rect', x: 10, y: 10, width: 460, height: 660, bgColor: 'rgba(15, 12, 10, 0.92)', borderColor: 'rgba(234, 88, 12, 0.5)', borderWidth: 2, borderRadius: 24, opacity: 100 },
       { id: 'el-hdr-banner', type: 'rect', x: 10, y: 10, width: 460, height: 80, bgColor: 'rgba(234, 88, 12, 0.22)', borderColor: 'rgba(234, 88, 12, 0.35)', borderWidth: 1, borderRadius: 24, opacity: 100 },
       { id: 'el-title', type: 'text', text: 'MOVIE DAY 2026', x: 30, y: 24, fontSize: 24, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
       { id: 'el-subtitle', type: 'text', text: 'OFFICIAL VIP ENTRY PASS CARD', x: 30, y: 56, fontSize: 10, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
-      { id: 'el-qr-box', type: 'rect', x: 155, y: 110, width: 170, height: 170, bgColor: '#ffffff', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 0, borderRadius: 20, opacity: 100 },
-      { id: 'el-qr', type: 'qr', x: 165, y: 120, size: 150 },
-      { id: 'el-code-lbl', type: 'text', text: 'TICKET CODE', x: 200, y: 290, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-code-val', type: 'text', text: '{ticket_id}', x: 170, y: 304, fontSize: 12, fontWeight: '900', color: '#FFDD00', fontFamily: 'monospace' },
-      { id: 'el-name-lbl', type: 'text', text: 'PASS HOLDER', x: 30, y: 340, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-name-val', type: 'text', text: '{first_name} {last_name}', x: 30, y: 354, fontSize: 22, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-phone-lbl', type: 'text', text: 'PHONE', x: 30, y: 400, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-phone-val', type: 'text', text: '{phone}', x: 30, y: 414, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-branch-lbl', type: 'text', text: 'BRANCH', x: 240, y: 400, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-branch-val', type: 'text', text: '{branch}', x: 240, y: 414, fontSize: 13, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
-      { id: 'el-level-lbl', type: 'text', text: 'ENGLISH LEVEL', x: 30, y: 450, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-level-val', type: 'text', text: '{level}', x: 30, y: 464, fontSize: 13, fontWeight: '800', color: '#FFDD00', fontFamily: 'Outfit' },
-      { id: 'el-venue-lbl', type: 'text', text: 'VENUE', x: 240, y: 450, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
-      { id: 'el-venue-val', type: 'text', text: 'Oxford Int. School', x: 240, y: 464, fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.8)', fontFamily: 'Outfit' },
-      { id: 'el-seat-box', type: 'rect', x: 30, y: 510, width: 420, height: 110, bgColor: 'rgba(234, 88, 12, 0.22)', borderColor: '#ea580c', borderWidth: 2, borderRadius: 16, opacity: 100 },
-      { id: 'el-seat-lbl', type: 'text', text: '💺 RESERVED SEAT', x: 50, y: 528, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
-      { id: 'el-seat-val', type: 'text', text: '{seat}', x: 50, y: 556, fontSize: 24, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
-      { id: 'el-footer-note', type: 'text', text: 'Present this official digital card pass at entry gate', x: 100, y: 642, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' }
+      
+      // Movie Title Box (In place of QR code)
+      { id: 'el-movie-box', type: 'rect', x: 30, y: 105, width: 420, height: 115, bgColor: 'rgba(234, 88, 12, 0.18)', borderColor: 'rgba(234, 88, 12, 0.4)', borderWidth: 2, borderRadius: 16, opacity: 100 },
+      { id: 'el-movie-lbl', type: 'text', text: '🎬 MOVIE TITLE', x: 50, y: 122, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-movie-val', type: 'text', text: '{movie}', x: 50, y: 148, fontSize: 24, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
+      
+      // Ticket Code
+      { id: 'el-code-lbl', type: 'text', text: 'TICKET CODE', x: 30, y: 235, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-code-val', type: 'text', text: '{ticket_id}', x: 30, y: 250, fontSize: 13, fontWeight: '900', color: '#FFDD00', fontFamily: 'monospace' },
+      
+      // Pass Holder Name
+      { id: 'el-name-lbl', type: 'text', text: 'PASS HOLDER', x: 30, y: 295, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-name-val', type: 'text', text: '{first_name} {last_name}', x: 30, y: 310, fontSize: 24, fontWeight: '900', color: '#ffffff', fontFamily: 'Outfit' },
+      
+      // Location Address
+      { id: 'el-location-lbl', type: 'text', text: 'LOCATION ADDRESS', x: 30, y: 365, fontSize: 9, fontWeight: '800', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' },
+      { id: 'el-location-val', type: 'text', text: '{branch}, Oxford Int. School', x: 30, y: 380, fontSize: 15, fontWeight: '800', color: '#ffffff', fontFamily: 'Outfit' },
+      
+      // Reserved Seat Box
+      { id: 'el-seat-box', type: 'rect', x: 30, y: 440, width: 420, height: 110, bgColor: 'rgba(234, 88, 12, 0.22)', borderColor: '#ea580c', borderWidth: 2, borderRadius: 16, opacity: 100 },
+      { id: 'el-seat-lbl', type: 'text', text: '💺 RESERVED SEAT', x: 50, y: 458, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+      { id: 'el-seat-val', type: 'text', text: '{seat}', x: 50, y: 486, fontSize: 24, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' },
+      
+      { id: 'el-footer-note', type: 'text', text: 'Present this official digital card pass at entry gate', x: 90, y: 640, fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.4)', fontFamily: 'Outfit' }
     ]
   };
 
@@ -495,19 +501,52 @@ function RegistrationPageContent() {
     canvas.height = height;
     const ctx = canvas.getContext('2d');
 
-    const renderAllElements = () => {
+    // Filter out legacy QR / phone / level elements to enforce new requirement
+    const cleanElements = (design.elements || []).filter(el => {
+      if (el.type === 'qr') return false;
+      if (el.id === 'el-qr-box' || el.id === 'el-qr') return false;
+      if (el.id === 'el-phone-lbl' || el.id === 'el-phone-val') return false;
+      if (el.id === 'el-level-lbl' || el.id === 'el-level-val') return false;
+      return true;
+    });
+
+    // Ensure movie title box is present if missing from older saved template
+    const hasMovieVal = cleanElements.some(el => el.id === 'el-movie-val' || (el.text && el.text.includes('{movie}')));
+    if (!hasMovieVal) {
+      cleanElements.push(
+        { id: 'el-movie-box', type: 'rect', x: 30, y: 105, width: 420, height: 115, bgColor: 'rgba(234, 88, 12, 0.18)', borderColor: 'rgba(234, 88, 12, 0.4)', borderWidth: 2, borderRadius: 16, opacity: 100 },
+        { id: 'el-movie-lbl', type: 'text', text: '🎬 MOVIE TITLE', x: 50, y: 122, fontSize: 11, fontWeight: '800', color: '#fb923c', fontFamily: 'Outfit' },
+        { id: 'el-movie-val', type: 'text', text: '{movie}', x: 50, y: 148, fontSize: 24, fontWeight: '900', color: '#FFDD00', fontFamily: 'Outfit' }
+      );
+    }
+
+    const renderAllElements = (bgImg = null) => {
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Draw movie picture background if loaded, else fallback gradient
+      if (bgImg && bgImg.complete && bgImg.naturalWidth !== 0) {
+        ctx.drawImage(bgImg, 0, 0, width, height);
+      } else {
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#1c1917');
+        grad.addColorStop(0.5, '#292524');
+        grad.addColorStop(1, '#0c0a09');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      // 2. Dark overlay for text contrast and readability
       ctx.save();
-      // Dark overlay for background text readability
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.fillStyle = 'rgba(12, 10, 8, 0.84)';
       ctx.fillRect(0, 0, width, height);
 
-      // Border glow / accent
-      ctx.strokeStyle = 'rgba(255, 221, 0, 0.4)';
+      // 3. Border glow / accent
+      ctx.strokeStyle = 'rgba(234, 88, 12, 0.4)';
       ctx.lineWidth = 4;
       ctx.strokeRect(0, 0, width, height);
       ctx.restore();
 
-      (design.elements || []).forEach(el => {
+      cleanElements.forEach(el => {
         const op = el.opacity !== undefined ? el.opacity / 100 : 1;
         ctx.globalAlpha = op;
 
@@ -517,11 +556,12 @@ function RegistrationPageContent() {
           const formattedPhone = rawPhone.startsWith('+998') ? rawPhone : (rawPhone ? `+998 ${rawPhone}` : '');
           const rawTicketId = reg.ticket_id || '';
           const formattedTicketId = rawTicketId.includes('::') ? rawTicketId.split('::')[0] : rawTicketId;
+          const movieTitleText = reg.movie_title || event?.title || 'Movie Day 2026';
 
           const text = rawText
             .replace(/{first_name}/g, reg.first_name || '')
             .replace(/{last_name}/g, reg.last_name || '')
-            .replace(/{movie}/g, event?.title || 'Movie Day 2026')
+            .replace(/{movie}/g, movieTitleText)
             .replace(/{seat}/g, formatSeat(reg.seat) || '')
             .replace(/{ticket_id}/g, formattedTicketId)
             .replace(/{phone}/g, formattedPhone)
@@ -540,23 +580,6 @@ function RegistrationPageContent() {
             ctx.fillText(text, 0, 0);
           } else {
             ctx.fillText(text, el.x, el.y);
-          }
-          ctx.restore();
-        } else if (el.type === 'qr') {
-          const qrCanvas = document.getElementById('ticket-qr-canvas');
-          const size = el.size || 84;
-          ctx.save();
-          const padding = 6;
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          if (ctx.roundRect) {
-            ctx.roundRect(el.x, el.y, size + padding * 2, size + padding * 2, 8);
-          } else {
-            ctx.rect(el.x, el.y, size + padding * 2, size + padding * 2);
-          }
-          ctx.fill();
-          if (qrCanvas) {
-            ctx.drawImage(qrCanvas, el.x + padding, el.y + padding, size, size);
           }
           ctx.restore();
         } else if (el.type === 'rect' || el.type === 'circ') {
@@ -616,36 +639,27 @@ function RegistrationPageContent() {
           }
         }, 'image/png');
       } catch (e) {
-        console.warn('Canvas export failed, redrawing background:', e);
-        ctx.clearRect(0, 0, width, height);
-        const grad = ctx.createLinearGradient(0, 0, width, height);
-        grad.addColorStop(0, '#1c1917');
-        grad.addColorStop(0.5, '#292524');
-        grad.addColorStop(1, '#0c0a09');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-        renderAllElements();
-
-        const dataUrl = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        console.warn('Canvas export failed:', e);
       }
     };
 
-    // Draw dark gold gradient background synchronously
-    const grad = ctx.createLinearGradient(0, 0, width, height);
-    grad.addColorStop(0, '#1c1917');
-    grad.addColorStop(0.5, '#292524');
-    grad.addColorStop(1, '#0c0a09');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, width, height);
+    const bgUrl = event?.image_url || reg?.movie_image || design.bgImage || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80';
+    const bgImg = new Image();
+    bgImg.crossOrigin = 'anonymous';
 
-    renderAllElements();
-    triggerBlobDownload();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      renderAllElements(bgImg);
+      triggerBlobDownload();
+    };
+
+    bgImg.onload = finish;
+    bgImg.onerror = finish;
+    bgImg.src = bgUrl;
+
+    setTimeout(finish, 1200);
   };
 
   const LEVELS = [
