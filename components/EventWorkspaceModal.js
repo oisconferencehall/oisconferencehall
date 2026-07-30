@@ -496,6 +496,23 @@ export default function EventWorkspaceModal({ event, onClose, mdRegs = [], loadM
                 <button className="btn btn-primary btn-sm" onClick={handlePrintAllTicketsA4}>
                   <Printer size={14}/> Print A4 PDF
                 </button>
+                {eventRegs.length > 0 && (
+                  <button 
+                    className="btn btn-danger btn-sm" 
+                    onClick={async () => {
+                      if (confirm(`Are you sure you want to delete ALL ${eventRegs.length} registrations for this event? This will free up all reserved seats.`)) {
+                        for (const r of eventRegs) {
+                          await deleteMdReg?.(r.id, r);
+                        }
+                        setToast({ title: 'Registrations Cleared', message: 'All attendee registrations deleted and seats freed up.', type: 'warning' });
+                        loadMdRegs?.();
+                      }
+                    }}
+                    style={{ background: '#ef4444', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    <Trash2 size={14}/> Clear All ({eventRegs.length})
+                  </button>
+                )}
               </div>
             </div>
 
