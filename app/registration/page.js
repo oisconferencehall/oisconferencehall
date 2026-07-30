@@ -634,7 +634,7 @@ function RegistrationPageContent() {
       }
     };
 
-    const bgUrl = event?.image_url || reg?.movie_image || design.bgImage || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80';
+    const bgUrl = reg?.movie_image || design.bgImage || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80';
     const bgImg = new Image();
     bgImg.crossOrigin = 'anonymous';
 
