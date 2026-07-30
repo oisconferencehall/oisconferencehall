@@ -180,9 +180,19 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
+    let channel = null;
     if (authenticated) {
       loadMdRegs();
+      channel = supabase
+        .channel('admin_md_realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'movie_registrations' }, () => {
+          loadMdRegs();
+        })
+        .subscribe();
     }
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
   }, [authenticated, activeTab]);
 
   const deleteMdReg = async (id, targetReg) => {
@@ -1313,7 +1323,7 @@ export default function AdminPage() {
                   <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'13px' }}>
                     <thead>
                       <tr style={{ background:'var(--bg-secondary)' }}>
-                        {['#','Ticket ID','Movie / Event','Name','Phone','Level','Branch','Seat','Date','Actions'].map(h=>(
+                        {['No.','Ticket ID','Movie / Event','Name','Phone','Level','Branch','Seat','Date','Actions'].map(h=>(
                           <th key={h} style={{ padding:'12px 14px', textAlign:'left', fontWeight:700, fontSize:'11px', color:'var(--text-muted)', letterSpacing:'0.05em', textTransform:'uppercase', borderBottom:'1px solid var(--border)', whiteSpace:'nowrap' }}>{h}</th>
                         ))}
                       </tr>
@@ -1346,7 +1356,11 @@ export default function AdminPage() {
                                 <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'11px', fontWeight:800, background:'rgba(234,88,12,0.1)', color:'#fb923c' }}>{r.english_level}</span>
                               </td>
                               <td style={{ padding:'12px 14px', color:'var(--text-secondary)', maxWidth:'120px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.branch}</td>
-                              <td style={{ padding:'12px 14px', fontWeight:700 }}>{formatSeatDisplay(r.seat, i)}</td>
+                              <td style={{ padding:'12px 14px' }}>
+                                <span style={{ background:'rgba(255, 221, 0, 0.15)', color:'#FFDD00', padding:'4px 8px', borderRadius:'6px', fontWeight:900, border:'1px solid rgba(255, 221, 0, 0.3)' }}>
+                                  {formatSeatDisplay(r.seat, i)}
+                                </span>
+                              </td>
                               <td style={{ padding:'12px 14px', color:'var(--text-muted)', fontSize:'12px', whiteSpace:'nowrap' }}>{new Date(r.created_at).toLocaleDateString()}</td>
                               <td style={{ padding:'12px 14px', display:'flex', gap:'6px' }}>
                                 <button className="btn btn-outline btn-sm" style={{ padding:'4px 8px', fontSize:'11px', display:'flex', alignItems:'center', gap:'4px' }} onClick={() => setDesignTicket({ ...r, parsed })}>

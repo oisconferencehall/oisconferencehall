@@ -95,7 +95,7 @@ export default function SeatMap({ eventId, bookedSeats = [], onSelectionChange, 
 
         const { data: ticketsData } = await anonSupabase
           .from('tickets')
-          .select('id, event_id, event_title, created_at')
+          .select('id, event_id, event_title, created_at, seat')
           .order('created_at', { ascending: true });
 
         const combined = [];
